@@ -1,0 +1,608 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deploy Skill 架構設計</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css">
+  <style>
+    :root {
+      --accent: #61dafb;
+      --accent2: #f7c948;
+      --accent3: #7ed88a;
+      --dim: #888;
+      --layer1: #3b82f6;
+      --layer2: #a855f7;
+      --layer3: #22c55e;
+      --layerR: #f97316;
+    }
+    .reveal { font-family: 'Noto Sans TC', sans-serif; font-size: 30px; }
+    .reveal h1, .reveal h2, .reveal h3 { font-family: 'Noto Sans TC', sans-serif; font-weight: 700; }
+    .reveal h2 { font-size: 1.4em; margin-bottom: 6px; }
+    .reveal pre, .reveal code { font-family: 'JetBrains Mono', monospace; }
+
+    /* slide-level overrides */
+    .reveal .slides section { text-align: left; }
+    .reveal .slides section.center { text-align: center; }
+
+    /* title */
+    .title-badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #111;
+      font-weight: 700;
+      font-size: 0.55em;
+      padding: 4px 14px;
+      border-radius: 999px;
+      letter-spacing: 0.08em;
+      vertical-align: middle;
+      margin-bottom: 12px;
+    }
+    .title-sub { color: var(--dim); font-size: 0.5em; font-weight: 300; margin-top: 10px; }
+
+    /* layer chips */
+    .chip {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 6px;
+      font-size: 0.6em;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      vertical-align: middle;
+    }
+    .chip-1 { background: var(--layer1); color: #fff; }
+    .chip-2 { background: var(--layer2); color: #fff; }
+    .chip-3 { background: var(--layer3); color: #111; }
+    .chip-r { background: var(--layerR); color: #fff; }
+
+    /* arch diagram */
+    .arch-box {
+      border: 2px solid;
+      border-radius: 8px;
+      padding: 7px 14px;
+      margin: 3px 0;
+      font-size: 0.62em;
+    }
+    .arch-box.l1 { border-color: var(--layer1); background: rgba(59,130,246,0.1); }
+    .arch-box.l2 { border-color: var(--layer2); background: rgba(168,85,247,0.1); }
+    .arch-box.l3 { border-color: var(--layer3); background: rgba(34,197,94,0.1); }
+    .arch-box.lr { border-color: var(--layerR); background: rgba(249,115,22,0.1); }
+    .arch-box .label { font-size: 0.75em; font-weight: 600; opacity: 0.7; margin-bottom: 2px; display: block; }
+    .arch-box .name { font-size: 1.1em; font-weight: 700; }
+    .arch-box .desc { font-size: 0.85em; color: var(--dim); margin-top: 2px; }
+    .arrow { text-align: center; font-size: 1em; color: var(--dim); margin: 1px 0; }
+
+    /* two-col */
+    .cols { display: flex; gap: 30px; align-items: flex-start; }
+    .col { flex: 1; }
+
+    /* step list */
+    .steps { list-style: none; padding: 0; margin: 0; }
+    .steps li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+      font-size: 0.65em;
+    }
+    .steps li .num {
+      background: #333;
+      border-radius: 50%;
+      width: 22px; height: 22px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+    .steps li .txt { padding-top: 2px; line-height: 1.5; }
+    .steps li .txt .tag {
+      display: inline-block;
+      background: #333;
+      font-size: 0.8em;
+      padding: 1px 7px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent2);
+    }
+
+    /* behavior cards */
+    .bcard {
+      background: #1e1e1e;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      font-size: 0.62em;
+      border-left: 4px solid var(--layer3);
+    }
+    .bcard .bname { font-weight: 700; color: var(--accent3); margin-bottom: 4px; font-family: 'JetBrains Mono', monospace; }
+    .bcard .bdesc { color: #ccc; }
+    .bcard .busers { color: var(--dim); font-size: 0.85em; margin-top: 4px; }
+
+    /* config table */
+    .cfg-table { width: 100%; border-collapse: collapse; font-size: 0.55em; }
+    .cfg-table th { background: #2a2a2a; padding: 8px 10px; text-align: left; color: var(--accent2); font-weight: 600; }
+    .cfg-table td { padding: 7px 10px; border-bottom: 1px solid #333; }
+    .cfg-table tr:hover td { background: rgba(255,255,255,0.03); }
+    .cfg-table code { color: var(--accent); font-size: 0.95em; }
+
+    /* data flow */
+    .flow-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 14px;
+      font-size: 0.6em;
+    }
+    .flow-node {
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-weight: 600;
+      text-align: center;
+      min-width: 110px;
+    }
+    .flow-node.n1 { background: rgba(59,130,246,0.25); border: 1px solid var(--layer1); color: #93c5fd; }
+    .flow-node.n2 { background: rgba(168,85,247,0.25); border: 1px solid var(--layer2); color: #d8b4fe; }
+    .flow-node.n3 { background: rgba(34,197,94,0.25); border: 1px solid var(--layer3); color: #86efac; }
+    .flow-node.nr { background: rgba(249,115,22,0.25); border: 1px solid var(--layerR); color: #fdba74; }
+    .flow-arrow { flex: 1; text-align: center; color: #555; font-size: 1.3em; min-width: 30px; }
+    .flow-var { font-family: 'JetBrains Mono', monospace; font-size: 0.8em; color: var(--accent2); display: block; }
+
+    /* qna */
+    .qna { border-left: 3px solid var(--accent2); padding-left: 16px; margin-bottom: 18px; }
+    .qna .q { color: var(--accent2); font-weight: 600; font-size: 0.65em; margin-bottom: 6px; }
+    .qna .a { font-size: 0.62em; color: #ccc; line-height: 1.6; }
+
+    /* summary table */
+    .sum-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 14px;
+      font-size: 0.65em;
+    }
+    .sum-tag {
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-weight: 700;
+      min-width: 130px;
+      text-align: center;
+    }
+    .sum-rule { flex: 1; color: #ddd; }
+
+    /* reveal overrides */
+    .reveal .progress { color: var(--accent); }
+    .reveal .controls { color: var(--accent); }
+    .reveal blockquote {
+      background: #1a1a1a;
+      border-left: 4px solid var(--accent);
+      padding: 10px 16px;
+      font-style: normal;
+      font-size: 0.65em;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .hl { color: var(--accent); }
+    .hl2 { color: var(--accent2); }
+    .hl3 { color: var(--accent3); }
+    .muted { color: var(--dim); font-size: 0.85em; }
+
+    /* demo interactive layout */
+    .demo-layout { display: flex; gap: 16px; align-items: flex-start; height: 520px; }
+    .demo-steps { display: flex; flex-direction: column; gap: 6px; min-width: 240px; flex-shrink: 0; padding-top: 4px; }
+    .step-btn {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #aaa;
+      text-align: left;
+      padding: 8px 12px;
+      font-family: 'Noto Sans TC', sans-serif;
+      font-size: 0.55em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      line-height: 1.4;
+    }
+    .step-btn:hover { background: #2a2a2a; color: #ccc; border-color: #555; }
+    .step-btn.active { background: rgba(97,218,251,0.1); border-color: var(--accent); color: #fff; }
+    .step-btn .step-num {
+      background: #333;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.85em;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent2);
+      flex-shrink: 0;
+      min-width: 36px;
+      text-align: center;
+    }
+    .step-btn.active .step-num { background: rgba(97,218,251,0.2); color: var(--accent); }
+    .demo-preview {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #111;
+      border-radius: 8px;
+      border: 1px solid #2a2a2a;
+      overflow: hidden;
+      height: 100%;
+    }
+    .demo-preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 4px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ───────────────────────── 1. Title ───────────────────────── -->
+<section class="center" data-background-gradient="radial-gradient(ellipse at 60% 40%, #0f2027 0%, #111 100%)">
+  <span class="title-badge">ARCHITECTURE</span>
+  <h1 style="font-size:1.8em; margin-top: 10px;">Deploy Skill<br>架構設計</h1>
+  <p class="title-sub">如何用三層分離讓部署流程可組合、易擴展</p>
+  <div style="margin-top:40px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+    <span class="chip chip-1">Orchestrator</span>
+    <span class="chip chip-2">Flows</span>
+    <span class="chip chip-3">Behaviors</span>
+    <span class="chip chip-r">References</span>
+  </div>
+</section>
+
+<!-- ───────────────────────── 2. 架構總覽 ───────────────────────── -->
+<section>
+  <h2>架構總覽</h2>
+  <p style="font-size:0.6em; color:var(--dim); margin-bottom:20px;">四個層次，各司其職，單向依賴</p>
+
+  <div class="arch-box l1">
+    <span class="label">LAYER 1 · 入口</span>
+    <span class="name">Orchestrator &nbsp;<code style="font-size:0.7em; color:#93c5fd;">SKILL.md</code></span>
+    <span class="desc">偵測 project → 詢問目標 → 分流</span>
+  </div>
+  <div class="arrow">↓</div>
+  <div class="arch-box l2">
+    <span class="label">LAYER 2 · 情境</span>
+    <span class="name">Flows &nbsp;<code style="font-size:0.7em; color:#d8b4fe;">test-deploy.md &nbsp;|&nbsp; production-pr.md</code></span>
+    <span class="desc">端到端的完整部署情境（T-1…T-9 / P-0…P-9）</span>
+  </div>
+  <div class="arrow">↓</div>
+  <div class="arch-box l3">
+    <span class="label">LAYER 3 · 行為</span>
+    <span class="name">Behaviors &nbsp;<code style="font-size:0.7em; color:#86efac;">5 個可複用行為</code></span>
+    <span class="desc">單一職責的原子操作，跨 flow 共用</span>
+  </div>
+  <div class="arrow">↓</div>
+  <div class="arch-box lr">
+    <span class="label">CONFIG · 設定</span>
+    <span class="name">References &nbsp;<code style="font-size:0.7em; color:#fdba74;">project-configs.md</code></span>
+    <span class="desc">各 repo 的部署參數對照表，新增 project 只需改這裡</span>
+  </div>
+</section>
+
+<!-- ───────────────────────── 4. Orchestrator ───────────────────────── -->
+<section>
+  <h2><span class="chip chip-1">LAYER 1</span> &nbsp;Orchestrator <span style="font-size:0.45em; font-weight:300; color:var(--dim);">統籌調度者</span></h2>
+  <p style="font-size:0.58em; color:var(--dim);">SKILL.md — 入口，只做偵測 + 詢問 + 分流</p>
+
+  <div class="cols" style="margin-top:16px;">
+    <div class="col">
+      <p style="font-size:0.62em; font-weight:600; color:var(--accent);">做什麼</p>
+      <ul class="steps">
+        <li>
+          <span class="num">1</span>
+          <span class="txt">解析 <span class="tag">git remote</span>，識別 REPO_NAME</span>
+        </li>
+        <li>
+          <span class="num">2</span>
+          <span class="txt">AskUserQuestion：測試機 or 正式機？</span>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <span class="txt">路由到對應 flow，把參數帶過去</span>
+        </li>
+      </ul>
+    </div>
+    <div class="col">
+      <p style="font-size:0.62em; font-weight:600; color:var(--accent2);">不做什麼</p>
+      <div style="font-size:0.62em; color:#aaa; line-height:1.8;">
+        ✗ &nbsp;不執行 git 指令<br>
+        ✗ &nbsp;不決定版本號<br>
+        ✗ &nbsp;不知道 PR body 長什麼樣<br>
+        ✗ &nbsp;不處理衝突<br>
+        <br>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────── 5. Flows ───────────────────────── -->
+<section>
+  <h2><span class="chip chip-2">LAYER 2</span> &nbsp;Flows</h2>
+  <p style="font-size:0.58em; color:var(--dim);">兩條端到端情境，各自完整描述一次部署的全部步驟</p>
+
+  <div class="cols" style="margin-top:16px;">
+    <div class="col">
+      <p style="font-size:0.65em; font-weight:700; color:#d8b4fe; margin-bottom:10px;">test-deploy.md（T-1 ～ T-9）</p>
+      <ul class="steps">
+        <li><span class="num">T1</span><span class="txt">部署前檢查（dirty / 落後）</span></li>
+        <li><span class="num">T2</span><span class="txt">推送開發分支</span></li>
+        <li><span class="num">T3</span><span class="txt">決定版本號</span></li>
+        <li><span class="num">T4</span><span class="txt">合併到集合式 branch</span></li>
+        <li><span class="num">T5</span><span class="txt">建立並推送 Tag</span></li>
+        <li><span class="num">T6</span><span class="txt">觸發 GitHub Actions</span></li>
+        <li><span class="num">T7</span><span class="txt">切回原始分支 / stash pop</span></li>
+        <li><span class="num">T8</span><span class="txt">顯示部署摘要</span></li>
+        <li><span class="num">T9</span><span class="txt">（選填）產生 Commit Log</span></li>
+      </ul>
+    </div>
+    <div class="col">
+      <p style="font-size:0.65em; font-weight:700; color:#d8b4fe; margin-bottom:10px;">production-pr.md（P-0 ～ P-9）</p>
+      <ul class="steps">
+        <li><span class="num">P0</span><span class="txt">部署前檢查（dirty）</span></li>
+        <li><span class="num">P1</span><span class="txt">詢問 Redmine 票務連結</span></li>
+        <li><span class="num">P2</span><span class="txt">確認開發分支</span></li>
+        <li><span class="num">P3</span><span class="txt">詢問 Release 日期與功能名稱</span></li>
+        <li><span class="num">P4</span><span class="txt">建立 prerelease branch</span></li>
+        <li><span class="num">P5</span><span class="txt">合併開發分支</span></li>
+        <li><span class="num">P6</span><span class="txt">選擇 Reviewer</span></li>
+        <li><span class="num">P7</span><span class="txt">產生 PR 說明（讀 diff）</span></li>
+        <li><span class="num">P8</span><span class="txt">確認並建立 PR</span></li>
+        <li><span class="num">P9</span><span class="txt">顯示結果，切回分支</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────── 6. Behaviors ───────────────────────── -->
+<section>
+  <h2><span class="chip chip-3">LAYER 3</span> &nbsp;Behaviors</h2>
+  <p style="font-size:0.58em; color:var(--dim);">5 個可複用的原子行為，跨 flow 共用</p>
+
+  <div style="margin-top:16px;">
+    <div class="bcard" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+      <div>
+        <div class="bname">handle-dirty-worktree</div>
+        <div class="bdesc">偵測未 commit 的變更，提供 Commit / Stash / 中止 三種選擇</div>
+      </div>
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <span class="chip chip-1" style="font-size:0.5em;">測試機</span>
+        <span class="chip chip-2" style="font-size:0.5em;">正式機</span>
+      </div>
+    </div>
+    <div class="bcard" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+      <div>
+        <div class="bname">handle-conflict</div>
+        <div class="bdesc">merge 衝突時顯示衝突清單、abort merge、清理臨時 branch</div>
+      </div>
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <span class="chip chip-1" style="font-size:0.5em;">測試機</span>
+        <span class="chip chip-2" style="font-size:0.5em;">正式機</span>
+      </div>
+    </div>
+    <div class="bcard" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+      <div>
+        <div class="bname">version-suggest</div>
+        <div class="bdesc">讀取現有 tags，推算下一版本號，提供 patch / hotfix / 自訂 三選項</div>
+      </div>
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <span class="chip chip-1" style="font-size:0.5em;">測試機</span>
+      </div>
+    </div>
+    <div class="bcard" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+      <div>
+        <div class="bname">reviewer-select</div>
+        <div class="bdesc">從 GitHub API 動態抓取 collaborators，過濾自己後讓使用者多選</div>
+      </div>
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <span class="chip chip-2" style="font-size:0.5em;">正式機</span>
+      </div>
+    </div>
+    <div class="bcard" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+      <div>
+        <div class="bname">commit-log</div>
+        <div class="bdesc">從兩個 tag 之間的 commits 產生口語化、去技術術語的主管摘要</div>
+      </div>
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <span class="chip chip-1" style="font-size:0.5em;">測試機</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────── Demo: Test Deploy ───────────────────────── -->
+<section>
+  <h2><span class="chip chip-2">DEMO</span> &nbsp;測試機部署 — 實際畫面</h2>
+  <p style="font-size:0.52em; color:var(--dim); margin-bottom:10px;">SGC_Rhino_Frontend · branch: phase_02_dev_rebuild</p>
+  <div class="demo-layout">
+    <div class="demo-steps" id="test-steps">
+      <button class="step-btn active" onclick="switchDemo('test', 0, this)">
+        <span class="step-num">入口</span>詢問部署環境
+      </button>
+      <button class="step-btn" onclick="switchDemo('test', 1, this)">
+        <span class="step-num">T-1</span>偵測未 commit 的變更
+      </button>
+      <button class="step-btn" onclick="switchDemo('test', 2, this)">
+        <span class="step-num">T-1</span>確認自動產生的 commit message
+      </button>
+      <button class="step-btn" onclick="switchDemo('test', 3, this)">
+        <span class="step-num">T-3</span>選擇版本號
+      </button>
+      <button class="step-btn" onclick="switchDemo('test', 4, this)">
+        <span class="step-num">T-8~9</span>部署完成 + Commit Log 選項
+      </button>
+    </div>
+    <div class="demo-preview">
+      <img id="test-img" src="ScreenShoot/test/step1_chooseenv.png">
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────── Demo: Production PR ───────────────────────── -->
+<section>
+  <h2><span class="chip chip-2">DEMO</span> &nbsp;正式機 PR — 實際畫面</h2>
+  <p style="font-size:0.52em; color:var(--dim); margin-bottom:10px;">tapirus_web_frontend · branch: 207947-physical_reward</p>
+  <div class="demo-layout">
+    <div class="demo-steps" id="prod-steps">
+      <button class="step-btn active" onclick="switchDemo('prod', 0, this)">
+        <span class="step-num">入口</span>詢問部署環境
+      </button>
+      <button class="step-btn" onclick="switchDemo('prod', 1, this)">
+        <span class="step-num">P-1~2</span>Redmine 連結 + 確認開發分支
+      </button>
+      <button class="step-btn" onclick="switchDemo('prod', 2, this)">
+        <span class="step-num">P-3</span>Release 日期 + 功能名稱
+      </button>
+      <button class="step-btn" onclick="switchDemo('prod', 3, this)">
+        <span class="step-num">P-6</span>選擇 PR Reviewer
+      </button>
+      <button class="step-btn" onclick="switchDemo('prod', 4, this)">
+        <span class="step-num">P-9</span>PR 建立完成摘要
+      </button>
+      <button class="step-btn" onclick="switchDemo('prod', 5, this)">
+        <span class="step-num">結果</span>GitHub PR 實際樣貌
+      </button>
+    </div>
+    <div class="demo-preview">
+      <img id="prod-img" src="ScreenShoot/prod/step1-chooseenv.png">
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────── References ───────────────────────── -->
+<section>
+  <h2><span class="chip chip-r">CONFIG</span> &nbsp;References</h2>
+  <p style="font-size:0.58em; color:var(--dim);">project-configs.md — 新增 project 的唯一入口</p>
+
+  <table class="cfg-table" style="margin-top:20px;">
+    <thead>
+      <tr>
+        <th>Repo</th>
+        <th>集合式 Branch</th>
+        <th>Workflow 名稱</th>
+        <th>Input 參數</th>
+        <th>Tag 後綴</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>tapirus_web_frontend</code></td>
+        <td><code>development</code></td>
+        <td>🧪 Deploy to Test Environment</td>
+        <td><code>tag</code></td>
+        <td><code>-dev</code></td>
+      </tr>
+      <tr>
+        <td><code>tapirus_web_backend</code></td>
+        <td><code>development</code></td>
+        <td>🧪 Deploy to Test Environment</td>
+        <td><code>tag</code></td>
+        <td><code>-dev</code></td>
+      </tr>
+      <tr>
+        <td><code>panther_web_frontend</code></td>
+        <td><code>development</code></td>
+        <td>🧪 Deploy to Dev Environment</td>
+        <td><code>tag</code></td>
+        <td><code>-dev</code></td>
+      </tr>
+      <tr>
+        <td><code>SGC_Rhino_Frontend</code></td>
+        <td><code>development</code></td>
+        <td>Deploy Dev</td>
+        <td><code>version</code></td>
+        <td><code>-dev</code></td>
+      </tr>
+      <tr style="color:var(--dim); font-style:italic;">
+        <td><code>new_project ← 加這行</code></td>
+        <td>…</td>
+        <td>…</td>
+        <td>…</td>
+        <td>…</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ───────────────────────── 使用說明 ───────────────────────── -->
+<section>
+  <h2>使用說明</h2>
+  <div class="cols" style="margin-top:14px; gap:24px; align-items:flex-start;">
+
+    <div style="flex-shrink:0;">
+      <img src="ScreenShoot/tutorialmd.png" style="height:500px; border-radius:8px; border:1px solid #333; box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+    </div>
+
+    <div class="col" style="padding-top:4px;">
+      <div style="background:#1a1a1a; border:1px solid #333; border-radius:8px; padding:12px 16px; font-family:'JetBrains Mono',monospace; font-size:0.7em; color:var(--accent); margin-bottom:18px;">
+        /deploy
+        <span style="color:var(--dim); font-size:0.8em; font-family:'Noto Sans TC',sans-serif; margin-left:10px;">或說「部署」「發 PR」「上正式機」</span>
+      </div>
+
+      <div style="font-size:0.58em; color:#ccc; line-height:2; margin-bottom:18px;">
+        ✓ &nbsp;在<strong>開發分支</strong>上執行<br>
+        ✓ &nbsp;安裝 <code style="color:var(--accent);">gh</code>（GitHub CLI）— 未登入時 AI 引導驗證
+      </div>
+
+      <div style="font-size:0.55em; color:var(--dim); border-left:3px solid #333; padding-left:12px; line-height:1.8;">
+        完整說明詳見 <code style="color:var(--accent2);">USAGE.md</code>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+  const demoImages = {
+    test: [
+      'ScreenShoot/test/step1_chooseenv.png',
+      'ScreenShoot/test/step2_checkcommit.png',
+      'ScreenShoot/test/step3_commit message-confirmation.png',
+      'ScreenShoot/test/step4_createtag.png',
+      'ScreenShoot/test/step5_deploy.png',
+    ],
+    prod: [
+      'ScreenShoot/prod/step1-chooseenv.png',
+      'ScreenShoot/prod/step2-redminelink_branchname.png',
+      'ScreenShoot/prod/step3-releasedate_titlename.png',
+      'ScreenShoot/prod/step4-prreviewer.png',
+      'ScreenShoot/prod/step5-prcreated.png',
+      'ScreenShoot/prod/step6-prcreated.png',
+    ],
+  };
+
+  function switchDemo(type, index, btn) {
+    document.getElementById(type + '-img').src = demoImages[type][index];
+    document.querySelectorAll('#' + type + '-steps .step-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    transitionSpeed: 'fast',
+    controls: true,
+    progress: true,
+    center: false,
+    width: 1100,
+    height: 700,
+    margin: 0.06,
+  });
+</script>
+</body>
+</html>
