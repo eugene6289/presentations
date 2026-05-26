@@ -1,0 +1,1444 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>運作效率與 AI 研發進度報告 · 2026/05</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --bg-2: #141414;
+    --bg-3: #1a1a1a;
+    --border: #262626;
+    --border-2: #333;
+    --text: #f5f5f5;
+    --text-dim: #a3a3a3;
+    --text-mute: #737373;
+    --accent: #38bdf8;     /* sky */
+    --accent-2: #10b981;   /* emerald */
+    --accent-warn: #fbbf24;
+    --accent-danger: #f43f5e;
+
+    --slide-w: 1280px;
+    --slide-h: 720px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  /* Stage / slide framing — fixed 16:9, scales to viewport */
+  .stage {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .slide-wrap {
+    width: var(--slide-w);
+    height: var(--slide-h);
+    transform-origin: center center;
+    position: relative;
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 48px 64px;
+    background: var(--bg);
+    display: none;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    font-size: 18px;
+  }
+  .slide.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  /* ========== Cover slide ========== */
+  .cover-slide {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background:
+      radial-gradient(1000px 500px at 30% 30%, rgba(56,189,248,0.08), transparent 60%),
+      radial-gradient(800px 400px at 80% 80%, rgba(16,185,129,0.06), transparent 60%);
+  }
+  .cover-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+  .cover-rule {
+    width: 72px;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 999px;
+  }
+  .cover-title {
+    margin: 0;
+    font-size: 68px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    text-align: center;
+  }
+  .cover-date-bottom {
+    position: absolute;
+    bottom: 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.22em;
+    color: var(--text-mute);
+  }
+
+  /* Header band */
+  .slide-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+  }
+  .slide-header .left { display: flex; flex-direction: column; gap: 6px; }
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .slide-title {
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+    line-height: 1.15;
+  }
+  .slide-subtitle {
+    font-size: 17px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    font-weight: 400;
+  }
+  .slide-header .right {
+    text-align: right;
+    color: var(--text-mute);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  /* Body grows */
+  .slide-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Generic cards */
+  .card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+  }
+  .card-title {
+    font-size: 14px;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  /* ========== Slide 1: dashboard ========== */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .kpi {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 26px 26px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi .label {
+    font-size: 14px;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 14px;
+  }
+  .kpi .value {
+    font-size: 38px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .kpi .value.accent { color: var(--accent); }
+  .kpi .value.success { color: var(--accent-2); }
+  .kpi .hint {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-top: 10px;
+  }
+  .kpi.highlight {
+    background: linear-gradient(135deg, rgba(56,189,248,0.08), rgba(16,185,129,0.04));
+    border-color: rgba(56,189,248,0.35);
+  }
+
+  .focus-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    flex: 1;
+  }
+  .focus-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+  }
+  .focus-card .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .focus-card.success .badge { color: var(--accent-2); }
+  .focus-card h3 {
+    margin: 0;
+    font-size: 23px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+  .focus-card p {
+    margin: 0;
+    color: var(--text-dim);
+    font-size: 16px;
+    line-height: 1.65;
+  }
+  .focus-card .meta {
+    margin-top: auto;
+    font-size: 14px;
+    color: var(--text-mute);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* highlight summary list (slide 1) */
+  .highlight-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 28px 32px;
+  }
+  .highlight-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .highlight-list li {
+    position: relative;
+    padding-left: 26px;
+    font-size: 18px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .highlight-list li::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 11px;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 999px;
+  }
+  .highlight-list li:first-child::before { background: var(--accent-2); }
+
+  /* ========== Tables (Slide 2 / 4) ========== */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px;
+  }
+  .table thead th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-3);
+  }
+  .table tbody td {
+    padding: 14px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+  }
+  .table tbody tr:last-child td { border-bottom: none; }
+  .table .name-cell { font-weight: 600; }
+  .table .owner-cell { color: var(--text-dim); }
+  .table .date-cell { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+
+  /* Progress bars */
+  .pbar-cell { width: 130px; }
+  .pbar {
+    position: relative;
+    height: 7px;
+    background: #1f1f1f;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .pbar > span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--accent);
+    border-radius: 999px;
+  }
+  .pbar.done > span { background: var(--accent-2); }
+  .pbar.partial > span { background: var(--accent); }
+  .pbar.idle > span { background: var(--text-mute); opacity: 0.5; }
+  .pbar-label {
+    margin-top: 5px;
+    font-size: 13px;
+    color: var(--text-mute);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Status pill */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-2);
+    color: var(--text-dim);
+  }
+  .pill.done { color: var(--accent-2); border-color: rgba(16,185,129,0.45); background: rgba(16,185,129,0.08); }
+  .pill.progress { color: var(--accent); border-color: rgba(56,189,248,0.45); background: rgba(56,189,248,0.08); }
+  .pill.dot::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 999px;
+    background: currentColor;
+  }
+
+  /* Slide 2 section label */
+  .section-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 6px 0 10px;
+  }
+  .section-strip .lbl {
+    font-size: 14px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .section-strip .lbl.dim {
+    color: var(--text-mute);
+  }
+  .section-strip .meta { font-size: 14px; color: var(--text-mute); font-family: 'JetBrains Mono', monospace; }
+
+  .phase-block { margin-bottom: 16px; }
+
+  /* Phase 2 cards */
+  .p2-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .p2-grid-tall { flex: 1; align-items: stretch; }
+  .p2-grid-tall .p2-card { padding: 32px 36px; gap: 18px; }
+  .p2-grid-tall .p2-title { font-size: 24px; }
+  .p2-grid-tall .p2-row { font-size: 16px; }
+  .p2-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .p2-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .p2-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 2px;
+  }
+  .p2-owner {
+    font-size: 13px;
+    color: var(--text-mute);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .p2-row {
+    display: flex;
+    gap: 12px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .p2-label {
+    flex: 0 0 78px;
+    color: var(--text-mute);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding-top: 4px;
+  }
+  .p2-text { color: var(--text); flex: 1; }
+  .p2-bars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .p2-blabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-mute);
+    margin-bottom: 6px;
+  }
+
+  /* ========== Slide 3: repo health ========== */
+  .repo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    flex: 1;
+  }
+  .repo-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .repo-card .row { display: flex; align-items: baseline; gap: 10px; }
+  .repo-card .type {
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .repo-card .repo-name {
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .repo-card .tech {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .repo-card .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .repo-stat {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .repo-stat .h {
+    font-size: 12px;
+    color: var(--text-mute);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .repo-stat .v {
+    font-size: 14px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.45;
+  }
+
+  /* ========== Slide 4: AI skills matrix ========== */
+  .matrix-wrap {
+    display: grid;
+    grid-template-columns: 1.7fr 1fr;
+    gap: 22px;
+    flex: 1;
+    min-height: 0;
+  }
+  .standards-card { gap: 14px; }
+  .matrix .check {
+    text-align: center;
+    font-size: 18px;
+    color: var(--accent-2);
+  }
+  .matrix .check.no { color: var(--text-mute); }
+  .matrix td.note { color: var(--text-dim); font-size: 14px; line-height: 1.45; }
+  /* Row action button (slide 4 — view progress link) */
+  .matrix tbody tr.linkable { transition: background 0.15s ease; }
+  .matrix tbody tr.linkable:hover { background: rgba(56,189,248,0.04); }
+  .action-cell { text-align: center; }
+  .row-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    background: var(--accent);
+    color: #03131c;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    padding: 7px 14px;
+    border-radius: 999px;
+    box-shadow: 0 0 0 1px rgba(56,189,248,0.4), 0 4px 12px rgba(56,189,248,0.18);
+    transition: all 0.15s ease;
+  }
+  .row-action:hover {
+    background: #7dd3fc;
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 1px rgba(125,211,252,0.6), 0 6px 16px rgba(56,189,248,0.32);
+  }
+  .row-action-arrow {
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .row-action-empty {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--text-mute);
+    letter-spacing: 0.05em;
+  }
+
+  .standards-card { display: flex; flex-direction: column; gap: 12px; }
+  .standard-item {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 16px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .standard-item .t {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .standard-item .d { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+
+  /* ========== Slide 5: timeline ========== */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+    flex: 1;
+    overflow: hidden;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: var(--border-2);
+  }
+  .tl-item {
+    position: relative;
+    padding: 10px 0 22px 8px;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -23px;
+    top: 18px;
+    width: 10px; height: 10px;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px rgba(56,189,248,0.15);
+  }
+  .tl-item.success::before { background: var(--accent-2); box-shadow: 0 0 0 4px rgba(16,185,129,0.15); }
+  .tl-item.current::before {
+    background: var(--accent);
+    box-shadow: 0 0 0 4px rgba(56,189,248,0.25), 0 0 14px rgba(56,189,248,0.45);
+  }
+  .now-tag {
+    display: inline-block;
+    margin-left: 10px;
+    background: var(--accent);
+    color: #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    vertical-align: middle;
+  }
+  .tl-item .when {
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .tl-item.success .when { color: var(--accent-2); }
+  .tl-item .what {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 6px 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .tl-item .detail {
+    font-size: 16px;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  /* Footer / nav */
+  .nav {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(20,20,20,0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 14px;
+    z-index: 50;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .nav button {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-2);
+    border-radius: 999px;
+    width: 28px; height: 28px;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .nav button:hover { border-color: var(--accent); color: var(--accent); }
+  .nav .pos { min-width: 50px; text-align: center; letter-spacing: 0.08em; }
+  .nav .dots { display: flex; gap: 6px; }
+  .nav .dots span {
+    width: 6px; height: 6px;
+    border-radius: 999px;
+    background: var(--border-2);
+    transition: all 0.2s;
+  }
+  .nav .dots span.active { background: var(--accent); width: 18px; }
+
+  .corner-brand {
+    position: fixed;
+    top: 14px;
+    right: 18px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-mute);
+    letter-spacing: 0.1em;
+    z-index: 40;
+  }
+
+  /* Open-modal button */
+  .open-modal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(56,189,248,0.08);
+    border: 1px solid rgba(56,189,248,0.45);
+    color: var(--accent);
+    font-family: 'Inter', 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 9px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .open-modal-btn:hover {
+    background: rgba(56,189,248,0.18);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .open-modal-btn .icon {
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  /* Modal overlay */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    padding: 32px;
+  }
+  .modal-overlay.open {
+    display: flex;
+    opacity: 1;
+  }
+  .modal {
+    background: var(--bg-2);
+    border: 1px solid var(--border-2);
+    border-radius: 16px;
+    max-width: 720px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 36px 40px;
+    position: relative;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    transform: translateY(10px) scale(0.98);
+    transition: transform 0.2s ease;
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+  .modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    background: transparent;
+    border: 1px solid var(--border-2);
+    color: var(--text-dim);
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-close:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  .modal-eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .modal-title {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+  }
+  .modal-subtitle {
+    font-size: 15px;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+  .modal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .modal-std {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 16px 20px;
+  }
+  .modal-std .n {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
+  }
+  .modal-std .t {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .modal-std .d {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* Layout helpers */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .stack-sm > * + * { margin-top: 6px; }
+  .muted { color: var(--text-mute); }
+
+  /* Light progress label inline */
+  .pmini {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 96px;
+  }
+
+  /* Two-column legend for progress phases */
+  .legend {
+    display: flex;
+    gap: 18px;
+    font-size: 13px;
+    color: var(--text-mute);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.06em;
+  }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+    background: var(--accent);
+  }
+  .legend .swatch.s2 { background: var(--accent-2); }
+  .legend .swatch.s3 { background: var(--text-mute); opacity: 0.5; }
+</style>
+</head>
+<body>
+
+<div class="corner-brand">網頁 &amp; 工具組 · PROGRESS REPORT</div>
+
+<div class="stage" id="stage">
+  <div class="slide-wrap" id="slideWrap">
+    <!-- Slides injected here -->
+  </div>
+</div>
+
+<div class="nav">
+  <button id="prevBtn" aria-label="prev">‹</button>
+  <span class="pos" id="navPos">01 / 05</span>
+  <div class="dots" id="navDots"></div>
+  <button id="nextBtn" aria-label="next">›</button>
+</div>
+
+<!-- Standards modal -->
+<div class="modal-overlay" id="standardsModal" onclick="if(event.target===this) closeStandardsModal()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="modal-close" onclick="closeStandardsModal()" aria-label="close">✕</button>
+    <div class="modal-eyebrow">Definition of Done</div>
+    <h2 class="modal-title" id="modalTitle">四大驗收標準</h2>
+    <p class="modal-subtitle">AI Skill 從研發到正式落地的四個檢查點。</p>
+    <div class="modal-list" id="modalList"></div>
+  </div>
+</div>
+
+<script>
+/* ========================================================================
+ *  SLIDE DATA — edit only this block to update the deck
+ * ====================================================================== */
+const slideData = {
+  // 0. 封面頁設定
+  cover: {
+    title: "網頁提升計畫進度報告",
+    date: "2026 / 05 / 26"
+  },
+
+  // 1. 幹部總覽儀表板數據
+  overview: {
+    title: "運作效率與 AI 研發報告",
+    subtitle: "網頁 & 工具組 · 2026 年 5 月提升計畫進度匯報",
+    lastUpdated: "2026/05/26",
+    kpis: [
+      { value: "100%", label: "運作效率第一階段", hint: "4 / 4 專案完成驗收", tone: "success" },
+      { value: "5",    label: "AI 核心技能研發中", hint: "3 項已通過可行性",   tone: "accent" },
+      { value: "4 / 4", label: "重點專案 CI/CD 升級", hint: "全 Repo 已導入",   tone: "success" },
+      { value: "5/26",  label: "今日落地驗收里程碑", hint: "落地使用 + 文件化", tone: "highlight" }
+    ],
+    highlights: [
+      "第一階段部署流程優化已全數完成（紅綠後台、Web館、後台工具、道具系統）。",
+      "AI 研發 5 大 Skill 進入「落地使用」驗收期，今日為關鍵 Checkpoint。"
+    ]
+  },
+
+  // 2. 運作效率優化專案進度
+  operationEfficiency: {
+    phase1_deployment: [
+      { name: "紅綠後台",       owner: "林芯緹", date: "2026/05/13", prepare: 100, execute: 100, verify: 100, status: "已完成" },
+      { name: "Web館",         owner: "蔡語哲", date: "2026/05/13", prepare: 100, execute: 100, verify: 100, status: "已完成" },
+      { name: "後台工具",       owner: "陳韋銘", date: "2026/05/20", prepare: 100, execute: 100, verify: 100, status: "已完成" },
+      { name: "道具管理系統",   owner: "林書仲", date: "2026/05/20", prepare: 100, execute: 100, verify: 100, status: "已完成" }
+    ],
+    phase2_architecture: [
+      {
+        name: "樣式模組化 (Tailwind)",
+        owner: "廖序耘",
+        prepare: 100, execute: 5, verify: 0, status: "進行中",
+        pain: "樣式散亂難維護、畫面不一致",
+        progress: "新官網前置準備完成，進入執行期"
+      },
+      {
+        name: "後台工具升級 (Py2 → API)",
+        owner: "陳韋銘",
+        prepare: 10, execute: 0, verify: 0, status: "進行中",
+        pain: "Python2 / Mongo 直接存取之資安疑慮",
+        progress: "前置準備進行中，串接新 API 規格"
+      }
+    ]
+  },
+
+  // 3. AI Skills 研發進度與矩陣
+  aiSkills: {
+    skillsList: [
+      { name: "Deploy Skill",      owner: "蔡語哲", note: "測試機自動化與 PR 建立",   feasibility: true,  landing: false, doc: false, cross: false, link: "https://eugene6289.github.io/presentations/deploy/presentation.html" },
+      { name: "Frontend UI Skill", owner: "廖序耘", note: "設計圖直接轉為網頁樣式",   feasibility: true,  landing: false, doc: false, cross: false, link: "" },
+      { name: "Debug Skill",       owner: "林芯緹", note: "Log 分析與異常定位",       feasibility: false, landing: false, doc: false, cross: false, link: "" },
+      { name: "CreateDoc Skill",   owner: "陳韋銘", note: "程式碼自動生成文件",       feasibility: true,  landing: false, doc: false, cross: false, link: "" },
+      { name: "Code Review Skill", owner: "林書仲", note: "安全性與語法質量檢查",     feasibility: false, landing: false, doc: false, cross: false, link: "" }
+    ],
+    standards: [
+      { name: "Skills 可行性", criterion: "成員認可 Skill 並確認可在實際場景中運作" },
+      { name: "落地使用",      criterion: "Demo 功能正常、輸出結果具備實用性與準確度" },
+      { name: "文件完整",      criterion: "包含 README.md 並上傳 GitHub、說明易於理解" },
+      { name: "交叉驗收",      criterion: "至少 2 位以上成員測試並成功導入專案" }
+    ],
+    todayNote: "今日 (5/26) 重點為「落地使用」與「文件化」之進度檢查"
+  },
+
+  // 4. Repo 優化健康度
+  repoHealth: [
+    { type: "H5 專案",     repo: "Rhino 前端 / Nest.js",   tech: "Vue3 / Nest.js",        lint: "Eslint, Prettier",     security: "Gitleak, Audit",       cd: "已串接 ELB" },
+    { type: "後台系統",   repo: "綠色 / 紅色後台",         tech: "Vue3 / Python3",        lint: "Eslint",                security: "Secretlint, Bandit",   cd: "已部署通知" },
+    { type: "工具開發",   repo: "Panther / Tapirus",       tech: "Python2 / .net",        lint: "Semgrep (.net)",        security: "Gitleak",              cd: "部署通知完成" },
+    { type: "資產管理",   repo: "道具管理系統",             tech: "Nuxt2 / Python2",       lint: "Eslint",                security: "OSV-Scanner",          cd: "部署通知完成" }
+  ],
+
+  // 5. 歷史時程
+  timeline: [
+    {
+      when: "1月 ~ 2月 · 奠基期",
+      title: "確認 CI/CD 導入方向",
+      detail: "語哲、韋銘啟動自動部署研究與後台工具建置。",
+      success: false
+    },
+    {
+      when: "3月 ~ 4月 · 成果產出期",
+      title: "CI/CD 全面落地",
+      detail: "完成 SEA/JP 後台、Web館 CI 檢查、.net 工具靜態分析。",
+      success: false
+    },
+    {
+      when: "5月 · AI 爆發期 (當前)",
+      title: "5 大 Skill 實作與落地驗收",
+      detail: "全員投入 AI Skill 研發；今日 5/26 驗收落地使用 + 文件化。",
+      success: false,
+      current: true
+    },
+    {
+      when: "6月 ~ Q3 · 擴散期",
+      title: "技能庫交叉使用與全專案涵蓋",
+      detail: "Skills 推廣至 2+ 正式專案、團隊內互測導入完成。",
+      success: false
+    }
+  ]
+};
+
+/* ========================================================================
+ *  RENDERERS — pure functions taking slideData → HTML strings
+ * ====================================================================== */
+
+const esc = (s) => String(s ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;');
+
+const checkIcon = (v) => v
+  ? '<span class="check" title="完成">✅</span>'
+  : '<span class="check no" title="未完成">🔲</span>';
+
+const progressBar = (pct, opts = {}) => {
+  const v = Math.max(0, Math.min(100, Number(pct) || 0));
+  const cls = v >= 100 ? 'done' : v > 0 ? 'partial' : 'idle';
+  return `
+    <div class="pmini">
+      <div class="pbar ${cls}"><span style="width:${v}%"></span></div>
+      <div class="pbar-label">${v}%</div>
+    </div>
+  `;
+};
+
+const statusPill = (status) => {
+  const isDone = status.includes('完成');
+  const cls = isDone ? 'done dot' : 'progress dot';
+  return `<span class="pill ${cls}">${esc(status)}</span>`;
+};
+
+/* ---------- Slide 0: cover ---------- */
+function renderSlideCover() {
+  const c = slideData.cover;
+  return `
+  <div class="cover-slide">
+    <div class="cover-center">
+      <div class="cover-rule"></div>
+      <h1 class="cover-title">${esc(c.title)}</h1>
+    </div>
+    <div class="cover-date-bottom">${esc(c.date)}</div>
+  </div>
+  `;
+}
+
+/* ---------- Slide 1: dashboard ---------- */
+function renderSlide1() {
+  const o = slideData.overview;
+
+  const kpis = o.kpis.map(k => {
+    const toneCls = k.tone === 'success' ? 'success'
+                  : k.tone === 'accent'  ? 'accent'
+                  : '';
+    const cardCls = k.tone === 'highlight' ? 'kpi highlight' : 'kpi';
+    return `
+      <div class="${cardCls}">
+        <div class="label">${esc(k.label)}</div>
+        <div class="value ${toneCls}">${esc(k.value)}</div>
+        <div class="hint">${esc(k.hint)}</div>
+      </div>`;
+  }).join('');
+
+  const highlights = o.highlights.map(h => `<li>${esc(h)}</li>`).join('');
+
+  return `
+  <div class="slide-header">
+    <div class="left">
+      <span class="eyebrow">網頁 &amp; 工具組 · 提升計畫</span>
+      <h1 class="slide-title">${esc(o.title)}</h1>
+      <div class="slide-subtitle">${esc(o.subtitle)}</div>
+    </div>
+    <div class="right">
+      最後更新<br>
+      <span style="color:#f5f5f5">${esc(o.lastUpdated)}</span>
+    </div>
+  </div>
+
+  <div class="slide-body">
+    <div class="kpi-row">${kpis}</div>
+
+    <div class="card highlight-card">
+      <div class="card-title">關鍵進展摘要</div>
+      <ul class="highlight-list">${highlights}</ul>
+    </div>
+  </div>
+  `;
+}
+
+/* ---------- Slide 2: operation efficiency ---------- */
+function buildProgressRow(item, showDate=true) {
+  return `
+    <tr>
+      <td class="name-cell">${esc(item.name)}</td>
+      <td class="owner-cell">${esc(item.owner)}</td>
+      ${showDate ? `<td class="date-cell">${esc(item.date || '—')}</td>` : ''}
+      <td class="pbar-cell">${progressBar(item.prepare)}</td>
+      <td class="pbar-cell">${progressBar(item.execute)}</td>
+      <td class="pbar-cell">${progressBar(item.verify)}</td>
+      <td>${statusPill(item.status)}</td>
+    </tr>
+  `;
+}
+
+/* Phase 1 alone */
+function renderSlide2() {
+  const p1 = slideData.operationEfficiency.phase1_deployment
+    .map(i => buildProgressRow(i, true)).join('');
+
+  return `
+  <div class="slide-header">
+    <div class="left">
+      <span class="eyebrow">PART A · 運作效率優化 · Phase 1</span>
+      <h1 class="slide-title">部署流程自動化</h1>
+      <div class="slide-subtitle">自動檢查、減少失誤、流程一致 · 100% 已完成</div>
+    </div>
+    <div class="right">
+      <div class="legend">
+        <span class="item"><span class="swatch s2"></span> 完成</span>
+        <span class="item"><span class="swatch"></span> 進行中</span>
+        <span class="item"><span class="swatch s3"></span> 未開始</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-body">
+    <div class="phase-block">
+      <div class="section-strip">
+        <span class="lbl">已優化專案清單 · 4 / 4 全數達成</span>
+        <span class="meta">紅綠後台 · Web館 · 後台工具 · 道具管理系統</span>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:22%">專案</th>
+              <th style="width:11%">負責人</th>
+              <th style="width:12%">完成日</th>
+              <th>前置 Prepare</th>
+              <th>執行 Execute</th>
+              <th>驗證 Verify</th>
+              <th style="width:100px">狀態</th>
+            </tr>
+          </thead>
+          <tbody>${p1}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  `;
+}
+
+/* Phase 2 alone */
+function renderSlide2b() {
+  const phase2Cards = slideData.operationEfficiency.phase2_architecture.map(item => `
+    <div class="p2-card">
+      <div class="p2-head">
+        <div>
+          <div class="p2-title">${esc(item.name)}</div>
+          <div class="p2-owner">負責人 · ${esc(item.owner)}</div>
+        </div>
+        ${statusPill(item.status)}
+      </div>
+      <div class="p2-row">
+        <span class="p2-label">解決痛點</span>
+        <span class="p2-text">${esc(item.pain || '')}</span>
+      </div>
+      <div class="p2-row">
+        <span class="p2-label">當前狀態</span>
+        <span class="p2-text">${esc(item.progress || '')}</span>
+      </div>
+      <div class="p2-bars">
+        <div><div class="p2-blabel">前置 ${item.prepare}%</div>${progressBarSlim(item.prepare)}</div>
+        <div><div class="p2-blabel">執行 ${item.execute}%</div>${progressBarSlim(item.execute)}</div>
+        <div><div class="p2-blabel">驗證 ${item.verify}%</div>${progressBarSlim(item.verify)}</div>
+      </div>
+    </div>
+  `).join('');
+
+  return `
+  <div class="slide-header">
+    <div class="left">
+      <span class="eyebrow">PART A · 運作效率優化 · Phase 2</span>
+      <h1 class="slide-title">程式架構優化</h1>
+      <div class="slide-subtitle">承接 Phase 1，往樣式模組化與 API 化推進</div>
+    </div>
+    <div class="right">
+      <span class="pill progress dot">進行中</span>
+    </div>
+  </div>
+
+  <div class="slide-body">
+    <div class="p2-grid p2-grid-tall">${phase2Cards}</div>
+  </div>
+  `;
+}
+
+function progressBarSlim(pct) {
+  const v = Math.max(0, Math.min(100, Number(pct) || 0));
+  const cls = v >= 100 ? 'done' : v > 0 ? 'partial' : 'idle';
+  return `<div class="pbar ${cls}"><span style="width:${v}%"></span></div>`;
+}
+
+/* ---------- Slide 3: repo health ---------- */
+function renderSlide3() {
+  const cards = slideData.repoHealth.map(r => `
+    <div class="repo-card">
+      <div class="row">
+        <span class="type">${esc(r.type)}</span>
+      </div>
+      <div class="repo-name">${esc(r.repo)}</div>
+      <div class="tech">${esc(r.tech)}</div>
+      <div class="stats">
+        <div class="repo-stat">
+          <div class="h">Lint / 語法</div>
+          <div class="v">${esc(r.lint)}</div>
+        </div>
+        <div class="repo-stat">
+          <div class="h">Security</div>
+          <div class="v">${esc(r.security)}</div>
+        </div>
+        <div class="repo-stat">
+          <div class="h">CD / 部署</div>
+          <div class="v">${esc(r.cd)}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  return `
+  <div class="slide-header">
+    <div class="left">
+      <span class="eyebrow">PART A · 運作紀錄</span>
+      <h1 class="slide-title">Repo 優化覆蓋率</h1>
+      <div class="slide-subtitle">Lint / Security / 部署通知 三維度全覆蓋（Excel 摘要）</div>
+    </div>
+    <div class="right">
+      <span class="pill done dot">${slideData.repoHealth.length} 類專案 · 全數導入</span>
+    </div>
+  </div>
+
+  <div class="slide-body">
+    <div class="repo-grid">${cards}</div>
+  </div>
+  `;
+}
+
+/* ---------- Slide 4: AI skills matrix ---------- */
+function renderSlide4() {
+  const rows = slideData.aiSkills.skillsList.map(s => {
+    const actionCell = s.link
+      ? `<a class="row-action" href="${esc(s.link)}" target="_blank" rel="noopener noreferrer">
+           查看進度 <span class="row-action-arrow">↗</span>
+         </a>`
+      : `<span class="row-action-empty">尚未提供</span>`;
+    const trCls = s.link ? 'linkable' : '';
+    return `
+    <tr class="${trCls}">
+      <td class="name-cell">${esc(s.name)}</td>
+      <td class="owner-cell">${esc(s.owner)}</td>
+      <td class="note">${esc(s.note)}</td>
+      <td class="check ${s.feasibility ? '' : 'no'}">${s.feasibility ? '✅' : '🔲'}</td>
+      <td class="check ${s.landing ? '' : 'no'}">${s.landing ? '✅' : '🔲'}</td>
+      <td class="check ${s.doc ? '' : 'no'}">${s.doc ? '✅' : '🔲'}</td>
+      <td class="check ${s.cross ? '' : 'no'}">${s.cross ? '✅' : '🔲'}</td>
+      <td class="action-cell">${actionCell}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="slide-header">
+    <div class="left">
+      <span class="eyebrow">PART B · AI Skills 研發</span>
+      <h1 class="slide-title">AI Skills 發展</h1>
+      <div class="slide-subtitle">${esc(slideData.aiSkills.todayNote)}</div>
+    </div>
+    <div class="right">
+      <button class="open-modal-btn" onclick="openStandardsModal()">
+        <span class="icon">⊕</span>
+        <span>四大驗收標準</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="slide-body">
+    <div class="card matrix" style="padding:0;overflow:hidden">
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width:17%">Skill</th>
+            <th style="width:10%">負責人</th>
+            <th>說明</th>
+            <th style="width:8%; text-align:center">可行性</th>
+            <th style="width:8%; text-align:center">落地</th>
+            <th style="width:8%; text-align:center">文件</th>
+            <th style="width:10%; text-align:center">交叉驗收</th>
+            <th style="width:13%; text-align:center">進度頁</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>
+  `;
+}
+
+/* ---------- Slide 5: timeline ---------- */
+function renderSlide5() {
+  const items = slideData.timeline.map(t => {
+    const cls = [
+      'tl-item',
+      t.success ? 'success' : '',
+      t.current ? 'current' : ''
+    ].filter(Boolean).join(' ');
+    return `
+    <div class="${cls}">
+      <div class="when">${esc(t.when)}${t.current ? ' <span class="now-tag">NOW</span>' : ''}</div>
+      <div class="what">${esc(t.title)}</div>
+      <div class="detail">${esc(t.detail)}</div>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="slide-header">
+    <div class="left">
+      <span class="eyebrow">Roadmap · 2026</span>
+      <h1 class="slide-title">2026 研發與優化歷史時程</h1>
+    </div>
+    <div class="right">
+      <span class="pill dot">2026/01 → Q3</span>
+    </div>
+  </div>
+
+  <div class="slide-body">
+    <div class="timeline">${items}</div>
+  </div>
+  `;
+}
+
+/* ========================================================================
+ *  MOUNT + NAVIGATION
+ * ====================================================================== */
+
+const renderers = [renderSlideCover, renderSlide1, renderSlide2, renderSlide2b, renderSlide3, renderSlide4, renderSlide5];
+let currentIndex = 0;
+
+function mount() {
+  const wrap = document.getElementById('slideWrap');
+  wrap.innerHTML = renderers.map((fn, i) => `
+    <section class="slide ${i === 0 ? 'active' : ''}" data-index="${i}">${fn()}</section>
+  `).join('');
+
+  const dots = document.getElementById('navDots');
+  dots.innerHTML = renderers.map((_, i) => `<span class="${i===0?'active':''}" data-i="${i}"></span>`).join('');
+  dots.querySelectorAll('span').forEach(el => {
+    el.addEventListener('click', () => goTo(Number(el.dataset.i)));
+  });
+
+  document.getElementById('prevBtn').addEventListener('click', prev);
+  document.getElementById('nextBtn').addEventListener('click', next);
+
+  document.addEventListener('keydown', (e) => {
+    const modalOpen = document.getElementById('standardsModal').classList.contains('open');
+    if (e.key === 'Escape' && modalOpen) { e.preventDefault(); closeStandardsModal(); return; }
+    if (modalOpen) return; // don't navigate slides while modal is open
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    if (e.key === 'End') { e.preventDefault(); goTo(renderers.length - 1); }
+  });
+
+  // Pre-populate modal list once
+  const modalList = document.getElementById('modalList');
+  modalList.innerHTML = slideData.aiSkills.standards.map((st, i) => `
+    <div class="modal-std">
+      <div class="n">${String(i+1).padStart(2,'0')}</div>
+      <div class="t">${esc(st.name)}</div>
+      <div class="d">${esc(st.criterion)}</div>
+    </div>
+  `).join('');
+
+  updateNav();
+  fitStage();
+  window.addEventListener('resize', fitStage);
+}
+
+function goTo(i) {
+  if (i < 0 || i >= renderers.length || i === currentIndex) return;
+  const slides = document.querySelectorAll('.slide');
+  slides[currentIndex].classList.remove('active');
+  slides[i].classList.add('active');
+  currentIndex = i;
+  updateNav();
+}
+function next() { goTo(currentIndex + 1); }
+function prev() { goTo(currentIndex - 1); }
+
+function updateNav() {
+  const pos = document.getElementById('navPos');
+  pos.textContent = `${String(currentIndex+1).padStart(2,'0')} / ${String(renderers.length).padStart(2,'0')}`;
+  document.querySelectorAll('.nav .dots span').forEach((el, i) => {
+    el.classList.toggle('active', i === currentIndex);
+  });
+}
+
+function fitStage() {
+  const wrap = document.getElementById('slideWrap');
+  const stage = document.getElementById('stage');
+  const sw = wrap.offsetWidth;
+  const sh = wrap.offsetHeight;
+  const vw = stage.offsetWidth - 40;
+  const vh = stage.offsetHeight - 80;
+  const scale = Math.min(vw / sw, vh / sh, 1);
+  wrap.style.transform = `scale(${scale})`;
+}
+
+// Modal open/close — exposed for inline onclick handlers
+function openStandardsModal() {
+  document.getElementById('standardsModal').classList.add('open');
+}
+function closeStandardsModal() {
+  document.getElementById('standardsModal').classList.remove('open');
+}
+window.openStandardsModal = openStandardsModal;
+window.closeStandardsModal = closeStandardsModal;
+
+document.addEventListener('DOMContentLoaded', mount);
+</script>
+</body>
+</html>
