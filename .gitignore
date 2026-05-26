@@ -1,0 +1,35 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.cursor/
+
+# Logs / temp
+*.log
+*.tmp
+*.bak
+
+# Node (just in case)
+node_modules/
+npm-debug.log*
+
+# Python (just in case)
+__pycache__/
+*.py[cod]
+.venv/
+
+# OS / archive junk
+*.zip~
