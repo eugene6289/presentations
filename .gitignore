@@ -16,6 +16,7 @@ Desktop.ini
 *.swo
 *~
 .cursor/
+.claude/
 
 # Logs / temp
 *.log

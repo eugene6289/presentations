@@ -721,7 +721,7 @@
     z-index: 40;
   }
 
-  /* Open-modal button */
+  /* Open-modal button (also used for header-level external links) */
   .open-modal-btn {
     display: inline-flex;
     align-items: center;
@@ -736,12 +736,14 @@
     padding: 9px 16px;
     border-radius: 999px;
     cursor: pointer;
+    text-decoration: none;
     transition: all 0.15s ease;
   }
   .open-modal-btn:hover {
     background: rgba(56,189,248,0.18);
     border-color: var(--accent);
     color: #fff;
+    transform: translateY(-1px);
   }
   .open-modal-btn .icon {
     font-size: 16px;
@@ -852,6 +854,93 @@
     line-height: 1.6;
   }
 
+  /* ===== Wide / sectioned modal (e.g. Tailwind details) ===== */
+  .modal-wide { max-width: 880px; }
+  .modal-section { margin-top: 22px; }
+  .modal-section:first-of-type { margin-top: 8px; }
+  .modal-section-h {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin: 0 0 12px;
+  }
+
+  /* Pain cards (3-up) */
+  .pain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pain-card {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-danger);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .pain-card .t { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .pain-card .d { font-size: 12px; color: var(--text-dim); line-height: 1.55; }
+
+  /* Result stats (2x2) */
+  .result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .result-card {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .result-card .v {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+    flex: 0 0 auto;
+  }
+  .result-card .d { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+
+  /* Before / After two columns */
+  .ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ba-col {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+  }
+  .ba-col.before { border-left: 3px solid var(--text-mute); }
+  .ba-col.after  { border-left: 3px solid var(--accent-2); }
+  .ba-col .h {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .ba-col.before .h { color: var(--text-mute); }
+  .ba-col.after .h  { color: var(--accent-2); }
+  .ba-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ba-col li {
+    font-size: 13px;
+    line-height: 1.55;
+    padding-left: 14px;
+    position: relative;
+  }
+  .ba-col li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    opacity: 0.55;
+  }
+  .ba-col.before li { color: var(--text-dim); }
+  .ba-col.after  li { color: var(--text); }
+
   /* Layout helpers */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .stack-sm > * + * { margin-top: 6px; }
@@ -902,13 +991,24 @@
 </div>
 
 <!-- Standards modal -->
-<div class="modal-overlay" id="standardsModal" onclick="if(event.target===this) closeStandardsModal()">
+<div class="modal-overlay" id="standardsModal" onclick="if(event.target===this) closeModal('standardsModal')">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <button class="modal-close" onclick="closeStandardsModal()" aria-label="close">✕</button>
+    <button class="modal-close" onclick="closeModal('standardsModal')" aria-label="close">✕</button>
     <div class="modal-eyebrow">Definition of Done</div>
-    <h2 class="modal-title" id="modalTitle">四大驗收標準</h2>
+    <h2 class="modal-title" id="modalTitle">驗收標準</h2>
     <p class="modal-subtitle">AI Skill 從研發到正式落地的四個檢查點。</p>
     <div class="modal-list" id="modalList"></div>
+  </div>
+</div>
+
+<!-- Tailwind details modal -->
+<div class="modal-overlay" id="tailwindModal" onclick="if(event.target===this) closeModal('tailwindModal')">
+  <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="tailwindModalTitle">
+    <button class="modal-close" onclick="closeModal('tailwindModal')" aria-label="close">✕</button>
+    <div class="modal-eyebrow" id="tailwindModalEyebrow"></div>
+    <h2 class="modal-title" id="tailwindModalTitle"></h2>
+    <p class="modal-subtitle" id="tailwindModalSubtitle"></p>
+    <div id="tailwindModalBody"></div>
   </div>
 </div>
 
@@ -920,19 +1020,19 @@ const slideData = {
   // 0. 封面頁設定
   cover: {
     title: "網頁提升計畫進度報告",
-    date: "2026 / 05 / 26"
+    date: "2026 / 05 / 27"
   },
 
   // 1. 幹部總覽儀表板數據
   overview: {
     title: "運作效率與 AI 研發報告",
     subtitle: "網頁 & 工具組 · 2026 年 5 月提升計畫進度匯報",
-    lastUpdated: "2026/05/26",
+    lastUpdated: "2026/05/27",
     kpis: [
       { value: "100%", label: "運作效率第一階段", hint: "4 / 4 專案完成驗收", tone: "success" },
-      { value: "5",    label: "AI 核心技能研發中", hint: "3 項已通過可行性",   tone: "accent" },
+      { value: "5",    label: "AI 核心技能研發中", hint: "5 項已通過可行性",   tone: "accent" },
       { value: "4 / 4", label: "重點專案 CI/CD 升級", hint: "全 Repo 已導入",   tone: "success" },
-      { value: "5/26",  label: "今日落地驗收里程碑", hint: "落地使用 + 文件化", tone: "highlight" }
+      { value: "5/27",  label: "今日落地驗收里程碑", hint: "落地使用 + 文件化", tone: "highlight" }
     ],
     highlights: [
       "第一階段部署流程優化已全數完成（紅綠後台、Web館、後台工具、道具系統）。",
@@ -954,7 +1054,9 @@ const slideData = {
         owner: "廖序耘",
         prepare: 100, execute: 5, verify: 0, status: "進行中",
         pain: "樣式散亂難維護、畫面不一致",
-        progress: "新官網前置準備完成，進入執行期"
+        progress: "新官網前置準備完成，進入執行期",
+        link: "https://gamma.app/docs/Tailwind-CSS--uvcq4yk38ete7u4?mode=doc",
+        detailsKey: "tailwind"
       },
       {
         name: "後台工具升級 (Py2 → API)",
@@ -963,17 +1065,51 @@ const slideData = {
         pain: "Python2 / Mongo 直接存取之資安疑慮",
         progress: "前置準備進行中，串接新 API 規格"
       }
-    ]
+    ],
+    // 詳細說明 modal：對應 phase2 卡片的 detailsKey
+    detailsModals: {
+      tailwind: {
+        eyebrow: "Phase 2 · 程式架構優化",
+        title: "樣式模組化 (Tailwind CSS 4)",
+        subtitle: "從樣式散亂走向系統化規範，先導專案實測成效。",
+        pains: [
+          { t: "樣式分散、難維護", d: "同一畫面不同地方長得不一樣" },
+          { t: "修改成本高",       d: "要改一個顏色或間距，得找好幾個地方才能改完" },
+          { t: "協作不一致",       d: "不同專案之間寫法不統一，交接和協作都費力" }
+        ],
+        results: [
+          { v: "1 小時內", d: "完成環境建置" },
+          { v: "1 個檔案", d: "全站視覺調整" },
+          { v: "跨專案",   d: "與【線上】樣式相容性高" },
+          { v: "一致",     d: "樣式規範" }
+        ],
+        beforeAfter: {
+          before: [
+            "找樣式要翻多支檔案",
+            "改全站顏色逐一修改，容易漏改",
+            "畫面一致性靠人工把關",
+            "新專案啟動重新建置費時"
+          ],
+          after: [
+            "樣式就在元素上，一眼看到",
+            "全站同步",
+            "系統層面約束，不一致難以發生",
+            "現有成果直接沿用"
+          ]
+        }
+      }
+    }
   },
 
   // 3. AI Skills 研發進度與矩陣
   aiSkills: {
+    excelLink: "https://internationalgamessystem.sharepoint.com/:x:/r/teams/ACD_RD5_BACKEND_SERVICES/_layouts/15/doc2.aspx?sourcedoc=%7B4758e400-f4fb-46d9-86c4-5c206b148b7b%7D&action=edit&activeCell=%27Skills%20%E9%A9%97%E6%94%B6%E8%A1%A8%27!M18&wdinitialsession=b31be9f0-b1d1-13a5-b2b0-d7db3d19703a&wdrldsc=5&wdrldc=1&wdrldr=AccessTokenExpiredWarningUnauthenticated%2CRefreshin",
     skillsList: [
-      { name: "Deploy Skill",      owner: "蔡語哲", note: "測試機自動化與 PR 建立",   feasibility: true,  landing: false, doc: false, cross: false, link: "https://eugene6289.github.io/presentations/deploy/presentation.html" },
-      { name: "Frontend UI Skill", owner: "廖序耘", note: "設計圖直接轉為網頁樣式",   feasibility: true,  landing: false, doc: false, cross: false, link: "" },
-      { name: "Debug Skill",       owner: "林芯緹", note: "Log 分析與異常定位",       feasibility: false, landing: false, doc: false, cross: false, link: "" },
-      { name: "CreateDoc Skill",   owner: "陳韋銘", note: "程式碼自動生成文件",       feasibility: true,  landing: false, doc: false, cross: false, link: "" },
-      { name: "Code Review Skill", owner: "林書仲", note: "安全性與語法質量檢查",     feasibility: false, landing: false, doc: false, cross: false, link: "" }
+      { name: "Deploy Skill",      owner: "蔡語哲", note: "測試機自動化與 PR 建立",   feasibility: true,  landing: true,  doc: false, cross: false, link: "https://eugene6289.github.io/presentations/deploy/presentation.html" },
+      { name: "Frontend UI Skill", owner: "廖序耘", note: "設計圖直接轉為網頁樣式",   feasibility: true,  landing: false, doc: false, cross: false, link: "https://hackmd.io/@Dx8IyluQRDKlEbVgQx4WzQ/BkcDhRQlfg" },
+      { name: "Debug Skill",       owner: "林芯緹", note: "Log 分析與異常定位",       feasibility: true,  landing: false, doc: false, cross: false, link: "https://hackmd.io/@QQsVrj_GRiWui2Q55byeqg/Hy1i6aQgGl" },
+      { name: "CreateDoc Skill",   owner: "陳韋銘", note: "程式碼自動生成文件",       feasibility: true,  landing: false, doc: false, cross: false, link: "http://igscloud2/index.php/s/CRppi8tJGNs6jgN" },
+      { name: "Code Review Skill", owner: "林書仲", note: "安全性與語法質量檢查",     feasibility: true,  landing: false, doc: false, cross: false, link: "" }
     ],
     standards: [
       { name: "Skills 可行性", criterion: "成員認可 Skill 並確認可在實際場景中運作" },
@@ -981,7 +1117,7 @@ const slideData = {
       { name: "文件完整",      criterion: "包含 README.md 並上傳 GitHub、說明易於理解" },
       { name: "交叉驗收",      criterion: "至少 2 位以上成員測試並成功導入專案" }
     ],
-    todayNote: "今日 (5/26) 重點為「落地使用」與「文件化」之進度檢查"
+    todayNote: "今日 (5/27) 重點為「落地使用」與「文件化」之進度檢查"
   },
 
   // 4. Repo 優化健康度
@@ -1196,6 +1332,12 @@ function renderSlide2b() {
         <div><div class="p2-blabel">執行 ${item.execute}%</div>${progressBarSlim(item.execute)}</div>
         <div><div class="p2-blabel">驗證 ${item.verify}%</div>${progressBarSlim(item.verify)}</div>
       </div>
+      ${(item.detailsKey || item.link) ? `
+        <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+          ${item.detailsKey ? `<button class="row-action" onclick="openModal('${esc(item.detailsKey)}Modal')">詳細說明 <span class="row-action-arrow">↗</span></button>` : ''}
+          ${item.link ? `<a class="row-action" href="${esc(item.link)}" target="_blank" rel="noopener noreferrer">查看文件 <span class="row-action-arrow">↗</span></a>` : ''}
+        </div>
+      ` : ''}
     </div>
   `).join('');
 
@@ -1272,7 +1414,7 @@ function renderSlide4() {
   const rows = slideData.aiSkills.skillsList.map(s => {
     const actionCell = s.link
       ? `<a class="row-action" href="${esc(s.link)}" target="_blank" rel="noopener noreferrer">
-           查看進度 <span class="row-action-arrow">↗</span>
+           Link <span class="row-action-arrow">↗</span>
          </a>`
       : `<span class="row-action-empty">尚未提供</span>`;
     const trCls = s.link ? 'linkable' : '';
@@ -1296,10 +1438,14 @@ function renderSlide4() {
       <h1 class="slide-title">AI Skills 發展</h1>
       <div class="slide-subtitle">${esc(slideData.aiSkills.todayNote)}</div>
     </div>
-    <div class="right">
-      <button class="open-modal-btn" onclick="openStandardsModal()">
+    <div class="right" style="display:flex; gap:10px; align-items:center;">
+      <a class="open-modal-btn" href="${esc(slideData.aiSkills.excelLink)}" target="_blank" rel="noopener noreferrer">
+        <span>Excel 進度追蹤</span>
+        <span class="row-action-arrow">↗</span>
+      </a>
+      <button class="open-modal-btn" onclick="openModal('standardsModal')">
         <span class="icon">⊕</span>
-        <span>四大驗收標準</span>
+        <span>驗收標準</span>
       </button>
     </div>
   </div>
@@ -1382,16 +1528,21 @@ function mount() {
   document.getElementById('nextBtn').addEventListener('click', next);
 
   document.addEventListener('keydown', (e) => {
-    const modalOpen = document.getElementById('standardsModal').classList.contains('open');
-    if (e.key === 'Escape' && modalOpen) { e.preventDefault(); closeStandardsModal(); return; }
-    if (modalOpen) return; // don't navigate slides while modal is open
+    const openModals = document.querySelectorAll('.modal-overlay.open');
+    const anyModalOpen = openModals.length > 0;
+    if (e.key === 'Escape' && anyModalOpen) {
+      e.preventDefault();
+      openModals.forEach(m => m.classList.remove('open'));
+      return;
+    }
+    if (anyModalOpen) return; // don't navigate slides while any modal is open
     if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
     if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
     if (e.key === 'Home') { e.preventDefault(); goTo(0); }
     if (e.key === 'End') { e.preventDefault(); goTo(renderers.length - 1); }
   });
 
-  // Pre-populate modal list once
+  // Pre-populate standards modal list once
   const modalList = document.getElementById('modalList');
   modalList.innerHTML = slideData.aiSkills.standards.map((st, i) => `
     <div class="modal-std">
@@ -1400,6 +1551,49 @@ function mount() {
       <div class="d">${esc(st.criterion)}</div>
     </div>
   `).join('');
+
+  // Pre-populate details modals (Tailwind etc.)
+  const tw = slideData.operationEfficiency.detailsModals?.tailwind;
+  if (tw) {
+    document.getElementById('tailwindModalEyebrow').textContent = tw.eyebrow;
+    document.getElementById('tailwindModalTitle').textContent = tw.title;
+    document.getElementById('tailwindModalSubtitle').textContent = tw.subtitle;
+    document.getElementById('tailwindModalBody').innerHTML = `
+      <div class="modal-section">
+        <div class="modal-section-h">痛點</div>
+        <div class="pain-grid">
+          ${tw.pains.map(p => `
+            <div class="pain-card">
+              <div class="t">${esc(p.t)}</div>
+              <div class="d">${esc(p.d)}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-h">先導專案實測結果</div>
+        <div class="result-grid">
+          ${tw.results.map(r => `
+            <div class="result-card">
+              <div class="v">${esc(r.v)}</div>
+              <div class="d">${esc(r.d)}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-h">預期效益</div>
+        <div class="ba-grid">
+          <div class="ba-col before">
+            <div class="h">Before</div>
+            <ul>${tw.beforeAfter.before.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+          </div>
+          <div class="ba-col after">
+            <div class="h">After</div>
+            <ul>${tw.beforeAfter.after.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
   updateNav();
   fitStage();
@@ -1436,15 +1630,17 @@ function fitStage() {
   wrap.style.transform = `scale(${scale})`;
 }
 
-// Modal open/close — exposed for inline onclick handlers
-function openStandardsModal() {
-  document.getElementById('standardsModal').classList.add('open');
+// Generic modal open/close — exposed for inline onclick handlers
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('open');
 }
-function closeStandardsModal() {
-  document.getElementById('standardsModal').classList.remove('open');
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('open');
 }
-window.openStandardsModal = openStandardsModal;
-window.closeStandardsModal = closeStandardsModal;
+window.openModal = openModal;
+window.closeModal = closeModal;
 
 document.addEventListener('DOMContentLoaded', mount);
 </script>
