@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Google Ads 互動廣告 H5 遊戲 · 可行性與資源請求</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --slide-w: 1280px;
+    --slide-h: 720px;
+    --bg: #0d0d0d;
+    --bg-2: #161616;
+    --bg-3: #1d1d1d;
+    --border: #2a2a2a;
+    --border-2: #3a3a3a;
+    --text: #f5f5f5;
+    --text-dim: #a3a3a3;
+    --text-mute: #6b6b6b;
+    --accent: #fbbf24;       /* amber - primary */
+    --accent-2: #f97316;     /* orange - emphasis */
+    --accent-soft: rgba(251,191,36,0.14);
+    --accent-soft-2: rgba(249,115,22,0.14);
+    --good: #34d399;
+    --bad: #f43f5e;
+    --good-soft: rgba(52,211,153,0.14);
+    --bad-soft: rgba(244,63,94,0.14);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter','Noto Sans TC',sans-serif; overflow: hidden; }
+  .stage { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .slide-wrap { position: relative; width: var(--slide-w); height: var(--slide-h); transform-origin: center center; }
+  .slide { position: absolute; inset: 0; padding: 56px 72px; opacity: 0; pointer-events: none; transition: opacity 0.25s; display: flex; flex-direction: column; }
+  .slide.active { opacity: 1; pointer-events: auto; }
+  .eyebrow { font-family: 'JetBrains Mono',monospace; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
+  .slide-title { font-size: 40px; font-weight: 600; line-height: 1.2; color: var(--text); margin-top: 10px; }
+  .slide-subtitle { font-size: 17px; color: var(--text-dim); margin-top: 12px; line-height: 1.55; max-width: 880px; }
+  .body { flex: 1; margin-top: 36px; display: flex; flex-direction: column; }
+  .footnote { font-family: 'JetBrains Mono',monospace; font-size: 11px; color: var(--text-mute); margin-top: 18px; letter-spacing: 0.04em; }
+
+  /* nav */
+  .nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; background: rgba(20,20,20,0.85); border: 1px solid var(--border-2); border-radius: 999px; padding: 8px 14px; backdrop-filter: blur(10px); z-index: 10; }
+  .nav button { background: transparent; border: 1px solid var(--border-2); color: var(--text-dim); padding: 4px 12px; border-radius: 999px; font-family: 'JetBrains Mono',monospace; font-size: 11px; cursor: pointer; transition: all 0.15s; }
+  .nav button:hover { border-color: var(--accent); color: var(--accent); }
+  .dots { display: flex; gap: 6px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #444; cursor: pointer; transition: background 0.15s; }
+  .dot.active { background: var(--accent); }
+  .pos { font-family: 'JetBrains Mono',monospace; font-size: 11px; color: var(--text-mute); padding: 0 6px; }
+
+  /* ---------- Cover ---------- */
+  .cover { justify-content: center; align-items: flex-start; }
+  .cover-accent { width: 56px; height: 3px; background: var(--accent); margin-bottom: 26px; }
+  .cover h1 { font-size: 60px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
+  .cover h1 .accent { color: var(--accent); }
+  .cover .sub { font-size: 22px; color: var(--text-dim); margin-top: 18px; }
+  .cover .meta { position: absolute; bottom: 56px; left: 72px; font-family: 'JetBrains Mono',monospace; font-size: 12px; color: var(--text-mute); letter-spacing: 0.08em; }
+
+  /* ---------- TL;DR (slide 2) ---------- */
+  .tldr-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-top: 8px; }
+  .tldr-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px; padding: 28px 26px; display: flex; flex-direction: column; }
+  .tldr-card .num { font-family: 'JetBrains Mono',monospace; font-size: 13px; color: var(--accent); letter-spacing: 0.16em; }
+  .tldr-card .label { font-size: 14px; color: var(--text-mute); margin-top: 8px; letter-spacing: 0.05em; }
+  .tldr-card .ans { font-size: 19px; line-height: 1.55; color: var(--text); margin-top: 14px; font-weight: 500; }
+  .tldr-card .ans em { font-style: normal; color: var(--accent); font-weight: 600; }
+  .tldr-footer { margin-top: 28px; padding: 16px 22px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 14px; color: var(--text-dim); }
+
+  /* ---------- Background (slide 3) ---------- */
+  .compare-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .compare-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px; padding: 24px 26px; }
+  .compare-card.now { border-color: rgba(160,160,160,0.25); }
+  .compare-card.new { border-color: rgba(251,191,36,0.35); background: linear-gradient(180deg, rgba(251,191,36,0.04), transparent 60%); }
+  .compare-card .label { font-family: 'JetBrains Mono',monospace; font-size: 11px; letter-spacing: 0.18em; color: var(--text-mute); text-transform: uppercase; }
+  .compare-card.new .label { color: var(--accent); }
+  .compare-card h3 { font-size: 24px; font-weight: 600; margin-top: 10px; line-height: 1.3; }
+  .compare-card .desc { font-size: 15px; line-height: 1.7; color: var(--text-dim); margin-top: 14px; }
+  .compare-card .flow { margin-top: 18px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .step-pill { background: var(--bg-3); border: 1px solid var(--border); padding: 6px 14px; border-radius: 999px; font-size: 13px; color: var(--text); }
+  .compare-card.new .step-pill { border-color: rgba(251,191,36,0.3); }
+  .step-arrow { color: var(--text-mute); font-family: 'JetBrains Mono',monospace; font-size: 14px; }
+
+  /* ---------- Rules (slide 4) ---------- */
+  .rules-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 8px; }
+  .rule { background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px; padding: 24px 22px; }
+  .rule .big { font-family: 'JetBrains Mono',monospace; font-size: 36px; font-weight: 600; color: var(--accent); letter-spacing: -0.02em; line-height: 1; }
+  .rule .big .unit { font-size: 18px; color: var(--accent); opacity: 0.7; margin-left: 4px; }
+  .rule .heading { font-size: 15px; font-weight: 600; margin-top: 14px; color: var(--text); }
+  .rule .body-text { font-size: 13px; color: var(--text-dim); margin-top: 10px; line-height: 1.65; }
+  .rules-footer { margin-top: 22px; display: flex; gap: 22px; padding: 14px 0; border-top: 1px solid var(--border); }
+  .rules-footer .item { font-size: 13px; color: var(--text-dim); }
+  .rules-footer .item .k { color: var(--text-mute); font-family: 'JetBrains Mono',monospace; font-size: 11px; margin-right: 8px; letter-spacing: 0.06em; }
+
+  /* ---------- Feasibility (slide 5) ---------- */
+  .feas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .feas-card { border-radius: 14px; padding: 26px 28px; border: 1px solid; display: flex; flex-direction: column; }
+  .feas-card.good { background: linear-gradient(180deg, var(--good-soft), transparent 70%); border-color: rgba(52,211,153,0.35); }
+  .feas-card.bad { background: linear-gradient(180deg, var(--bad-soft), transparent 70%); border-color: rgba(244,63,94,0.3); }
+  .feas-card .icon { font-family: 'JetBrains Mono',monospace; font-size: 22px; font-weight: 600; margin-bottom: 12px; }
+  .feas-card.good .icon { color: var(--good); }
+  .feas-card.bad .icon { color: var(--bad); }
+  .feas-card h3 { font-size: 22px; font-weight: 600; line-height: 1.3; }
+  .feas-card .desc { font-size: 14px; color: var(--text-dim); margin-top: 10px; line-height: 1.6; }
+  .feas-card ul { list-style: none; margin-top: 18px; }
+  .feas-card li { font-size: 14.5px; color: var(--text); padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); line-height: 1.5; }
+  .feas-card li:last-child { border-bottom: none; }
+  .feas-card .tip { margin-top: 18px; font-size: 13px; color: var(--text-mute); font-style: italic; }
+
+  /* ---------- Recommend (slide 6) ---------- */
+  .rec-hero { background: var(--bg-2); border: 1px solid var(--border-2); border-left: 4px solid var(--accent); border-radius: 12px; padding: 26px 30px; }
+  .rec-hero .label { font-family: 'JetBrains Mono',monospace; font-size: 12px; color: var(--accent); letter-spacing: 0.2em; }
+  .rec-hero h3 { font-size: 30px; font-weight: 600; margin-top: 10px; }
+  .rec-hero .why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 22px; }
+  .rec-hero .why .item { background: var(--bg-3); border-radius: 10px; padding: 16px 18px; }
+  .rec-hero .why .item .n { font-family: 'JetBrains Mono',monospace; font-size: 12px; color: var(--accent); }
+  .rec-hero .why .item .t { font-size: 15px; font-weight: 600; margin-top: 6px; }
+  .rec-hero .why .item .d { font-size: 12.5px; color: var(--text-dim); line-height: 1.55; margin-top: 6px; }
+  .rec-alt { margin-top: 20px; padding: 18px 22px; background: var(--bg-3); border: 1px dashed var(--border-2); border-radius: 10px; display: flex; gap: 18px; align-items: flex-start; }
+  .rec-alt .tag { font-family: 'JetBrains Mono',monospace; font-size: 11px; color: var(--text-mute); letter-spacing: 0.14em; padding: 4px 10px; border: 1px solid var(--border-2); border-radius: 999px; flex-shrink: 0; }
+  .rec-alt .text { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+  .rec-alt .text strong { color: var(--text); font-weight: 600; }
+  .rec-warn { margin-top: 14px; padding: 12px 18px; background: var(--bad-soft); border-radius: 8px; font-size: 13px; color: #fca5a5; }
+
+  /* ---------- Resource Ask (slide 7) ---------- */
+  .ask-headline { font-size: 22px; color: var(--text-dim); margin-bottom: 22px; }
+  .ask-headline strong { color: var(--accent); font-weight: 600; }
+  .ask-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+  .ask-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px; padding: 26px 24px; }
+  .ask-card .role { font-family: 'JetBrains Mono',monospace; font-size: 12px; color: var(--text-mute); letter-spacing: 0.14em; }
+  .ask-card .amount { font-size: 38px; font-weight: 700; color: var(--accent); margin-top: 10px; letter-spacing: -0.02em; }
+  .ask-card .amount .small { font-size: 16px; color: var(--text-dim); font-weight: 400; margin-left: 6px; }
+  .ask-card .desc { font-size: 13.5px; color: var(--text-dim); margin-top: 14px; line-height: 1.6; }
+  .ask-extra { margin-top: 22px; background: var(--bg-3); border-radius: 10px; padding: 16px 20px; }
+  .ask-extra .label { font-family: 'JetBrains Mono',monospace; font-size: 11px; color: var(--text-mute); letter-spacing: 0.16em; }
+  .ask-extra .list { display: flex; gap: 22px; margin-top: 8px; flex-wrap: wrap; }
+  .ask-extra .list span { font-size: 14px; color: var(--text); }
+  .ask-extra .list span::before { content: '·'; color: var(--accent); margin-right: 8px; font-weight: 700; }
+  .ask-foot { margin-top: 14px; font-size: 12px; color: var(--text-mute); font-style: italic; }
+
+  /* ---------- Next Step (slide 8) ---------- */
+  .risk-list { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+  .risk-item { display: grid; grid-template-columns: 80px 1fr 200px; gap: 18px; align-items: center; background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; padding: 18px 22px; }
+  .risk-item .lvl { font-family: 'JetBrains Mono',monospace; font-size: 12px; color: var(--bad); letter-spacing: 0.14em; }
+  .risk-item .lvl.mid { color: var(--accent); }
+  .risk-item .desc { font-size: 14.5px; color: var(--text); line-height: 1.5; }
+  .risk-item .desc strong { color: var(--text); font-weight: 600; }
+  .risk-item .mitigation { font-size: 12px; color: var(--text-dim); line-height: 1.55; padding-left: 14px; border-left: 1px solid var(--border-2); }
+  .next-cta { margin-top: 24px; padding: 22px 28px; background: linear-gradient(135deg, rgba(251,191,36,0.14), rgba(249,115,22,0.08)); border: 1px solid rgba(251,191,36,0.3); border-radius: 14px; display: flex; align-items: center; gap: 24px; }
+  .next-cta .when { font-family: 'JetBrains Mono',monospace; font-size: 12px; color: var(--accent); letter-spacing: 0.14em; flex-shrink: 0; }
+  .next-cta .what { font-size: 17px; color: var(--text); line-height: 1.5; }
+  .next-cta .what strong { color: var(--accent); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="slide-wrap" id="slideWrap">
+
+    <!-- Slide 1: Cover -->
+    <section class="slide cover active">
+      <div class="cover-accent"></div>
+      <h1>Google Ads<br><span class="accent">「玩得到的廣告」</span></h1>
+      <div class="sub">技術可行性評估 · 資源請求</div>
+      <div class="meta">2026.05.28 · 跨部門簡報</div>
+    </section>
+
+    <!-- Slide 2: TL;DR -->
+    <section class="slide">
+      <div class="eyebrow">TL;DR · 三句話講完</div>
+      <h2 class="slide-title">這份簡報要回答 3 件事</h2>
+      <div class="slide-subtitle">下面 6 頁是這 3 個答案的來源。如果你只能看一頁，就是這一頁。</div>
+      <div class="body">
+        <div class="tldr-grid">
+          <div class="tldr-card">
+            <div class="num">Q1</div>
+            <div class="label">我們想做什麼</div>
+            <div class="ans">把我們的 App 包裝成一個可以<em>「直接玩」</em>的廣告，投放到 Google Ads。</div>
+          </div>
+          <div class="tldr-card">
+            <div class="num">Q2</div>
+            <div class="label">技術上可行嗎</div>
+            <div class="ans"><em>可行</em>。但有硬規格限制（最重要：整包 ≤ 5 MB、只能搭 App 廣告）。</div>
+          </div>
+          <div class="tldr-card">
+            <div class="num">Q3</div>
+            <div class="label">需要你同意什麼</div>
+            <div class="ans">投入約 <em>1 位工程師 × 3 週</em> + <em>0.5 位設計師 × 2 週</em>，產第一版可投放素材。</div>
+          </div>
+        </div>
+        <div class="tldr-footer">如果這 3 件事你都 OK，看到第 8 頁的「下一步」就可以結束。如果有任何一項想多了解，中間有對應頁數。</div>
+      </div>
+    </section>
+
+    <!-- Slide 3: Background -->
+    <section class="slide">
+      <div class="eyebrow">背景 · 這是什麼</div>
+      <h2 class="slide-title">「玩得到的廣告」是什麼？</h2>
+      <div class="slide-subtitle">Google 在 App 廣告類別下，允許廠商上傳一個小遊戲當作廣告素材。使用者滑手機時，不是看一張圖，而是直接玩一段 10–30 秒的小遊戲，玩完才看到「下載」按鈕。</div>
+      <div class="body">
+        <div class="compare-2col">
+          <div class="compare-card now">
+            <div class="label">目前的廣告</div>
+            <h3>看 → 點下載</h3>
+            <div class="desc">使用者看到一張圖或一段影片，覺得有興趣就點按鈕。被動觀看，互動低。</div>
+            <div class="flow">
+              <span class="step-pill">看到圖</span>
+              <span class="step-arrow">→</span>
+              <span class="step-pill">點下載</span>
+            </div>
+          </div>
+          <div class="compare-card new">
+            <div class="label">這次要做的</div>
+            <h3>玩 → 點下載</h3>
+            <div class="desc">使用者直接在廣告位置玩一段 mini-game，體驗 App 核心玩法，再決定下載。已被驗證能大幅提升安裝意願。</div>
+            <div class="flow">
+              <span class="step-pill">看到廣告</span>
+              <span class="step-arrow">→</span>
+              <span class="step-pill">玩 15-30 秒</span>
+              <span class="step-arrow">→</span>
+              <span class="step-pill">點下載</span>
+            </div>
+          </div>
+        </div>
+        <div class="footnote">Google 官方名稱：HTML5 / 可試玩廣告 (playable ad)　·　截至 2026 仍是 App 廣告活動專屬</div>
+      </div>
+    </section>
+
+    <!-- Slide 4: Rules -->
+    <section class="slide">
+      <div class="eyebrow">平台規則 · Google 給的盒子</div>
+      <h2 class="slide-title">Google 給的「小盒子」有多大</h2>
+      <div class="slide-subtitle">這幾條是 Google 寫死的規格，沒有商量空間。它決定我們能做什麼樣的遊戲。</div>
+      <div class="body">
+        <div class="rules-grid">
+          <div class="rule">
+            <div class="big">5<span class="unit">MB</span></div>
+            <div class="heading">遊戲總大小</div>
+            <div class="body-text">所有程式碼、圖片、音效、字型加起來不能超過 5 MB。這是最關鍵的限制。</div>
+          </div>
+          <div class="rule">
+            <div class="big">App<span class="unit">only</span></div>
+            <div class="heading">只能配 App 廣告</div>
+            <div class="body-text">必須要有已上架的 App（Android / iOS）。網頁版產品不能用這個廣告類型。</div>
+          </div>
+          <div class="rule">
+            <div class="big">CPE</div>
+            <div class="heading">玩第一下就計費</div>
+            <div class="body-text">使用者第一次互動或點按時，Google 才向我們收費。不點不玩不收錢。</div>
+          </div>
+          <div class="rule">
+            <div class="big">30<span class="unit">天</span></div>
+            <div class="heading">轉換回溯期</div>
+            <div class="body-text">玩完當天起 30 天內安裝 App，都算這支廣告帶來的轉換。</div>
+          </div>
+        </div>
+        <div class="rules-footer">
+          <div class="item"><span class="k">其他</span>不能存進度（沒有 localStorage）</div>
+          <div class="item"><span class="k">其他</span>外部連線只能用 Google 自家函式庫白名單</div>
+          <div class="item"><span class="k">其他</span>音效要等使用者互動後才能播</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 5: Feasibility -->
+    <section class="slide">
+      <div class="eyebrow">可行性 · 5 MB 能做什麼</div>
+      <h2 class="slide-title">5 MB 能塞什麼樣的遊戲</h2>
+      <div class="slide-subtitle">5 MB 不大也不小，能做的是「微型、短時、單一玩法」的 mini-game。下面把適合 / 不適合分清楚。</div>
+      <div class="body">
+        <div class="feas-grid">
+          <div class="feas-card good">
+            <div class="icon">✓ 適合做</div>
+            <h3>短打、單一玩法、15–30 秒玩完</h3>
+            <div class="desc">2D 為主，玩法越單純越好。下面這些類型都驗證過可以塞進 5 MB：</div>
+            <ul>
+              <li>點擊 / Tap 類（打地鼠、節奏點擊）</li>
+              <li>消除 / Match-3 類</li>
+              <li>跳躍 Runner（Tap-to-jump）</li>
+              <li>瞄準射擊（拉弓、彈彈球）</li>
+              <li>簡單拖放解謎</li>
+            </ul>
+            <div class="tip">關鍵：玩 1 輪就有成就感，不需要連線、不需要存檔。</div>
+          </div>
+          <div class="feas-card bad">
+            <div class="icon">✗ 不適合做</div>
+            <h3>這些直接放棄，5 MB 裝不下或不能做</h3>
+            <div class="desc">不是技術問題，是平台規則本身就不允許：</div>
+            <ul>
+              <li>3D 遊戲（引擎本身就吃 1–2 MB）</li>
+              <li>大量音效 / 語音的遊戲</li>
+              <li>需要連線多人對戰</li>
+              <li>需要存進度 / 高分榜</li>
+              <li>需要超過 30 秒的關卡</li>
+            </ul>
+            <div class="tip">如果想做的玩法落在這邊，要重新思考遊戲設計。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 6: Recommend -->
+    <section class="slide">
+      <div class="eyebrow">建議路線</div>
+      <h2 class="slide-title">推薦的做法</h2>
+      <div class="slide-subtitle">兩條路：(A) 工程師手刻，彈性最高；(B) Google Web Designer，不寫程式但互動有上限。建議選 A。</div>
+      <div class="body">
+        <div class="rec-hero">
+          <div class="label">建議方案</div>
+          <h3>工程師手刻 HTML5 + Canvas</h3>
+          <div class="why">
+            <div class="item">
+              <div class="n">01</div>
+              <div class="t">引擎成本 0 KB</div>
+              <div class="d">不依賴任何遊戲引擎，5 MB 預算全部留給遊戲內容（圖、音、玩法）。</div>
+            </div>
+            <div class="item">
+              <div class="n">02</div>
+              <div class="t">動畫用 Google 免費代管</div>
+              <div class="d">用 Google 白名單裡的 GSAP 函式庫處理動畫，不吃我們的 5 MB 額度。</div>
+            </div>
+            <div class="item">
+              <div class="n">03</div>
+              <div class="t">客製化彈性最高</div>
+              <div class="d">完全控制玩法、視覺、節奏。不被工具元件綁住，能對齊 App 的核心體驗。</div>
+            </div>
+          </div>
+        </div>
+        <div class="rec-alt">
+          <div class="tag">替代方案</div>
+          <div class="text"><strong>Google Web Designer</strong>（免費官方工具）：不需要工程師，拖拉介面就能產出符合規格的 ZIP。但互動深度有限——適合做「動態廣告」、不適合做「遊戲」。如果預算極緊可以考慮。</div>
+        </div>
+        <div class="rec-warn">⚠ 不推薦：Phaser / PIXI / Three.js — 主流遊戲引擎光是 minified 就要吃掉 0.5–1 MB，等於先燒掉 1/5 的預算。</div>
+      </div>
+    </section>
+
+    <!-- Slide 7: Resource Ask -->
+    <section class="slide">
+      <div class="eyebrow">資源請求 · The Ask</div>
+      <h2 class="slide-title">我們需要這些</h2>
+      <div class="body">
+        <div class="ask-headline">建議估算（含遊戲程式、廣告封裝、上架測試）：</div>
+        <div class="ask-grid">
+          <div class="ask-card">
+            <div class="role">ENGINEER</div>
+            <div class="amount">3<span class="small">人週</span></div>
+            <div class="desc">1 位工程師 × 3 週。涵蓋：遊戲程式、廣告 ZIP 封裝、Google Ads 規格驗證、上稿測試。</div>
+          </div>
+          <div class="ask-card">
+            <div class="role">DESIGNER</div>
+            <div class="amount">1<span class="small">人週</span></div>
+            <div class="desc">0.5 位設計師 × 2 週。涵蓋：角色 / UI / Sprite sheet 製作、5 MB 壓縮把關。</div>
+          </div>
+          <div class="ask-card">
+            <div class="role">BUDGET</div>
+            <div class="amount">0<span class="small">元</span></div>
+            <div class="desc">不需要購買新工具。Google Web Designer 免費，函式庫白名單都是 Google 自家代管。</div>
+          </div>
+        </div>
+        <div class="ask-extra">
+          <div class="label">同時還需要</div>
+          <div class="list">
+            <span>行銷團隊提供 App 廣告活動帳號權限</span>
+            <span>確認自家 App 已上架（Android / iOS）</span>
+            <span>提供投放預算（與本案無關，但要編列）</span>
+          </div>
+        </div>
+        <div class="ask-foot">* 以上為設計團隊內部估算，實際數字進入啟動會議後再校準。</div>
+      </div>
+    </section>
+
+    <!-- Slide 8: Risks + Next Step -->
+    <section class="slide">
+      <div class="eyebrow">風險與下一步</div>
+      <h2 class="slide-title">3 個要先知道的風險</h2>
+      <div class="slide-subtitle">技術可行不代表沒有坑。下面這 3 個是動工前就該攤開講的。</div>
+      <div class="body">
+        <div class="risk-list">
+          <div class="risk-item">
+            <div class="lvl">HIGH</div>
+            <div class="desc"><strong>5 MB 上限</strong>：素材壓縮要嚴格，設計師需與工程師同步介入做圖片壓縮、Sprite 合併。</div>
+            <div class="mitigation">→ 啟動第 1 週就鎖素材預算（拆給每個資產 KB 額度）</div>
+          </div>
+          <div class="risk-item">
+            <div class="lvl mid">MID</div>
+            <div class="desc"><strong>不支援部分廣告活動類型</strong>：AMP / 預先註冊 / 參與式 App 廣告活動都不能用，要確認我們投放的活動類型。</div>
+            <div class="mitigation">→ 啟動前由行銷團隊確認帳號與活動類型</div>
+          </div>
+          <div class="risk-item">
+            <div class="lvl mid">MID</div>
+            <div class="desc"><strong>HTML 結束標籤限制</strong>：Google 不接受自閉合 SVG 標籤，設計工具產出可能需手改。工程師預留 buffer。</div>
+            <div class="mitigation">→ 寫一個 build-time linter 自動轉換</div>
+          </div>
+        </div>
+        <div class="next-cta">
+          <div class="when">NEXT STEP →</div>
+          <div class="what">你 <strong>本週同意</strong>，我 <strong>下週啟動 prototype</strong>，<strong>第 2 週末可以看到第一支可投放 demo</strong>。</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- nav -->
+<div class="nav">
+  <button id="prev">← 上一頁</button>
+  <div class="pos" id="pos">1 / 8</div>
+  <div class="dots" id="dots"></div>
+  <button id="next">下一頁 →</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let idx = 0;
+
+  const dotsEl = document.getElementById('dots');
+  const posEl = document.getElementById('pos');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => go(i));
+    dotsEl.appendChild(d);
+  });
+
+  function go(n) {
+    if (n < 0 || n >= total) return;
+    slides[idx].classList.remove('active');
+    document.querySelectorAll('.dot')[idx].classList.remove('active');
+    idx = n;
+    slides[idx].classList.add('active');
+    document.querySelectorAll('.dot')[idx].classList.add('active');
+    posEl.textContent = `${idx + 1} / ${total}`;
+  }
+
+  document.getElementById('prev').addEventListener('click', () => go(idx - 1));
+  document.getElementById('next').addEventListener('click', () => go(idx + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); go(idx + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(idx - 1); }
+    else if (e.key === 'Home') { go(0); }
+    else if (e.key === 'End') { go(total - 1); }
+  });
+
+  // Fit stage uniformly
+  function fitStage() {
+    const wrap = document.getElementById('slideWrap');
+    const sw = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--slide-w'));
+    const sh = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--slide-h'));
+    const scale = Math.min(window.innerWidth / sw, window.innerHeight / sh) * 0.92;
+    wrap.style.transform = `scale(${scale})`;
+  }
+  window.addEventListener('resize', fitStage);
+  fitStage();
+</script>
+
+</body>
+</html>

@@ -1,210 +1,120 @@
 ---
-name: dark-report-deck
+name: presentation-requirements
 description: |
-  Build a dark-themed 16:9 HTML presentation deck using the in-house "進度報告"
-  visual system (sky/emerald accents, KPI dashboards, progress tables, repo
-  health grids, AI-skills matrix with modal, timeline).
+  Gate-keeper skill for presentation requests. Before any deck (HTML / .pptx /
+  slides / 簡報 / 投影片 / report deck) is built, force a confirmation of the
+  three core elements — 聽眾 (Audience)、目的 (Purpose)、大綱 (Outline) — so
+  Claude never guesses its way into the wrong content or structure.
 
-  **Trigger ONLY when** the user explicitly references this template — e.g.
-  "用 presentation-skill 那套樣式"、"照上次網頁提升計畫進度報告的風格做一份"、
-  "用我們報告的 deck template"、"用 dark-report-deck"、"參考 web-improvement
-  presentation 的樣式". Do NOT trigger for generic "做一份簡報" / "做 slides" /
-  ".pptx" requests — those should go through the pptx skill or a fresh design.
+  **Trigger on** any request that produces a slide deliverable:
+  "做一份簡報"、"做 slides"、"做 PPT"、"做 deck"、"幫我做投影片"、
+  ".pptx"、"presentation"、"report deck"、"進度報告 deck" etc.
+
+  This skill runs FIRST. After the three elements are confirmed, hand off to
+  the appropriate builder (the `pptx` skill for .pptx output, or a fresh HTML
+  deck build for browser-based decks).
 ---
 
-# Dark Report Deck
+# Presentation Requirements (三大要素 Gate)
 
-A reusable HTML presentation system for **internal monthly progress reports**.
-The reference implementation lives at
-`/Users/eugenechua/Projects/presentations/web-improvement/presentation.html`,
-the editable skeleton is `./template.html` next to this file.
-
-This is an **editable skill** — when the design system evolves (new tokens,
-new components, new visual rules), update this file *and* `template.html` so
-they stay in sync.
-
----
-
-## 1. When to use
-
-Use only when the user references this template by name or asks for "上次那套
-風格" / 引用 web-improvement deck. For brand-new design requests, build fresh
-instead — this skill is a *style lock-in*, not a generic deck generator.
+A presentation that misses 聽眾、目的、大綱 will always go in circles — Claude
+will guess the level, guess the takeaway, guess the structure, and the user
+will have to redo it. This skill forces the conversation up-front so the deck
+gets built once, correctly.
 
 ---
 
-## 2. Output convention
+## 1. The three elements
 
-- Drop the new deck under `/Users/eugenechua/Projects/presentations/<topic>/presentation.html`
-- After creation, append a new card to `/Users/eugenechua/Projects/presentations/index.html` (REPORT / SKILL / etc.)
-- File the user views is a single self-contained `.html` (CSS + JS inline)
+Before writing a single slide, every one of these must be on the table. If
+any are missing, ASK using `AskUserQuestion` — do not assume.
 
----
+### 1.1 聽眾 (Audience)
 
-## 3. Architecture (don't break these)
+- **問自己**：誰來看？他們的背景是什麼？
+- **為什麼重要**：知道聽眾，才能決定要不要解釋術語、內容要多深、舉什麼例子。
+- **範例**：「資料工程組組員 + 組長，熟悉 BigQuery，不需要解釋基本概念」
 
-**Stage / scaling**
-- Fixed 1280×720 stage (`--slide-w`, `--slide-h`)
-- `.stage` flex-centers `.slide-wrap`; `fitStage()` computes uniform scale so the deck fits any viewport
-- All slides absolute-positioned inside `.slide-wrap`, toggled via `.active`
+### 1.2 目的 (Purpose)
 
-**Data → Renderer pattern**
-- ALL slide content lives in the `slideData` object at the top of the `<script>` block
-- Each slide is a pure render function `renderSlideX(): string` that consumes a slice of `slideData`
-- The `renderers` array dictates slide order — reorder by editing this array, not by moving HTML
-- Adding a slide = (1) add data block to `slideData`, (2) write `renderSlideN()`, (3) push to `renderers`
+- **問自己**：聽眾看完後，應該知道什麼或做什麼？
+- **為什麼重要**：目的不清楚，Claude 會猜，猜錯就要來回修。
+- **範例**：「了解我如何使用 Claude 產 PPT」
 
-**Navigation**
-- Keyboard: `←` / `→` / `Space` / `PageUp` / `PageDown` / `Home` / `End`
-- Bottom nav pill with dots; clicking a dot jumps to that slide
-- Modal blocks slide navigation (Esc closes modal)
+### 1.3 大綱 (Outline)
+
+- **問自己**：每頁大概講什麼？幾頁？
+- **為什麼重要**：有大綱，Claude 不會自己發揮，結構就是你要的。
+- **範例**：「開場→痛點→結論→Prompt→Chat→Code→工具化→總結，共 8 頁」
 
 ---
 
-## 4. Design system
+## 2. Workflow (strict order)
 
-### Color tokens (CSS custom properties on `:root`)
-
-| Token | Value | Used for |
-|---|---|---|
-| `--bg` | `#0d0d0d` | Page / slide background |
-| `--bg-2` | `#141414` | Card surface |
-| `--bg-3` | `#1a1a1a` | Inner card / table head / nested surface |
-| `--border` | `#262626` | Default card border |
-| `--border-2` | `#333` | Stronger border (nav buttons, modal close) |
-| `--text` | `#f5f5f5` | Primary text |
-| `--text-dim` | `#a3a3a3` | Secondary text |
-| `--text-mute` | `#737373` | Meta / labels / muted captions |
-| `--accent` | `#38bdf8` (sky) | **Primary accent** — eyebrows, in-progress, links, buttons |
-| `--accent-2` | `#10b981` (emerald) | **Success accent** — done / completed |
-| `--accent-warn` | `#fbbf24` | Reserved (warn) |
-| `--accent-danger` | `#f43f5e` | Reserved (danger) |
-
-### Typography
-
-- Primary: `'Inter', 'Noto Sans TC'` — body / titles
-- Mono: `'JetBrains Mono'` — dates, metadata, code-like labels, nav pos
-- Title scale: 36px (slide title), 23–24px (card title), 17–20px (subtitle/row title), 13–14px (eyebrow/meta)
-- Eyebrow style: uppercase, `letter-spacing: 0.18em`, `--accent` colored
-
-### Spacing
-
-- Slide padding: `48px 64px`
-- Card padding: `20px 22px` (compact) → `28px 32px` (feature)
-- Card radius: `12px` (cards) / `8px` (inner stats) / `999px` (pills, buttons)
-- Section gaps: `14–22px`
+1. **Detect**: user asks for a deck / slides / .pptx / 簡報.
+2. **Check**: scan the request for 聽眾 / 目的 / 大綱. Mark which are stated
+   and which are missing.
+3. **Ask**: if any are missing, call `AskUserQuestion` to collect them in ONE
+   batch. Provide sensible default options when possible (e.g. typical
+   audience profiles, common purposes) but always allow free-text via "Other".
+4. **Echo back**: once collected, restate the three elements in a short block
+   so the user can confirm or correct before any slides are made:
+   ```
+   聽眾：…
+   目的：…
+   大綱：…（共 N 頁）
+   開工嗎？
+   ```
+5. **Hand off**: only after explicit confirmation, hand off to the right
+   builder:
+   - `.pptx` requested → invoke the `pptx` skill
+   - HTML browser deck requested → build fresh (no locked template)
+   - Unclear format → ask which one before handing off
 
 ---
 
-## 5. Visual language rules (the most important section)
+## 3. Asking well (AskUserQuestion patterns)
 
-These rules separate interactive affordances from information badges. **Do not
-collapse them** — that's how everything ends up looking like a clickable button.
+Batch the missing elements into a SINGLE `AskUserQuestion` call (1–3
+questions max) so the user fills them in one go. Examples:
 
-| Role | Treatment | Examples |
-|---|---|---|
-| **Button / link (interactive)** | **Outlined**: transparent-ish background `rgba(56,189,248,0.08)`, 1px solid `rgba(56,189,248,0.45)` border, accent text. Hover: bg `0.18`, border solid `--accent`, text `#fff`, `translateY(-1px)` | `.row-action` (查看進度 ↗), `.open-modal-btn` (modal 觸發器), `.nav button`, `.modal-close` |
-| **Status pill (info)** | **Filled tag**: NO border, soft filled background `rgba(<accent>,0.14)`, accent text, optional `::before` dot. Cursor stays default. | `.pill.done`, `.pill.progress` |
-| **KPI value / timeline node** | **Solid accent color** as foreground only (text/marker), no surrounding box | `.kpi .value.accent`, `.tl-item::before` |
+**聽眾 options** (pick from likely profiles, plus Other):
+- 同部門同事（熟悉領域術語）
+- 跨部門同事（需要白話一點）
+- 主管 / 高階主管（重結論、輕細節）
+- 外部客戶 / 合作夥伴
 
-**The rule of thumb:** if a user *can click it*, it has a border. If it just
-*shows status*, it has a filled background and no border. If it's pure data,
-it's just colored text/dot. Never mix.
+**目的 options**:
+- 報告進度 / 現況更新
+- 說服對方做某個決定
+- 教學 / 知識分享
+- 提案 / pitch
 
----
-
-## 6. Component catalog
-
-All components live inside the `<style>` block of `template.html`. They render
-through the data → renderer pattern in section 3.
-
-### 6.1 Cover slide (`renderSlideCover`)
-Centered title with accent rule above; date pinned to bottom in mono.
-Data: `slideData.cover = { title, date }`.
-
-### 6.2 Dashboard with KPI row (`renderSlide1`)
-4-column `.kpi-row` + `.highlight-card` bullet summary.
-- KPI tones: `success` (emerald), `accent` (sky), `highlight` (gradient bg)
-- Data: `slideData.overview = { title, subtitle, lastUpdated, kpis[], highlights[] }`
-- Each kpi: `{ value, label, hint, tone }`
-
-### 6.3 Progress table (`renderSlide2` / `buildProgressRow`)
-Table with 3 progress bars per row (Prepare / Execute / Verify) + status pill.
-- `progressBar(pct)` colors itself: ≥100 → done (emerald), >0 → partial (sky), 0 → idle (gray)
-- Data: array of `{ name, owner, date, prepare, execute, verify, status }`
-
-### 6.4 Phase / focus card grid (`renderSlide2b`)
-2-column card grid with title, owner, pain-point, current-state, 3-bar progress strip.
-- `p2-grid-tall` modifier makes cards fill the body height
-- Data: `{ name, owner, status, pain, progress, prepare, execute, verify }`
-
-### 6.5 Repo health grid (`renderSlide3`)
-2×2 grid of repos, each with 3 inner stat tiles (Lint / Security / CD).
-- Data: `{ type, repo, tech, lint, security, cd }`
-
-### 6.6 AI skills matrix + modal (`renderSlide4`)
-Wide table: Skill / Owner / Note / 4 checkbox columns / Action button column.
-- Last column conditionally renders `.row-action` (with `↗`) if `link` is set, otherwise `.row-action-empty` ("尚未提供")
-- Top-right has `.open-modal-btn` (`⊕ 四大驗收標準`) → opens overlay modal listing acceptance criteria
-- Data: `{ skillsList: [{ name, owner, note, feasibility, landing, doc, cross, link }], standards: [{ name, criterion }], todayNote }`
-
-### 6.7 Timeline (`renderSlide5`)
-Vertical timeline with dot + glow on current item.
-- Modifiers: `.success` (emerald dot), `.current` (sky glow + `NOW` tag)
-- Data: `{ when, title, detail, success, current }`
-
-### 6.8 Modal (`#standardsModal`)
-Generic overlay pattern: dark backdrop blur, centered card, close button top-right, Esc to close, click-outside to close. Pre-populated on mount from `slideData.aiSkills.standards`.
+**大綱**: use free-text via "Other" most of the time — outlines are too
+specific to enumerate. But it's fine to offer a suggested skeleton based on
+purpose and ask the user to confirm or edit.
 
 ---
 
-## 7. Adding a new slide
+## 4. What this skill does NOT do
 
-1. Add a new key to `slideData` with whatever shape you need
-2. Write `renderSlideN()` returning a string with `.slide-header` + `.slide-body` skeleton
-3. Push the function into `renderers` at the desired position
-4. (Optional) If the slide uses a new component, add CSS scoped to a unique class root and document it in section 6 of this file
-
-**Skeleton:**
-
-```js
-function renderSlideN() {
-  const d = slideData.myNewKey;
-  return `
-  <div class="slide-header">
-    <div class="left">
-      <span class="eyebrow">PART X · 區段名</span>
-      <h1 class="slide-title">${esc(d.title)}</h1>
-      <div class="slide-subtitle">${esc(d.subtitle)}</div>
-    </div>
-    <div class="right">
-      <!-- optional pill / button / meta -->
-    </div>
-  </div>
-  <div class="slide-body">
-    <!-- content -->
-  </div>
-  `;
-}
-```
+- It does NOT build the deck itself. It only gates and hands off.
+- It does NOT carry a locked visual template. Each deck is designed for its
+  audience and purpose. (The previous `dark-report-deck` template has been
+  removed.)
+- It does NOT skip the gate just because the user sounds like they're in a
+  hurry. Spending 30 seconds on three questions saves 30 minutes of rework.
 
 ---
 
-## 8. Editing this skill
+## 5. Edge cases
 
-- **New token?** Add to `:root` in `template.html` *and* the token table here
-- **New component?** Add CSS + renderer to `template.html`, document in section 6
-- **New visual rule?** Update section 5 — that table is the source of truth
-- **Want to change accent palette?** Edit `--accent` / `--accent-2` — every component pulls from these, so the whole deck re-tones in one place
-
-Keep `template.html` runnable on its own (open it in a browser, see a placeholder deck). The placeholder data is intentional — it serves as a live preview while editing the design system.
-
----
-
-## 9. Quick start (for Claude executing this skill)
-
-1. Read `template.html` (sibling of this file)
-2. Copy it to `/Users/eugenechua/Projects/presentations/<topic>/presentation.html`
-3. Edit ONLY the `slideData` block — leave CSS / renderers / nav untouched unless the user explicitly asks for a design change
-4. After writing, append a card to `/Users/eugenechua/Projects/presentations/index.html`
-5. Share the file via a `computer://` link
+- **User provides all three up-front** → echo back for confirmation, then
+  hand off. No need to ask redundant questions.
+- **User says "你決定就好" / "隨便"** → still ask the minimum: at least 聽眾
+  and 目的. Without those two, even a default is a guess.
+- **Iterating on an existing deck** → the three elements are still the
+  frame. If the user wants to edit a deck, confirm the audience/purpose
+  haven't shifted before making structural changes.
+- **Very short request** (e.g. "做一頁總結 slide") → the gate still applies
+  but can be lightweight: one quick question covering all three.
