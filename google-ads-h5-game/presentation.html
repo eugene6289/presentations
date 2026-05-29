@@ -148,6 +148,55 @@
   .next-cta .when { font-family: 'JetBrains Mono',monospace; font-size: 12px; color: var(--accent); letter-spacing: 0.14em; flex-shrink: 0; }
   .next-cta .what { font-size: 17px; color: var(--text); line-height: 1.5; }
   .next-cta .what strong { color: var(--accent); font-weight: 600; }
+
+  /* ---------- Build / Packaging (new) ---------- */
+  .build-flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 4px 0 26px; }
+  .build-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .build-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px; padding: 24px 24px; }
+  .build-card .k { font-family: 'JetBrains Mono',monospace; font-size: 12px; color: var(--accent); letter-spacing: 0.14em; }
+  .build-card h3 { font-size: 18px; font-weight: 600; margin-top: 10px; line-height: 1.3; }
+  .build-card p { font-size: 13.5px; color: var(--text-dim); line-height: 1.65; margin-top: 10px; }
+  .build-card .mono { font-family: 'JetBrains Mono',monospace; font-size: 12px; color: var(--text-mute); margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+
+  /* ---------- Upload Routes (new) ---------- */
+  .route-badge { display: inline-block; margin-top: 12px; font-family: 'JetBrains Mono',monospace; font-size: 11px; letter-spacing: 0.1em; padding: 3px 12px; border-radius: 999px; }
+  .route-badge.rec { background: var(--good-soft); color: var(--good); border: 1px solid rgba(52,211,153,0.35); }
+  .route-badge.alt { background: var(--bg-3); color: var(--text-mute); border: 1px solid var(--border-2); }
+  .route-steps { list-style: none; margin-top: 16px; counter-reset: s; }
+  .route-steps li { font-size: 13.5px; color: var(--text); line-height: 1.5; padding: 7px 0 7px 30px; position: relative; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .route-steps li:last-child { border-bottom: none; }
+  .route-steps li::before { counter-increment: s; content: counter(s); position: absolute; left: 0; top: 6px; width: 20px; height: 20px; border-radius: 50%; background: var(--bg-3); border: 1px solid var(--border-2); font-family: 'JetBrains Mono',monospace; font-size: 11px; color: var(--accent); display: flex; align-items: center; justify-content: center; }
+  .upload-rec { margin-top: 20px; padding: 16px 22px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+  .upload-rec strong { color: var(--accent); font-weight: 600; }
+
+  /* ---------- Designer Collaboration (new) ---------- */
+  .design-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 4px; }
+  .design-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px; padding: 22px 24px; display: flex; gap: 18px; align-items: flex-start; }
+  .design-card .n { font-family: 'JetBrains Mono',monospace; font-size: 22px; font-weight: 600; color: var(--accent); line-height: 1; flex-shrink: 0; width: 36px; }
+  .design-card .txt h3 { font-size: 17px; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .design-card .txt p { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-top: 8px; }
+  .design-collab { margin-top: 20px; padding: 14px 22px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 13.5px; color: var(--text-dim); line-height: 1.6; }
+  .design-collab strong { color: var(--accent); font-weight: 600; }
+
+  /* ---------- Playable Demo (new) ---------- */
+  .game-stage { display: flex; gap: 44px; align-items: center; justify-content: center; margin-top: 6px; }
+  .phone { position: relative; width: 300px; height: 540px; border-radius: 34px; background: #000; border: 6px solid #2a2a2a; box-shadow: 0 24px 60px rgba(0,0,0,0.55); overflow: hidden; flex-shrink: 0; }
+  #gameCanvas { display: block; width: 300px; height: 540px; background: #161616; touch-action: manipulation; cursor: pointer; }
+  .game-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: rgba(13,13,13,0.93); text-align: center; padding: 30px; }
+  .game-overlay.hidden { display: none; }
+  .game-overlay .glabel-mono { font-family: 'JetBrains Mono',monospace; font-size: 11px; letter-spacing: 0.22em; color: var(--accent); }
+  .game-overlay h4 { font-size: 24px; color: var(--text); font-weight: 700; }
+  .game-overlay p { font-size: 13.5px; color: var(--text-dim); line-height: 1.55; }
+  .game-btn { margin-top: 4px; padding: 12px 30px; border: none; border-radius: 999px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #111; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .game-btn-text { background: none; border: none; color: var(--text-dim); font-size: 12.5px; cursor: pointer; text-decoration: underline; font-family: inherit; }
+  .game-score-final { font-family: 'JetBrains Mono',monospace; font-size: 44px; color: var(--accent); font-weight: 600; line-height: 1; }
+  .game-side { max-width: 380px; }
+  .game-side .glabel { font-family: 'JetBrains Mono',monospace; font-size: 12px; color: var(--accent); letter-spacing: 0.16em; }
+  .game-side h3 { font-size: 22px; font-weight: 600; margin-top: 10px; line-height: 1.3; }
+  .game-side p { font-size: 14px; color: var(--text-dim); line-height: 1.7; margin-top: 12px; }
+  .game-side ul { list-style: none; margin-top: 14px; }
+  .game-side li { font-size: 13.5px; color: var(--text); padding: 6px 0; }
+  .game-side li::before { content: '·'; color: var(--accent); margin-right: 10px; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -163,34 +212,7 @@
       <div class="meta">2026.05.28 · 跨部門簡報</div>
     </section>
 
-    <!-- Slide 2: TL;DR -->
-    <section class="slide">
-      <div class="eyebrow">TL;DR · 三句話講完</div>
-      <h2 class="slide-title">這份簡報要回答 3 件事</h2>
-      <div class="slide-subtitle">下面 6 頁是這 3 個答案的來源。如果你只能看一頁，就是這一頁。</div>
-      <div class="body">
-        <div class="tldr-grid">
-          <div class="tldr-card">
-            <div class="num">Q1</div>
-            <div class="label">我們想做什麼</div>
-            <div class="ans">把我們的 App 包裝成一個可以<em>「直接玩」</em>的廣告，投放到 Google Ads。</div>
-          </div>
-          <div class="tldr-card">
-            <div class="num">Q2</div>
-            <div class="label">技術上可行嗎</div>
-            <div class="ans"><em>可行</em>。但有硬規格限制（最重要：整包 ≤ 5 MB、只能搭 App 廣告）。</div>
-          </div>
-          <div class="tldr-card">
-            <div class="num">Q3</div>
-            <div class="label">需要你同意什麼</div>
-            <div class="ans">投入約 <em>1 位工程師 × 3 週</em> + <em>0.5 位設計師 × 2 週</em>，產第一版可投放素材。</div>
-          </div>
-        </div>
-        <div class="tldr-footer">如果這 3 件事你都 OK，看到第 8 頁的「下一步」就可以結束。如果有任何一項想多了解，中間有對應頁數。</div>
-      </div>
-    </section>
-
-    <!-- Slide 3: Background -->
+    <!-- Slide 2: Background -->
     <section class="slide">
       <div class="eyebrow">背景 · 這是什麼</div>
       <h2 class="slide-title">「玩得到的廣告」是什麼？</h2>
@@ -224,7 +246,7 @@
       </div>
     </section>
 
-    <!-- Slide 4: Rules -->
+    <!-- Slide 3: Rules -->
     <section class="slide">
       <div class="eyebrow">平台規則 · Google 給的盒子</div>
       <h2 class="slide-title">Google 給的「小盒子」有多大</h2>
@@ -260,7 +282,7 @@
       </div>
     </section>
 
-    <!-- Slide 5: Feasibility -->
+    <!-- Slide 4: Feasibility -->
     <section class="slide">
       <div class="eyebrow">可行性 · 5 MB 能做什麼</div>
       <h2 class="slide-title">5 MB 能塞什麼樣的遊戲</h2>
@@ -292,6 +314,45 @@
               <li>需要超過 30 秒的關卡</li>
             </ul>
             <div class="tip">如果想做的玩法落在這邊，要重新思考遊戲設計。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 5: Playable Demo -->
+    <section class="slide">
+      <div class="eyebrow">實機 Demo · 最常見的玩法</div>
+      <h2 class="slide-title">最常見的：一鍵「打地鼠」Tap 遊戲</h2>
+      <div class="slide-subtitle">可試玩廣告最主流的是 hyper-casual「一鍵互動」：規則一秒看懂、玩一輪就有成就感。下面是用 HTML5 + Canvas 手刻、可直接玩的範例（點開始）。</div>
+      <div class="body">
+        <div class="game-stage">
+          <div class="phone">
+            <canvas id="gameCanvas" width="300" height="540"></canvas>
+            <div class="game-overlay" id="gameStart">
+              <div class="glabel-mono">PLAYABLE DEMO</div>
+              <h4>打地鼠</h4>
+              <p>15 秒內點擊冒出的地鼠，<br>看你能打中幾隻！</p>
+              <button class="game-btn" id="gameStartBtn">開始玩 ▶</button>
+            </div>
+            <div class="game-overlay hidden" id="gameOver">
+              <p>時間到！你打中了</p>
+              <div class="game-score-final" id="finalScore">0</div>
+              <p>—— 這裡就是廣告的「下載」收尾畫面 ——</p>
+              <button class="game-btn" id="gameCtaBtn">免費下載 App ↓</button>
+              <button class="game-btn-text" id="gameRetryBtn">再玩一次</button>
+            </div>
+          </div>
+          <div class="game-side">
+            <div class="glabel">WHY THIS GENRE</div>
+            <h3>為什麼是這類玩法最常見</h3>
+            <p>Tap 打地鼠、跳躍 Runner、Match-3 這類 hyper-casual 是可試玩廣告的主流，因為：</p>
+            <ul>
+              <li>規則 1 秒看懂，不需教學</li>
+              <li>玩一輪 10–30 秒就有成就感</li>
+              <li>美術需求低，輕鬆壓進 5 MB</li>
+              <li>玩完自然接「下載」收尾畫面</li>
+            </ul>
+            <p>← 左邊就是手刻的範例。整段程式不到幾十 KB，剩下的 5 MB 預算都能留給美術。</p>
           </div>
         </div>
       </div>
@@ -332,68 +393,117 @@
       </div>
     </section>
 
-    <!-- Slide 7: Resource Ask -->
+    <!-- Slide 7: Build / Packaging -->
     <section class="slide">
-      <div class="eyebrow">資源請求 · The Ask</div>
-      <h2 class="slide-title">我們需要這些</h2>
+      <div class="eyebrow">實作 · 怎麼生出檔案</div>
+      <h2 class="slide-title">一個 index.html，打包成 ZIP 上傳</h2>
+      <div class="slide-subtitle">程式、CSS、圖片全部 inline 進同一個 index.html，再壓成 ZIP。Google 上傳要的是 ZIP，不是裸 HTML。</div>
       <div class="body">
-        <div class="ask-headline">建議估算（含遊戲程式、廣告封裝、上架測試）：</div>
-        <div class="ask-grid">
-          <div class="ask-card">
-            <div class="role">ENGINEER</div>
-            <div class="amount">3<span class="small">人週</span></div>
-            <div class="desc">1 位工程師 × 3 週。涵蓋：遊戲程式、廣告 ZIP 封裝、Google Ads 規格驗證、上稿測試。</div>
+        <div class="build-flow">
+          <span class="step-pill">寫 index.html（全部 inline）</span>
+          <span class="step-arrow">→</span>
+          <span class="step-pill">圖片壓縮 / base64 嵌入</span>
+          <span class="step-arrow">→</span>
+          <span class="step-pill">打包成 ZIP ≤ 5 MB</span>
+          <span class="step-arrow">→</span>
+          <span class="step-pill">上傳到 Google Ads</span>
+        </div>
+        <div class="build-grid">
+          <div class="build-card">
+            <div class="k">SINGLE FILE</div>
+            <h3>全部塞進一個檔</h3>
+            <p>HTML / CSS / JS 全部 inline，圖片用 base64 直接嵌入。外部檔案連結在廣告沙箱常載不出來，single-file 最保險。</p>
           </div>
-          <div class="ask-card">
-            <div class="role">DESIGNER</div>
-            <div class="amount">1<span class="small">人週</span></div>
-            <div class="desc">0.5 位設計師 × 2 週。涵蓋：角色 / UI / Sprite sheet 製作、5 MB 壓縮把關。</div>
+          <div class="build-card">
+            <div class="k">IMAGES</div>
+            <h3>重點是「加起來 ≤ 5 MB」</h3>
+            <p>不是張數限制，是總量。圖一律壓成 WebP / 壓過的 PNG，sprite sheet 合併減少張數。base64 會膨脹約 +33%，要算進去。</p>
+            <div class="mono">建議圖片總量 ≤ 2–3 MB，留 buffer</div>
           </div>
-          <div class="ask-card">
-            <div class="role">BUDGET</div>
-            <div class="amount">0<span class="small">元</span></div>
-            <div class="desc">不需要購買新工具。Google Web Designer 免費，函式庫白名單都是 Google 自家代管。</div>
+          <div class="build-card">
+            <div class="k">ZIP SPEC</div>
+            <h3>打包規格</h3>
+            <p>ZIP ≤ 5 MB、最多 512 個檔，可放 HTML / CSS / JS / GIF / PNG / JPG / SVG（不能再包 ZIP）。每個廣告群組最多上 20 個 ZIP。</p>
+            <div class="mono">動畫用 GSAP（Google 代管，不吃額度）</div>
           </div>
         </div>
-        <div class="ask-extra">
-          <div class="label">同時還需要</div>
-          <div class="list">
-            <span>行銷團隊提供 App 廣告活動帳號權限</span>
-            <span>確認自家 App 已上架（Android / iOS）</span>
-            <span>提供投放預算（與本案無關，但要編列）</span>
-          </div>
-        </div>
-        <div class="ask-foot">* 以上為設計團隊內部估算，實際數字進入啟動會議後再校準。</div>
+        <div class="footnote">技術細節：UTF-8 編碼　·　響應式全螢幕　·　音效要等使用者互動才播　·　SVG 不能用自閉合標籤</div>
       </div>
     </section>
 
-    <!-- Slide 8: Risks + Next Step -->
+    <!-- Slide 8: Upload Routes -->
     <section class="slide">
-      <div class="eyebrow">風險與下一步</div>
-      <h2 class="slide-title">3 個要先知道的風險</h2>
-      <div class="slide-subtitle">技術可行不代表沒有坑。下面這 3 個是動工前就該攤開講的。</div>
+      <div class="eyebrow">交付 · 怎麼上傳</div>
+      <h2 class="slide-title">兩條上傳路線</h2>
+      <div class="slide-subtitle">做好的 ZIP 有兩種產出與上傳方式。建議走 A（手刻）拿到玩法彈性，必要時用 B 的工具幫忙打包驗規格。</div>
       <div class="body">
-        <div class="risk-list">
-          <div class="risk-item">
-            <div class="lvl">HIGH</div>
-            <div class="desc"><strong>5 MB 上限</strong>：素材壓縮要嚴格，設計師需與工程師同步介入做圖片壓縮、Sprite 合併。</div>
-            <div class="mitigation">→ 啟動第 1 週就鎖素材預算（拆給每個資產 KB 額度）</div>
+        <div class="compare-2col">
+          <div class="compare-card new">
+            <div class="label">路線 A · 工程師手刻</div>
+            <span class="route-badge rec">建議</span>
+            <ol class="route-steps">
+              <li>工程師寫 index.html（inline、圖 base64）</li>
+              <li>對規格：UTF-8、響應式、互動才播音效</li>
+              <li>壓成 ZIP（≤ 5 MB）</li>
+              <li>Google Ads → App 廣告活動 → 上傳 HTML5 素材</li>
+              <li>系統自動驗規格 → 預覽 → 過審投放</li>
+            </ol>
+            <div class="desc">玩法、視覺完全可控，能做出真正的 mini-game。缺點：規格雷區要自己顧。</div>
           </div>
-          <div class="risk-item">
-            <div class="lvl mid">MID</div>
-            <div class="desc"><strong>不支援部分廣告活動類型</strong>：AMP / 預先註冊 / 參與式 App 廣告活動都不能用，要確認我們投放的活動類型。</div>
-            <div class="mitigation">→ 啟動前由行銷團隊確認帳號與活動類型</div>
-          </div>
-          <div class="risk-item">
-            <div class="lvl mid">MID</div>
-            <div class="desc"><strong>HTML 結束標籤限制</strong>：Google 不接受自閉合 SVG 標籤，設計工具產出可能需手改。工程師預留 buffer。</div>
-            <div class="mitigation">→ 寫一個 build-time linter 自動轉換</div>
+          <div class="compare-card now">
+            <div class="label">路線 B · Google Web Designer</div>
+            <span class="route-badge alt">替代</span>
+            <ol class="route-steps">
+              <li>用 GWD 免費官方工具拖拉做素材</li>
+              <li>選 Google Ads → Publish</li>
+              <li>自動產出符合規格的 ZIP</li>
+              <li>同樣到 Google Ads 後台上傳</li>
+            </ol>
+            <div class="desc">不太會踩規格錯誤、不用工程師。缺點：互動深度有限，適合動態廣告、不適合真的能玩的遊戲。</div>
           </div>
         </div>
-        <div class="next-cta">
-          <div class="when">NEXT STEP →</div>
-          <div class="what">你 <strong>本週同意</strong>，我 <strong>下週啟動 prototype</strong>，<strong>第 2 週末可以看到第一支可投放 demo</strong>。</div>
+        <div class="upload-rec">建議：<strong>主力走 A 拿玩法彈性</strong>，最後若要省事可把產出丟進 GWD 走一次 publish 驗證 ZIP 合規；工程師熟的話直接手壓 ZIP 上傳也沒問題。</div>
+        <div class="rec-warn">⚠ 硬前提：App 必須已上架（Android / iOS）。可試玩廣告只能掛在 App 廣告活動底下，純網頁產品用不了。</div>
+      </div>
+    </section>
+
+    <!-- Slide 9: Designer Collaboration -->
+    <section class="slide">
+      <div class="eyebrow">設計協作 · Designer 的角色</div>
+      <h2 class="slide-title">需要設計師配合的部分</h2>
+      <div class="slide-subtitle">設計師不是做完圖就結束，而是要全程跟工程師一起顧 5 MB 預算。下面是主要的協作項目。</div>
+      <div class="body">
+        <div class="design-grid">
+          <div class="design-card">
+            <div class="n">01</div>
+            <div class="txt">
+              <h3>視覺風格 & 角色 / UI 設計</h3>
+              <p>定調整體美術風格，對齊 App 核心體驗；產出角色、場景、按鈕等 UI 元件。決定遊戲第一眼的吸引力。</p>
+            </div>
+          </div>
+          <div class="design-card">
+            <div class="n">02</div>
+            <div class="txt">
+              <h3>Sprite Sheet 製作與合併</h3>
+              <p>把動畫逐格圖合併成單張 sprite sheet，減少檔案數、方便壓縮，也讓動畫在 Canvas 上跑得更順。</p>
+            </div>
+          </div>
+          <div class="design-card">
+            <div class="n">03</div>
+            <div class="txt">
+              <h3>5 MB 素材壓縮把關</h3>
+              <p>與工程師一起拆每個資產的 KB 額度，圖片轉 WebP / 壓過的 PNG、去除冗餘色彩與留白。這是最吃設計師的環節。</p>
+            </div>
+          </div>
+          <div class="design-card">
+            <div class="n">04</div>
+            <div class="txt">
+              <h3>結束畫面 End Card 與 CTA 視覺</h3>
+              <p>玩完後的「下載」收尾畫面、CTA 按鈕視覺。直接影響轉換率，要與行銷的下載訊息對齊。</p>
+            </div>
+          </div>
         </div>
+        <div class="design-collab"><strong>協作模式：</strong>設計師不是一次交件，而是分階段——啟動第 1 週先定風格與 KB 額度，中段交 sprite / UI，後段與工程師一起做壓縮微調，確保整包壓在 5 MB 內。</div>
       </div>
     </section>
 
@@ -452,6 +562,105 @@
   }
   window.addEventListener('resize', fitStage);
   fitStage();
+</script>
+
+<!-- Playable demo: whack-a-mole (HTML5 + Canvas, hand-coded) -->
+<script>
+(function(){
+  const canvas = document.getElementById('gameCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = 300, H = 540;
+  const startOv = document.getElementById('gameStart');
+  const overOv  = document.getElementById('gameOver');
+  const finalScoreEl = document.getElementById('finalScore');
+
+  const cols = 3, rows = 3;
+  const areaTop = 150, areaH = 360;
+  const cellW = W / cols, cellH = areaH / rows;
+  const holes = [];
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    holes.push({ cx: c*cellW + cellW/2, cy: areaTop + r*cellH + cellH/2 + 6, active:false, raise:0, life:0, hit:false });
+  }
+
+  let score = 0, timeLeft = 15, running = false, lastTs = 0, popTimer = 0, floats = [];
+
+  function reset(){ score=0; timeLeft=15; popTimer=0; floats=[]; holes.forEach(h=>{h.active=false;h.raise=0;h.life=0;h.hit=false;}); }
+  function start(){ reset(); running=true; lastTs=performance.now(); startOv.classList.add('hidden'); overOv.classList.add('hidden'); requestAnimationFrame(loop); }
+  function end(){ running=false; finalScoreEl.textContent=score; overOv.classList.remove('hidden'); }
+
+  function spawn(){
+    const idle = holes.filter(h=>!h.active);
+    if (!idle.length) return;
+    const h = idle[Math.floor(Math.random()*idle.length)];
+    h.active=true; h.hit=false; h.life=0.8 + Math.random()*0.7;
+  }
+
+  function loop(ts){
+    if (!running) return;
+    const dt = Math.min((ts-lastTs)/1000, 0.05); lastTs = ts;
+    timeLeft -= dt;
+    if (timeLeft <= 0){ timeLeft = 0; draw(); end(); return; }
+    popTimer -= dt;
+    if (popTimer <= 0){ spawn(); popTimer = 0.45 + Math.random()*0.5; }
+    holes.forEach(h=>{
+      if (h.active){ h.life -= dt; h.raise = Math.min(1, h.raise + dt*6); if (h.life <= 0){ h.active=false; } }
+      else if (h.raise > 0){ h.raise = Math.max(0, h.raise - dt*6); }
+    });
+    floats.forEach(f=>{ f.y -= dt*60; f.life -= dt; });
+    floats = floats.filter(f=>f.life > 0);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#161616'; ctx.fillRect(0,0,W,H);
+    // header
+    ctx.fillStyle = '#fbbf24'; ctx.font = '600 16px monospace'; ctx.textAlign = 'left';
+    ctx.fillText('SCORE ' + score, 18, 42);
+    ctx.textAlign = 'right'; ctx.fillStyle = timeLeft < 5 ? '#f43f5e' : '#a3a3a3';
+    ctx.fillText(Math.ceil(timeLeft) + 's', W-18, 42);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#6b6b6b'; ctx.font = '13px sans-serif';
+    ctx.fillText('點擊冒出的地鼠！', W/2, 82);
+    // holes + moles
+    holes.forEach(h=>{
+      ctx.fillStyle = '#0d0d0d'; ctx.beginPath(); ctx.ellipse(h.cx, h.cy+22, 34, 13, 0, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#2a2a2a'; ctx.lineWidth = 2; ctx.stroke();
+      if (h.raise > 0){
+        const my = h.cy + (1-h.raise)*42 - 2;
+        ctx.save();
+        ctx.beginPath(); ctx.rect(h.cx-40, 0, 80, h.cy+22); ctx.clip();
+        ctx.fillStyle = '#f97316'; ctx.beginPath(); ctx.arc(h.cx, my, 26, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.arc(h.cx, my+7, 14, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(h.cx-9, my-6, 3, 0, Math.PI*2); ctx.arc(h.cx+9, my-6, 3, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+      }
+    });
+    floats.forEach(f=>{ ctx.fillStyle = 'rgba(52,211,153,' + Math.max(0,f.life) + ')'; ctx.font = '700 22px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('+1', f.x, f.y); });
+  }
+
+  function hit(x, y){
+    if (!running) return;
+    for (const h of holes){
+      if (h.active && h.raise > 0.3 && Math.hypot(x-h.cx, y-h.cy) < 34){
+        h.active=false; h.raise=0; score++; floats.push({ x:h.cx, y:h.cy, life:0.8 });
+        return;
+      }
+    }
+  }
+
+  canvas.addEventListener('pointerdown', e=>{
+    const rect = canvas.getBoundingClientRect();
+    hit((e.clientX-rect.left)*(W/rect.width), (e.clientY-rect.top)*(H/rect.height));
+  });
+
+  document.getElementById('gameStartBtn').addEventListener('click', start);
+  document.getElementById('gameRetryBtn').addEventListener('click', start);
+  document.getElementById('gameCtaBtn').addEventListener('click', function(){ this.textContent = '→ 導向 App Store（範例）'; });
+
+  draw();
+})();
 </script>
 
 </body>
