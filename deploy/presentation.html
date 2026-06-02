@@ -223,6 +223,19 @@
       text-align: center;
     }
     .step-btn.active .step-num { background: rgba(97,218,251,0.2); color: var(--accent); }
+    .demo-legend { font-size: 0.38em; color: var(--dim); margin-bottom: 8px; display: flex; align-items: center; }
+    .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+    .legend-dot-ui { background: var(--accent2); }
+    .legend-dot-auto { background: var(--accent3); }
+    .step-btn.auto-btn { opacity: 0.75; }
+    .step-btn.auto-btn .step-num { background: rgba(126,216,138,0.15); color: var(--accent3); }
+    .step-btn.auto-btn.active { opacity: 1; }
+    .demo-terminal {
+      background: #0d1117; color: #c9d1d9; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.45em; line-height: 1.6; padding: 20px 24px; border-radius: 8px;
+      border: 1px solid #30363d; text-align: left; white-space: pre-wrap;
+      width: 100%; box-sizing: border-box; margin: 0;
+    }
     .demo-preview {
       flex: 1;
       display: flex;
@@ -422,8 +435,7 @@
 
 <!-- ───────────────────────── Demo: Test Deploy ───────────────────────── -->
 <section>
-  <h2><span class="chip chip-2">DEMO</span> &nbsp;測試機部署 — 實際畫面</h2>
-  <p style="font-size:0.52em; color:var(--dim); margin-bottom:10px;">SGC_Rhino_Frontend · branch: phase_02_dev_rebuild</p>
+  <h2><span class="chip chip-2">DEMO</span> &nbsp;測試機部署 — 實際畫面 &nbsp;<span style="font-size:0.5em; font-weight:300; color:var(--dim);"><span class="legend-dot legend-dot-ui" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f7c948;margin-right:4px;vertical-align:middle"></span>互動步驟 &nbsp;<span class="legend-dot legend-dot-auto" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent3);margin-right:4px;vertical-align:middle;margin-left:8px"></span>自動執行</span></h2>
   <div class="demo-layout">
     <div class="demo-steps" id="test-steps">
       <button class="step-btn active" onclick="switchDemo('test', 0, this)">
@@ -435,23 +447,38 @@
       <button class="step-btn" onclick="switchDemo('test', 2, this)">
         <span class="step-num">T-1</span>確認自動產生的 commit message
       </button>
-      <button class="step-btn" onclick="switchDemo('test', 3, this)">
-        <span class="step-num">T-3</span>選擇版本號
+      <button class="step-btn auto-btn" onclick="switchDemo('test', 3, this)">
+        <span class="step-num">T-2</span>推送開發分支
       </button>
       <button class="step-btn" onclick="switchDemo('test', 4, this)">
+        <span class="step-num">T-3</span>選擇版本號
+      </button>
+      <button class="step-btn auto-btn" onclick="switchDemo('test', 5, this)">
+        <span class="step-num">T-4</span>合併到 development
+      </button>
+      <button class="step-btn auto-btn" onclick="switchDemo('test', 6, this)">
+        <span class="step-num">T-5</span>建立並推送 Tag
+      </button>
+      <button class="step-btn auto-btn" onclick="switchDemo('test', 7, this)">
+        <span class="step-num">T-6</span>觸發 GitHub Actions
+      </button>
+      <button class="step-btn auto-btn" onclick="switchDemo('test', 8, this)">
+        <span class="step-num">T-7</span>切回開發分支
+      </button>
+      <button class="step-btn" onclick="switchDemo('test', 9, this)">
         <span class="step-num">T-8~9</span>部署完成 + Commit Log 選項
       </button>
     </div>
     <div class="demo-preview">
       <img id="test-img" src="ScreenShoot/test/step1_chooseenv.png">
+      <pre id="test-code" class="demo-terminal" style="display:none"></pre>
     </div>
   </div>
 </section>
 
 <!-- ───────────────────────── Demo: Production PR ───────────────────────── -->
 <section>
-  <h2><span class="chip chip-2">DEMO</span> &nbsp;正式機 PR — 實際畫面</h2>
-  <p style="font-size:0.52em; color:var(--dim); margin-bottom:10px;">tapirus_web_frontend · branch: 207947-physical_reward</p>
+  <h2><span class="chip chip-2">DEMO</span> &nbsp;正式機 PR — 實際畫面 &nbsp;<span style="font-size:0.5em; font-weight:300; color:var(--dim);"><span class="legend-dot legend-dot-ui" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f7c948;margin-right:4px;vertical-align:middle"></span>互動步驟 &nbsp;<span class="legend-dot legend-dot-auto" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent3);margin-right:4px;vertical-align:middle;margin-left:8px"></span>自動執行</span></h2>
   <div class="demo-layout">
     <div class="demo-steps" id="prod-steps">
       <button class="step-btn active" onclick="switchDemo('prod', 0, this)">
@@ -463,18 +490,28 @@
       <button class="step-btn" onclick="switchDemo('prod', 2, this)">
         <span class="step-num">P-3</span>Release 日期 + 功能名稱
       </button>
-      <button class="step-btn" onclick="switchDemo('prod', 3, this)">
-        <span class="step-num">P-6</span>選擇 PR Reviewer
+      <button class="step-btn auto-btn" onclick="switchDemo('prod', 3, this)">
+        <span class="step-num">P-4</span>建立 prerelease branch
       </button>
-      <button class="step-btn" onclick="switchDemo('prod', 4, this)">
-        <span class="step-num">P-9</span>PR 建立完成摘要
+      <button class="step-btn auto-btn" onclick="switchDemo('prod', 4, this)">
+        <span class="step-num">P-5</span>合併開發分支並推送
       </button>
       <button class="step-btn" onclick="switchDemo('prod', 5, this)">
+        <span class="step-num">P-6</span>選擇 PR Reviewer
+      </button>
+      <button class="step-btn auto-btn" onclick="switchDemo('prod', 6, this)">
+        <span class="step-num">P-7</span>自動產生 PR 說明
+      </button>
+      <button class="step-btn" onclick="switchDemo('prod', 7, this)">
+        <span class="step-num">P-9</span>PR 建立完成摘要
+      </button>
+      <button class="step-btn" onclick="switchDemo('prod', 8, this)">
         <span class="step-num">結果</span>GitHub PR 實際樣貌
       </button>
     </div>
     <div class="demo-preview">
       <img id="prod-img" src="ScreenShoot/prod/step1-chooseenv.png">
+      <pre id="prod-code" class="demo-terminal" style="display:none"></pre>
     </div>
   </div>
 </section>
@@ -569,26 +606,109 @@
 <script>
   const demoImages = {
     test: [
-      'ScreenShoot/test/step1_chooseenv.png',
-      'ScreenShoot/test/step2_checkcommit.png',
-      'ScreenShoot/test/step3_commit message-confirmation.png',
-      'ScreenShoot/test/step4_createtag.png',
-      'ScreenShoot/test/step5_deploy.png',
+      'ScreenShoot/test/step1_chooseenv.png',       // 0 入口
+      'ScreenShoot/test/step2_checkcommit.png',      // 1 T-1 偵測
+      'ScreenShoot/test/step3_commit message-confirmation.png', // 2 T-1 commit msg
+      null,                                          // 3 T-2 auto
+      'ScreenShoot/test/step4_createtag.png',        // 4 T-3 版本號
+      null,                                          // 5 T-4 auto
+      null,                                          // 6 T-5 auto
+      null,                                          // 7 T-6 auto
+      null,                                          // 8 T-7 auto
+      'ScreenShoot/test/step5_deploy.png',           // 9 T-8~9
     ],
     prod: [
-      'ScreenShoot/prod/step1-chooseenv.png',
-      'ScreenShoot/prod/step2-redminelink_branchname.png',
-      'ScreenShoot/prod/step3-releasedate_titlename.png',
-      'ScreenShoot/prod/step4-prreviewer.png',
-      'ScreenShoot/prod/step5-prcreated.png',
-      'ScreenShoot/prod/step6-prcreated.png',
+      'ScreenShoot/prod/step1-chooseenv.png',        // 0 入口
+      'ScreenShoot/prod/step2-redminelink_branchname.png', // 1 P-1~2
+      'ScreenShoot/prod/step3-releasedate_titlename.png',  // 2 P-3
+      null,                                          // 3 P-4 auto
+      null,                                          // 4 P-5 auto
+      'ScreenShoot/prod/step4-prreviewer.png',       // 5 P-6
+      null,                                          // 6 P-7 auto
+      'ScreenShoot/prod/step5-prcreated.png',        // 7 P-9
+      'ScreenShoot/prod/step6-prcreated.png',        // 8 結果
     ],
   };
 
+  const demoCode = {
+    test: {
+      3: `$ git push origin 207947-physical_reward
+
+To https://github.com/IGS-ARCADE-DIVISION-RD5/tapirus_web_backend.git
+   aeb190c..f3fa6b9  207947-physical_reward -> 207947-physical_reward`,
+      5: `$ git checkout development && git pull origin development
+$ git merge 207947-physical_reward --no-edit
+
+Auto-merging src/app/modules/I17Game/i17.service.ts
+Merge made by the 'ort' strategy.
+ src/app/modules/I17Game/i17.service.ts | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+$ git push origin development
+   db30f72..e303b9e  development -> development`,
+      6: `$ git tag -a "1.6.13-dev" -m "Release 1.6.13-dev"
+$ git push origin "1.6.13-dev"
+
+To https://github.com/IGS-ARCADE-DIVISION-RD5/tapirus_web_backend.git
+ * [new tag]         1.6.13-dev -> 1.6.13-dev`,
+      7: `$ gh workflow run "🧪 Deploy to Test Environment" \\
+    -f tag=1.6.13-dev
+
+$ gh run list --workflow="🧪 Deploy to Test Environment" --limit 1
+
+queued  🧪 Deploy to Test Environment
+        master · workflow_dispatch · 26795778933`,
+      8: `$ git checkout 207947-physical_reward
+
+Switched to branch '207947-physical_reward'`,
+    },
+    prod: {
+      3: `$ git checkout master && git pull origin master
+$ git checkout -b prerelease_2026-06-09_physical-reward
+
+Switched to a new branch 'prerelease_2026-06-09_physical-reward'`,
+      4: `$ git merge 207947-physical_reward --no-edit
+
+Merge made by the 'ort' strategy.
+ src/app/modules/I17Game/i17.service.ts | 12 +++++++++---
+
+$ git push origin prerelease_2026-06-09_physical-reward
+
+To https://github.com/...
+ * [new branch]  prerelease_2026-06-09_physical-reward`,
+      6: `# Claude 讀取 diff 後自動產生 PR body：
+
+## Summary
+將實體獎品兌換的 i17 game_no 依市場（MY/SG/TH）動態對應，
+取代原本寫死的 TW 編號（60009）。
+
+## Changes
+- I17Service 新增 gameNos 對照表（MY:60017, SG:60033, TH:60036）
+- getI17ID 依 query.country 回傳對應 game_no
+
+## Release
+2026-06-09`,
+    },
+  };
+
+  const currentStep = { test: 0, prod: 0 };
+
   function switchDemo(type, index, btn) {
-    document.getElementById(type + '-img').src = demoImages[type][index];
+    const img = document.getElementById(type + '-img');
+    const code = document.getElementById(type + '-code');
+    const src = demoImages[type][index];
+    if (src) {
+      img.src = src;
+      img.style.display = '';
+      code.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      code.textContent = demoCode[type][index] || '';
+      code.style.display = '';
+    }
     document.querySelectorAll('#' + type + '-steps .step-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+    currentStep[type] = index;
   }
 
   Reveal.initialize({
@@ -603,6 +723,29 @@
     height: 700,
     margin: 0.06,
   });
+
+  // 在 demo 頁面用上下鍵切換步驟，攔截在 capture phase 避免 Reveal.js 處理
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+
+    const slide = Reveal.getCurrentSlide();
+    const testSteps = document.getElementById('test-steps');
+    const prodSteps = document.getElementById('prod-steps');
+
+    let type = null;
+    if (testSteps && slide.contains(testSteps)) type = 'test';
+    else if (prodSteps && slide.contains(prodSteps)) type = 'prod';
+    if (!type) return;
+
+    e.stopImmediatePropagation();
+    e.preventDefault();
+
+    const btns = slide.querySelectorAll('.step-btn');
+    const total = btns.length;
+    let next = currentStep[type] + (e.key === 'ArrowDown' ? 1 : -1);
+    next = Math.max(0, Math.min(next, total - 1));
+    switchDemo(type, next, btns[next]);
+  }, true);
 </script>
 </body>
 </html>
