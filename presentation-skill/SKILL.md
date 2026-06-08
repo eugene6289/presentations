@@ -96,7 +96,18 @@ purpose and ask the user to confirm or edit.
 
 ---
 
-## 4. What this skill does NOT do
+## 4. HTML deck conventions
+
+When building a browser-based HTML deck (not .pptx), follow these conventions:
+
+- **URL deep-link**: every slide must be reachable via `?page=N` (1-indexed). On load, read the param and jump to that slide. On navigation, update with `history.replaceState`. This lets anyone share a link to a specific slide.
+- **Slide numbering**: nav shows `01 / N` format; dots update on each navigation.
+- **Scale**: the deck scales to viewport via `transform: scale()` so it stays 1280×720 regardless of window size.
+- **Data / renderer separation**: all content lives in a `slideData` object at the top of the script; renderers are pure functions that read from it. Edits to content should only touch `slideData`.
+
+---
+
+## 5. What this skill does NOT do
 
 - It does NOT build the deck itself. It only gates and hands off.
 - It does NOT carry a locked visual template. Each deck is designed for its
@@ -107,7 +118,7 @@ purpose and ask the user to confirm or edit.
 
 ---
 
-## 5. Edge cases
+## 6. Edge cases
 
 - **User provides all three up-front** → echo back for confirmation, then
   hand off. No need to ask redundant questions.
