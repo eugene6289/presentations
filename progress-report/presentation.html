@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>運作效率與 AI 研發進度報告 · 2026/05</title>
+  <title>提升計畫進度報告 · 2026/06/11</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -1287,157 +1287,12 @@
     }
 
     /* ========== Slide Q3: preview ========== */
-    .q3-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      flex: 1;
-    }
-
-    .q3-card {
-      background: var(--bg-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 36px 40px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .q3-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      border-radius: 12px 12px 0 0;
-    }
-
-    .q3-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.16em;
-      color: var(--accent);
-      text-transform: uppercase;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .q3-title {
-      font-size: 26px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      line-height: 1.2;
-      margin: 0;
-    }
-
-    .q3-desc {
-      font-size: 16px;
-      color: var(--text-dim);
-      line-height: 1.7;
-      flex: 1;
-    }
-
-    .q3-chain {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      margin-top: 4px;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .q3-chain-step {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      color: var(--text);
-      background: var(--bg-3);
-      border: 1px solid var(--border-2);
-      border-radius: 6px;
-      padding: 5px 10px;
-    }
-
-    .q3-chain-arrow {
-      color: var(--accent);
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .q3-hl {
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    /* ========== Slides Future: one statement per slide ========== */
-    .future-body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0 20px;
-      gap: 28px;
-      position: relative;
-    }
-
-    .future-num {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 120px;
-      font-weight: 700;
-      color: var(--border-2);
-      line-height: 1;
-      letter-spacing: -0.05em;
-      user-select: none;
-      position: absolute;
-      top: -10px;
-      right: 0;
-      opacity: 0.6;
-    }
-
-    .future-text {
-      font-size: 26px;
-      color: var(--text);
-      line-height: 1.75;
-      max-width: 860px;
-      position: relative;
-    }
-
-    .future-callout-wrap {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0 20px;
-      gap: 32px;
-    }
-
-    .future-callout-quote {
-      font-size: 68px;
-      font-weight: 700;
-      color: var(--accent);
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-    }
-
-    .future-callout-detail {
-      font-size: 20px;
-      color: var(--text-dim);
-      line-height: 1.75;
-      max-width: 740px;
-    }
   </style>
 </head>
 
 <body>
 
-  <div class="corner-brand">網頁 &amp; 工具組 · PROGRESS REPORT</div>
+  <div class="corner-brand">網頁 &amp; 工具組 · 提升計畫進度報告</div>
 
   <div class="stage" id="stage">
     <div class="slide-wrap" id="slideWrap">
@@ -1482,24 +1337,24 @@
       // 0. 封面頁設定
       cover: {
         title: "網頁提升計畫進度報告",
-        date: "2026 / 06 / 08"
+        date: "2026 / 06 / 11"
       },
 
       // 1. 幹部總覽儀表板數據
       overview: {
         title: "運作效率與 AI 研發報告",
-        subtitle: "網頁 & 工具組 · 2026 年 5 月提升計畫進度匯報",
-        lastUpdated: "2026/06/08",
+        subtitle: "網頁 & 工具組 · 2026 年 6 月提升計畫進度匯報",
+        lastUpdated: "2026/06/11",
         kpis: [
           { value: "4 / 4", label: "重點專案 CI/CD 升級", hint: "全 Repo 已導入", tone: "success" },
           { value: "5 / 5", label: "AI 可行性通過", hint: "5 大 Skill 全員通過提案", tone: "success" },
-          { value: "1 / 5", label: "AI 落地 + 文件化（自用）", hint: "Deploy Skill 首發完成", tone: "accent" },
-          { value: "4 / 5", label: "尚待落地 Skill", hint: "其餘陸續進入落地階段", tone: "highlight" }
+          { value: "2 / 5", label: "AI 落地 + 文件化（自用）", hint: "Deploy + Frontend UI Skill 完成", tone: "accent" },
+          { value: "3 / 5", label: "尚待落地 Skill", hint: "Debug / CreateDoc / Code Review 進行中", tone: "highlight" }
         ],
         highlights: [
           "第一階段部署流程優化已全數完成（紅綠後台、Web館、後台工具、道具系統）。",
-          "AI 研發 5 大 Skill 全員通過可行性，Deploy Skill 首發落地並完成自用文件。",
-          "下階段：其餘 4 項 Skill 陸續進入落地與文件化階段。"
+          "AI 研發 5 大 Skill 全員通過可行性，Deploy Skill 與 Frontend UI Skill 落地並完成文件。",
+          "下階段：Debug / CreateDoc / Code Review 三項 Skill 陸續進入落地與文件化階段。"
         ]
       },
 
@@ -1568,8 +1423,8 @@
       aiSkills: {
         excelLink: "https://internationalgamessystem.sharepoint.com/:x:/r/teams/ACD_RD5_BACKEND_SERVICES/_layouts/15/doc2.aspx?sourcedoc=%7B4758e400-f4fb-46d9-86c4-5c206b148b7b%7D&action=edit&activeCell=%27Skills%20%E9%A9%97%E6%94%B6%E8%A1%A8%27!M18&wdinitialsession=b31be9f0-b1d1-13a5-b2b0-d7db3d19703a&wdrldsc=5&wdrldc=1&wdrldr=AccessTokenExpiredWarningUnauthenticated%2CRefreshin",
         skillsList: [
-          { name: "Deploy Skill", owner: "蔡語哲", note: "測試機自動化與 PR 建立", feasibility: true, landing: true, doc: false, cross: false, link: "https://eugene6289.github.io/presentations/deploy/presentation.html" },
-          { name: "Frontend UI Skill", owner: "廖序耘", note: "設計圖直接轉為網頁樣式", feasibility: true, landing: false, doc: false, cross: false, link: "https://hackmd.io/@Dx8IyluQRDKlEbVgQx4WzQ/BkcDhRQlfg" },
+          { name: "Deploy Skill", owner: "蔡語哲", note: "測試機自動化與 PR 建立", feasibility: true, landing: true, doc: true, cross: false, link: "https://eugene6289.github.io/presentations/deploy/presentation.html" },
+          { name: "Frontend UI Skill", owner: "廖序耘", note: "設計圖直接轉為網頁樣式", feasibility: true, landing: true, doc: true, cross: false, link: "https://hackmd.io/@Dx8IyluQRDKlEbVgQx4WzQ/BkcDhRQlfg" },
           { name: "Debug Skill", owner: "林芯緹", note: "Log 分析與異常定位", feasibility: true, landing: false, doc: false, cross: false, link: "https://hackmd.io/@QQsVrj_GRiWui2Q55byeqg/Hy1i6aQgGl" },
           { name: "CreateDoc Skill", owner: "陳韋銘", note: "程式碼自動生成文件", feasibility: true, landing: false, doc: false, cross: false, link: "http://igscloud2/index.php/s/CRppi8tJGNs6jgN" },
           { name: "Code Review Skill", owner: "林書仲", note: "安全性與語法質量檢查", feasibility: true, landing: false, doc: false, cross: false, link: "" }
@@ -1580,7 +1435,7 @@
           { name: "文件完整", criterion: "包含 README.md 並上傳 GitHub、說明易於理解" },
           { name: "交叉驗收", criterion: "至少 2 位以上成員測試並成功導入專案" }
         ],
-        todayNote: "今日 (5/27) 重點為「落地使用」與「文件化」之進度檢查"
+        todayNote: "今日 (6/11) Deploy Skill、Frontend UI Skill 落地＋文件化完成"
       },
 
       // 4. Repo 優化健康度
@@ -1606,9 +1461,9 @@
           success: false
         },
         {
-          when: "5月 · AI 爆發期 (當前)",
+          when: "5月 ~ 6月 · AI 爆發期 (當前)",
           title: "5 大 Skill 實作與落地驗收",
-          detail: "全員投入 AI Skill 研發；今日 5/26 驗收落地使用 + 文件化。",
+          detail: "全員投入 AI Skill 研發；6/11 Deploy + Frontend UI Skill 完成落地＋文件化。",
           success: false,
           current: true
         },
@@ -1621,50 +1476,6 @@
       ],
 
       // 6. Q3 計畫預告
-      q3Preview: {
-        initiatives: [
-          {
-            badge: "探索方向 01",
-            title: "Skills 整合知識庫",
-            desc: "將 Deploy、Code Review、CreateDoc 三項 Skill 串接為<span class=\"q3-hl\">自動化 pipeline</span>，從推送到文件產出一氣呵成。",
-            chain: ["DEPLOY SKILL", "CODE REVIEW SKILL", "CREATE DOC SKILL"]
-          },
-          {
-            badge: "探索方向 02",
-            title: "企劃規格直轉頁面",
-            desc: "規格書目前以 Excel 撰寫，無法直接餵給 AI。探索將規格書改為<span class=\"q3-hl\">結構化文字格式</span>，讓 AI 能直接解析並產出頁面雛型，減少人工轉譯耗損。",
-            chain: ["Excel 規格書", "結構化格式", "AI 解析", "頁面雛型"]
-          },
-          {
-            badge: "探索方向 03",
-            title: "設計師直出網頁",
-            desc: "承接編導規格書，美術團隊以 Figma 完成設計稿後，透過 Frontend UI Skill 直轉 HTML/Tailwind，接入現有專案，<span class=\"q3-hl\">縮短設計與開發落差</span>。",
-            chain: ["FIGMA", "FRONTEND UI SKILL", "PROJECT"]
-          }
-        ]
-      },
-
-      // 7. 未來展望
-      futureOutlook: {
-        statements: [
-          {
-            label: "角色轉型",
-            text: "網頁開發 90% 可由 AI 完成，工程師角色將往架構設計、AI 協作治理轉移。團隊最缺的不再是工程師，而是設計師、架構規劃人員與測試人員。"
-          },
-          {
-            label: "規格文件",
-            text: "AI 的輸出品質高度取決於輸入品質。未來企劃、編導的規格文件將直接影響網頁產出的準確度與維護性。"
-          },
-          {
-            label: "人仍然關鍵",
-            text: "前端：客製化 UI 細節仍需人工把關。後端：資安防範是 AI 難以完全替代的判斷領域。"
-          }
-        ],
-        callout: {
-          quote: "產出容易，維護難。",
-          detail: "AI 生成的程式碼增長速度遠超團隊的理解與維護能力，架構規範與測試覆蓋率將是護城河。"
-        }
-      }
     };
 
     /* ========================================================================
@@ -1948,6 +1759,10 @@
       <div class="slide-subtitle">${esc(slideData.aiSkills.todayNote)}</div>
     </div>
     <div class="right" style="display:flex; gap:10px; align-items:center;">
+      <a class="open-modal-btn" href="../team-improvement/presentation.html" target="_blank" rel="noopener noreferrer">
+        <span>提升計畫</span>
+        <span class="row-action-arrow">↗</span>
+      </a>
       <a class="open-modal-btn" href="${esc(slideData.aiSkills.excelLink)}" target="_blank" rel="noopener noreferrer">
         <span>Excel 進度追蹤</span>
         <span class="row-action-arrow">↗</span>
@@ -2018,94 +1833,7 @@
      *  MOUNT + NAVIGATION
      * ====================================================================== */
 
-    /* ---------- Slide Q3: preview ---------- */
-    function renderSlideQ3() {
-      const q3 = slideData.q3Preview;
-      const cards = q3.initiatives.map(item => {
-        const chainHtml = item.chain.map((step, i) => {
-          const arrow = i < item.chain.length - 1
-            ? `<span class="q3-chain-arrow">→</span>`
-            : '';
-          return `<span class="q3-chain-step">${esc(step)}</span>${arrow}`;
-        }).join('');
-        return `
-      <div class="q3-card">
-        <div class="q3-badge">${esc(item.badge)}</div>
-        <h3 class="q3-title">${esc(item.title)}</h3>
-        <p class="q3-desc">${item.desc}</p>
-        <div class="q3-chain">${chainHtml}</div>
-      </div>`;
-      }).join('');
-
-      return `
-  <div class="slide-header">
-    <div class="left">
-      <span class="eyebrow">EXPLORING · 方向探索</span>
-      <h1 class="slide-title">Q3 可能研究方向</h1>
-      <div class="slide-subtitle">以下為探索中的想法，非確定計畫 · 實際執行視資源與優先序調整</div>
-    </div>
-    <div class="right">
-      <span class="pill dot" style="color:var(--accent-warn);background:rgba(251,191,36,0.12)">探索中，待確認</span>
-    </div>
-  </div>
-
-  <div class="slide-body">
-    <div class="q3-grid">${cards}</div>
-  </div>
-  `;
-    }
-
-    /* ---------- Slides Future: callout first, then statements ---------- */
-    function renderSlideFuture(idx) {
-      const f = slideData.futureOutlook;
-      const total = f.statements.length + 1;
-      const pos = `${String(idx + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
-
-      // idx 0 → callout (核心挑戰)
-      if (idx === 0) {
-        const c = f.callout;
-        return `
-  <div class="slide-header">
-    <div class="left">
-      <span class="eyebrow">OUTLOOK · ${pos}</span>
-      <h1 class="slide-title">核心挑戰</h1>
-      <div class="slide-subtitle">網頁未來展望</div>
-    </div>
-  </div>
-
-  <div class="slide-body">
-    <div class="future-callout-wrap">
-      <div class="future-callout-quote">${esc(c.quote)}</div>
-      <div class="future-callout-detail">${esc(c.detail)}</div>
-    </div>
-  </div>
-  `;
-      }
-
-      // idx 1+ → statements[idx-1]
-      const s = f.statements[idx - 1];
-      const num = String(idx).padStart(2, '0');
-      return `
-  <div class="slide-header">
-    <div class="left">
-      <span class="eyebrow">OUTLOOK · ${pos}</span>
-      <h1 class="slide-title">${esc(s.label)}</h1>
-      <div class="slide-subtitle">網頁未來展望</div>
-    </div>
-  </div>
-
-  <div class="slide-body">
-    <div class="future-body">
-      <div class="future-num">${num}</div>
-      <div class="future-text">${esc(s.text)}</div>
-    </div>
-  </div>
-  `;
-    }
-
-    const futureTotal = slideData.futureOutlook.statements.length + 1;
-    const futureRenderers = Array.from({ length: futureTotal }, (_, i) => () => renderSlideFuture(i));
-    const renderers = [renderSlideCover, renderSlide1, renderSlide2, renderSlide3, renderSlide2b, renderSlide4, renderSlide5, ...futureRenderers, renderSlideQ3];
+    const renderers = [renderSlideCover, renderSlide1, renderSlide2, renderSlide3, renderSlide2b, renderSlide4, renderSlide5];
     let currentIndex = 0;
 
     function mount() {
