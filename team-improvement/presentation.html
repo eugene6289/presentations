@@ -185,68 +185,44 @@
       background: currentColor;
     }
 
-    /* Q3 */
-    .q3-grid {
+    /* Next chapter — 2×2 grid */
+    .next-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px; flex: 1;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 18px; flex: 1; min-height: 0;
     }
-    .q3-card {
+    .next-card {
       background: var(--bg-2); border: 1px solid var(--border);
-      border-radius: 12px; padding: 36px 40px;
-      display: flex; flex-direction: column; gap: 18px;
+      border-radius: 12px; padding: 28px 32px;
+      display: flex; flex-direction: column; gap: 12px;
       position: relative; overflow: hidden;
     }
-    .q3-card::before {
+    .next-card::before {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
       background: linear-gradient(90deg, var(--accent), var(--accent-2));
       border-radius: 12px 12px 0 0;
     }
-    .q3-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; font-weight: 600; letter-spacing: 0.16em;
-      color: var(--accent); text-transform: uppercase;
+    .next-num {
       font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+      color: var(--text-mute); text-transform: uppercase;
     }
-    .q3-title { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin: 0; }
-    .q3-desc { font-size: 16px; color: var(--text-dim); line-height: 1.7; flex: 1; }
-    .q3-chain { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-    .q3-chain-step {
+    .next-title {
+      font-size: 22px; font-weight: 700;
+      color: var(--text); letter-spacing: -0.01em; line-height: 1.2;
+    }
+    .next-desc {
+      font-size: 14px; color: var(--text-dim); line-height: 1.75; flex: 1;
+    }
+    .next-tags {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px;
+    }
+    .next-tag {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
-      color: var(--text); background: var(--bg-3);
-      border: 1px solid var(--border-2); border-radius: 6px; padding: 5px 10px;
-    }
-    .q3-chain-arrow { color: var(--accent); font-size: 14px; font-weight: 700; }
-    .q3-hl { color: var(--accent); font-weight: 600; }
-
-    /* Future outlook */
-    .future-body {
-      flex: 1; display: flex; flex-direction: column;
-      justify-content: center; padding: 0 20px; gap: 28px; position: relative;
-    }
-    .future-num {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 120px; font-weight: 700;
-      color: var(--border-2); line-height: 1;
-      letter-spacing: -0.05em; user-select: none;
-      position: absolute; top: -10px; right: 0; opacity: 0.6;
-    }
-    .future-text {
-      font-size: 26px; color: var(--text);
-      line-height: 1.75; max-width: 860px; position: relative;
-    }
-    .future-callout-wrap {
-      flex: 1; display: flex; flex-direction: column;
-      justify-content: center; padding: 0 20px; gap: 32px;
-    }
-    .future-callout-quote {
-      font-size: 68px; font-weight: 700;
-      color: var(--accent); letter-spacing: -0.03em; line-height: 1.1;
-    }
-    .future-callout-detail {
-      font-size: 20px; color: var(--text-dim);
-      line-height: 1.75; max-width: 740px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+      color: var(--text-mute); background: var(--bg-3);
+      border: 1px solid var(--border); border-radius: 6px; padding: 4px 9px;
     }
 
     /* Nav */
@@ -341,40 +317,32 @@
         date: "2026 / 06 / 11"
       },
 
-      futureOutlook: {
-        statements: [
-          { label: "角色轉型",  text: "網頁開發 90% 可由 AI 完成，工程師角色將往架構設計、AI 協作治理轉移。團隊最缺的不再是工程師，而是設計師、架構規劃人員與測試人員。" },
-          { label: "規格文件",  text: "AI 的輸出品質高度取決於輸入品質。未來企劃、編導的規格文件將直接影響網頁產出的準確度與維護性。" },
-          { label: "人仍然關鍵", text: "前端：客製化 UI 細節仍需人工把關。後端：資安防範是 AI 難以完全替代的判斷領域。" }
-        ],
-        callout: {
-          quote: "產出容易，維護難。",
-          detail: "AI 生成的程式碼增長速度遠超團隊的理解與維護能力，架構規範與測試覆蓋率將是護城河。"
+      nextChapter: [
+        {
+          num: "01 · 整合 AI",
+          title: "AI 深度整合",
+          desc: "Skills 研發完成後，下一步是串成流程。Deploy → Code Review → CreateDoc 形成自動化 pipeline；遊戲官網與平台頁面導入瀏覽器端 AI，實現個人化互動與摘要功能。",
+          tags: ["Skills Pipeline", "Browser AI", "WebMCP"]
+        },
+        {
+          num: "02 · 網頁 UI & 效能",
+          title: "UI 品質與效能基線",
+          desc: "AI 加速了產出速度，但品質標準要先定好。建立 Core Web Vitals 監控與可複用 UI 元件庫，讓官網、平台頁、運營工具共享設計語言，避免越做越散。",
+          tags: ["Core Web Vitals", "元件庫", "Design System"]
+        },
+        {
+          num: "03 · 運營設定",
+          title: "AI 導入運營設定",
+          desc: "運營設定目前以手動操作為主，探索將 AI 整合進工作流程：搜尋功能由 AI 協助引導與推薦、公告設定以 AI 編輯器取代純文字輸入，降低操作門檻並提升設定品質。",
+          tags: ["AI 搜尋引導", "AI 編輯器", "公告設定"]
+        },
+        {
+          num: "04 · SEO / GEO",
+          title: "搜尋行為轉型",
+          desc: "Google AI 摘要普及後，關鍵字堆疊失效，結構化內容才能被 AI 引擎正確引用。遊戲官網從 SEO 升級到 GEO，現在佈局是提前卡位。",
+          tags: ["生成式引擎優化", "結構化內容", "遊戲官網"]
         }
-      },
-
-      q3Preview: {
-        initiatives: [
-          {
-            badge: "探索方向 01",
-            title: "Skills 整合知識庫",
-            desc: "將 Deploy、Code Review、CreateDoc 三項 Skill 串接為<span class=\"q3-hl\">自動化 pipeline</span>，從推送到文件產出一氣呵成。",
-            chain: ["DEPLOY SKILL", "CODE REVIEW SKILL", "CREATE DOC SKILL"]
-          },
-          {
-            badge: "探索方向 02",
-            title: "企劃規格直轉頁面",
-            desc: "規格書目前以 Excel 撰寫，無法直接餵給 AI。探索將規格書改為<span class=\"q3-hl\">結構化文字格式</span>，讓 AI 能直接解析並產出頁面雛型，減少人工轉譯耗損。",
-            chain: ["Excel 規格書", "結構化格式", "AI 解析", "頁面雛型"]
-          },
-          {
-            badge: "探索方向 03",
-            title: "設計師直出網頁",
-            desc: "承接編導規格書，美術團隊以 Figma 完成設計稿後，透過 Frontend UI Skill 直轉 HTML/Tailwind，接入現有專案，<span class=\"q3-hl\">縮短設計與開發落差</span>。",
-            chain: ["FIGMA", "FRONTEND UI SKILL", "PROJECT"]
-          }
-        ]
-      }
+      ]
     };
 
     function esc(s) {
@@ -396,83 +364,30 @@
   </div>`;
     }
 
-    function renderFuture(idx) {
-      const f = slideData.futureOutlook;
-      const total = f.statements.length + 1;
-      const pos = `${String(idx + 1).padStart(2,'0')} / ${String(total).padStart(2,'0')}`;
-
-      if (idx === 0) {
-        const c = f.callout;
-        return `
-  <div class="slide-header">
-    <div class="left">
-      <span class="eyebrow">OUTLOOK · ${pos}</span>
-      <h1 class="slide-title">核心挑戰</h1>
-      <div class="slide-subtitle">提升計畫 · 未來展望</div>
-    </div>
-  </div>
-  <div class="slide-body">
-    <div class="future-callout-wrap">
-      <div class="future-callout-quote">${esc(c.quote)}</div>
-      <div class="future-callout-detail">${esc(c.detail)}</div>
-    </div>
-  </div>`;
-      }
-
-      const s = f.statements[idx - 1];
-      const num = String(idx).padStart(2,'0');
-      return `
-  <div class="slide-header">
-    <div class="left">
-      <span class="eyebrow">OUTLOOK · ${pos}</span>
-      <h1 class="slide-title">${esc(s.label)}</h1>
-      <div class="slide-subtitle">提升計畫 · 未來展望</div>
-    </div>
-  </div>
-  <div class="slide-body">
-    <div class="future-body">
-      <div class="future-num">${num}</div>
-      <div class="future-text">${esc(s.text)}</div>
-    </div>
-  </div>`;
-    }
-
-    function renderQ3() {
-      const q3 = slideData.q3Preview;
-      const cards = q3.initiatives.map(item => {
-        const chainHtml = item.chain.map((step, i) => {
-          const arrow = i < item.chain.length - 1 ? `<span class="q3-chain-arrow">→</span>` : '';
-          return `<span class="q3-chain-step">${esc(step)}</span>${arrow}`;
-        }).join('');
-        return `
-      <div class="q3-card">
-        <div class="q3-badge">${esc(item.badge)}</div>
-        <h3 class="q3-title">${esc(item.title)}</h3>
-        <p class="q3-desc">${item.desc}</p>
-        <div class="q3-chain">${chainHtml}</div>
-      </div>`;
-      }).join('');
+    function renderNextChapter() {
+      const cards = slideData.nextChapter.map(d => `
+      <div class="next-card">
+        <div class="next-num">${esc(d.num)}</div>
+        <div class="next-title">${esc(d.title)}</div>
+        <div class="next-desc">${esc(d.desc)}</div>
+        <div class="next-tags">${d.tags.map(t => `<span class="next-tag">${esc(t)}</span>`).join('')}</div>
+      </div>`).join('');
 
       return `
   <div class="slide-header">
     <div class="left">
-      <span class="eyebrow">EXPLORING · 方向探索</span>
-      <h1 class="slide-title">Q3 可能研究方向</h1>
-      <div class="slide-subtitle">以下為探索中的想法，非確定計畫 · 實際執行視資源與優先序調整</div>
-    </div>
-    <div class="right">
-      <span class="pill dot" style="color:var(--accent-warn);background:rgba(251,191,36,0.12)">探索中，待確認</span>
+      <span class="eyebrow">NEXT · Skills 研發之後</span>
+      <h1 class="slide-title">四大發展方向</h1>
+      <div class="slide-subtitle">運營工具 · 遊戲官網 · 遊戲平台網頁</div>
     </div>
   </div>
   <div class="slide-body">
-    <div class="q3-grid">${cards}</div>
+    <div class="next-grid">${cards}</div>
   </div>`;
     }
 
     /* ── Build renderers ───────────────────────────────────── */
-    const futureTotal = slideData.futureOutlook.statements.length + 1;
-    const futureRenderers = Array.from({ length: futureTotal }, (_, i) => () => renderFuture(i));
-    const renderers = [renderCover, ...futureRenderers, renderQ3];
+    const renderers = [renderCover, renderNextChapter];
 
     let currentIndex = 0;
 
