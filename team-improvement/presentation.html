@@ -1,469 +1,1221 @@
 <!doctype html>
-<html lang="zh-TW">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>組內提升計畫 · 2026</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0d0d0d;
-      --bg-2: #141414;
-      --bg-3: #1a1a1a;
-      --border: #262626;
-      --border-2: #333;
-      --text: #f5f5f5;
-      --text-dim: #a3a3a3;
-      --text-mute: #737373;
-      --accent: #38bdf8;
-      --accent-2: #10b981;
-      --accent-warn: #fbbf24;
-      --accent-danger: #f43f5e;
-      --slide-w: 1280px;
-      --slide-h: 720px;
+<meta charset="utf-8">
+<title>全端組｜開發流程 · 交接規範 · 團隊知識庫</title>
+<style>
+  :root {
+    --teal: #0D9488;
+    --gray: #8A8A8A;
+    --ink: #2B2B2B;
+    --muted: #7A7A7A;
+    --line: #E7E4DB;
+    --amber-bg: #FAEEDA;
+    --amber-ink: #854F0B;
+    --amber-line: #EF9F27;
+  }
+
+  * {
+    box-sizing: border-box
+  }
+
+  body {
+    margin: 0;
+    background: #fff;
+    color: var(--ink);
+    font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", "Heiti TC", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.65;
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 26px 26px 60px
+  }
+
+  h2 {
+    font-size: 19px;
+    margin: 6px 0 4px;
+    font-weight: 800
+  }
+
+  .sechead {
+    margin: 6px 0 14px
+  }
+
+  .sechead .k {
+    font: 600 12px/1 ui-monospace, Consolas, monospace;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: #A9A69C;
+    margin-bottom: 8px
+  }
+
+  .tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap
+  }
+
+  .tab {
+    border: none;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font: 600 15px/1 inherit;
+    color: #5a5a5a;
+    background: #EFEFEF;
+    transition: .18s;
+  }
+
+  .tab:hover {
+    background: #e4e4e4
+  }
+
+  .tab.active {
+    color: #fff
+  }
+
+  .tab.active[data-k="before"] {
+    background: var(--gray)
+  }
+
+  .tab.active[data-k="now"] {
+    background: var(--teal)
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 6px
+  }
+
+  .pill {
+    color: #fff;
+    font-weight: 700;
+    font-size: 17px;
+    padding: 8px 16px;
+    border-radius: 9px;
+    white-space: nowrap
+  }
+
+  .sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 10px 2px 4px;
+    line-height: 1.6
+  }
+
+  .sub b {
+    color: var(--teal)
+  }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--muted);
+    margin: 14px 2px 0
+  }
+
+  .legend .swatch {
+    width: 22px;
+    height: 15px;
+    border: 2.6px solid var(--teal);
+    border-radius: 4px;
+    display: inline-block
+  }
+
+  .legend .swatch.plan {
+    border-color: #5B4FC2;
+    border-style: dashed
+  }
+
+  .legend .sep {
+    display: inline-block;
+    width: 16px
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-top: 10px;
+    transition: opacity .18s
+  }
+
+  .methods {
+    margin-top: 16px
+  }
+
+  .mnote {
+    background: #F1F0FB;
+    border: 1.5px solid #D8D5F2;
+    border-radius: 12px;
+    padding: 13px 18px
+  }
+
+  .mh {
+    font: 700 12px/1 ui-monospace, Consolas, monospace;
+    letter-spacing: .1em;
+    color: #5B4FC2;
+    display: block;
+    margin-bottom: 8px
+  }
+
+  .mrow {
+    font-size: 13px;
+    color: #3f3f3f;
+    margin: 4px 0;
+    line-height: 1.55
+  }
+
+  .mrow b {
+    color: #2B2B2B
+  }
+
+  .mtag {
+    display: inline-block;
+    font: 700 11px/1 ui-monospace, Consolas, monospace;
+    color: #fff;
+    background: #5B4FC2;
+    border-radius: 5px;
+    padding: 2px 7px;
+    margin-right: 8px
+  }
+
+  /* handoff table */
+  .tintro {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 2px 14px;
+    line-height: 1.7
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden
+  }
+
+  thead th {
+    background: #F1EFE8;
+    text-align: left;
+    font-weight: 700;
+    color: var(--ink);
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12.5px;
+    white-space: nowrap
+  }
+
+  tbody td {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none
+  }
+
+  tr.contract td {
+    background: #FDF8EE
+  }
+
+  .num {
+    color: #A9A69C;
+    font: 600 12px ui-monospace, Consolas, monospace;
+    width: 22px
+  }
+
+  .flow {
+    white-space: nowrap;
+    font-weight: 600
+  }
+
+  .flow .ar {
+    color: #A9A69C;
+    padding: 0 3px
+  }
+
+  .prod {
+    font-weight: 600;
+    min-width: 104px
+  }
+
+  .cell ul {
+    margin: 0;
+    padding-left: 15px
+  }
+
+  .cell li {
+    padding: 1px 0;
+    line-height: 1.5;
+    color: #4c4c4c
+  }
+
+  .bd li {
+    color: var(--ink)
+  }
+
+  .tag {
+    display: inline-block;
+    font: 600 11px/1 ui-monospace, Consolas, monospace;
+    border-radius: 5px;
+    padding: 2px 6px;
+    margin-top: 5px;
+    border: 1px solid;
+    white-space: nowrap
+  }
+
+  .tag-contract {
+    background: var(--amber-bg);
+    color: var(--amber-ink);
+    border-color: var(--amber-line)
+  }
+
+  .ai-core {
+    display: inline-block;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--teal);
+    border-radius: 6px;
+    padding: 3px 7px;
+    line-height: 1.35
+  }
+
+  .ai-assist {
+    display: inline-block;
+    font-size: 11.5px;
+    color: #0B5F59;
+    background: #EAF6F4;
+    border: 1px solid #9DD8CE;
+    border-radius: 6px;
+    padding: 3px 7px;
+    line-height: 1.35
+  }
+
+  .ai-manual {
+    display: inline-block;
+    font-size: 11.5px;
+    color: #8A8A8A
+  }
+
+  /* topic divider */
+  .divider {
+    margin: 44px 0 28px;
+    border: none;
+    border-top: 2px solid var(--line)
+  }
+
+  .topicmark {
+    display: inline-block;
+    font: 600 12px/1 ui-monospace, Consolas, monospace;
+    letter-spacing: .1em;
+    color: #A9A69C;
+    background: #fff;
+    padding: 0 12px;
+    transform: translateY(-50%);
+    position: relative;
+    margin-left: 6px
+  }
+
+  /* knowledge base */
+  .subtabs {
+    display: flex;
+    gap: 8px;
+    margin: 2px 0 16px;
+    flex-wrap: wrap
+  }
+
+  .subtab {
+    border: 1.5px solid #d8d8d8;
+    background: #fff;
+    cursor: pointer;
+    padding: 7px 15px;
+    border-radius: 20px;
+    font: 600 13.5px/1 inherit;
+    color: #666;
+    transition: .15s
+  }
+
+  .subtab:hover {
+    border-color: var(--teal);
+    color: var(--teal)
+  }
+
+  .subtab.on {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: #fff
+  }
+
+  .cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 24px
+  }
+
+  .card {
+    flex: 1 1 330px;
+    min-width: 300px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: #FAFAFA;
+    border: 1.5px solid #EDEDED;
+    border-radius: 14px;
+    padding: 16px 18px;
+    transition: .15s
+  }
+
+  .card.lead {
+    border-color: var(--teal);
+    background: #F1FAF9;
+    box-shadow: 0 3px 12px rgba(13, 148, 136, .10)
+  }
+
+  .ic {
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--teal);
+    display: flex;
+    align-items: center;
+    justify-content: center
+  }
+
+  .ic svg {
+    width: 24px;
+    height: 24px;
+    margin: 0
+  }
+
+  .card h3 {
+    margin: 0 0 5px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px
+  }
+
+  .rtag {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--teal);
+    border-radius: 6px;
+    padding: 2px 7px
+  }
+
+  .card p {
+    margin: 0;
+    font-size: 13px;
+    color: #5c5c5c;
+    line-height: 1.55
+  }
+
+  /* kb summary + modal */
+  .kb-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    background: #F1FAF9;
+    border: 1.5px solid #BEE6E0;
+    border-radius: 14px;
+    padding: 18px 22px
+  }
+
+  .kb-sum-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #0B5F59
+  }
+
+  .kb-sum-desc {
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: #4c6b67;
+    line-height: 1.6;
+    max-width: 640px
+  }
+
+  .kb-open {
+    border: none;
+    cursor: pointer;
+    background: var(--teal);
+    color: #fff;
+    font: 700 14px/1 inherit;
+    padding: 12px 20px;
+    border-radius: 10px;
+    white-space: nowrap;
+    transition: .15s
+  }
+
+  .kb-open:hover {
+    background: #0B5F59
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 30, 30, .5);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px;
+    overflow: auto;
+    z-index: 50;
+    animation: fade .18s ease
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 0
     }
 
-    * { box-sizing: border-box; }
+    to {
+      opacity: 1
+    }
+  }
 
-    html, body {
-      margin: 0; padding: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
-      font-weight: 400;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-      overflow: hidden;
-    }
+  .modal {
+    position: relative;
+    background: #fff;
+    border-radius: 16px;
+    max-width: 1080px;
+    width: 100%;
+    padding: 30px 32px 34px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .25)
+  }
 
-    .stage {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
+  .modal-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    border: none;
+    background: #F0F0F0;
+    cursor: pointer;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 20px;
+    line-height: 1;
+    color: #555;
+    transition: .15s
+  }
 
-    .slide-wrap {
-      width: var(--slide-w);
-      height: var(--slide-h);
-      transform-origin: center center;
-      position: relative;
-    }
+  .modal-close:hover {
+    background: #e2e2e2
+  }
 
-    .slide {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      padding: 48px 64px;
-      background: var(--bg);
-      display: none;
-      flex-direction: column;
-      opacity: 0;
-      transition: opacity 0.35s ease;
-      font-size: 18px;
-    }
+  #kbnode,
+  #sddnode,
+  #testnode,
+  #artnode {
+    cursor: pointer
+  }
 
-    .slide.active { display: flex; opacity: 1; }
+  #kbnode:hover,
+  #sddnode:hover,
+  #testnode:hover,
+  #artnode:hover {
+    opacity: .88
+  }
 
-    /* Cover */
-    .cover-slide {
-      width: 100%; height: 100%;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      position: relative;
-      background:
-        radial-gradient(1000px 500px at 30% 30%, rgba(56,189,248,0.08), transparent 60%),
-        radial-gradient(800px 400px at 80% 80%, rgba(16,185,129,0.06), transparent 60%);
-    }
+  .mm-row {
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line)
+  }
 
-    .cover-center {
-      display: flex; flex-direction: column;
-      align-items: center; gap: 28px;
-    }
+  .mm-row:last-child {
+    border-bottom: none
+  }
 
-    .cover-rule {
-      width: 72px; height: 4px;
-      background: var(--accent);
-      border-radius: 999px;
-    }
+  .mm-k {
+    flex: 0 0 62px;
+    font-weight: 800;
+    color: #2B2B2B;
+    font-size: 14.5px;
+    padding-top: 1px
+  }
 
-    .cover-title {
-      margin: 0;
-      font-size: 68px;
-      font-weight: 700;
-      line-height: 1.15;
-      letter-spacing: 0.02em;
-      color: var(--text);
-      text-align: center;
-    }
+  .mm-row b {
+    font-size: 14px
+  }
 
-    .cover-sub {
-      font-size: 20px;
-      color: var(--text-dim);
-      font-weight: 400;
-      text-align: center;
-    }
+  .mm-row p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: #5c5c5c;
+    line-height: 1.55
+  }
 
-    .cover-date-bottom {
-      position: absolute;
-      bottom: 40px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 14px;
-      letter-spacing: 0.22em;
-      color: var(--text-mute);
-    }
+  .mm-badge {
+    display: inline-block;
+    font: 700 11px/1 ui-monospace, Consolas, monospace;
+    border-radius: 6px;
+    padding: 3px 7px;
+    vertical-align: middle
+  }
 
-    /* Header */
-    .slide-header {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      padding-bottom: 18px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 28px;
-    }
+  .mm-badge.plan {
+    color: #fff;
+    background: #5B4FC2
+  }
 
-    .slide-header .left { display: flex; flex-direction: column; gap: 6px; }
+  .mm-badge.now {
+    color: #0B5F59;
+    background: #EAF6F4;
+    border: 1px solid #9DD8CE
+  }
 
-    .eyebrow {
-      font-size: 13px; font-weight: 600;
-      letter-spacing: 0.18em;
-      color: var(--accent);
-      text-transform: uppercase;
-    }
+  /* roadmap in modal */
+  .rmap {
+    margin-top: 26px;
+    border-top: 1px solid var(--line);
+    padding-top: 20px
+  }
 
-    .slide-title {
-      font-size: 36px; font-weight: 600;
-      letter-spacing: -0.01em;
-      margin: 0; line-height: 1.15;
-    }
+  .rmap-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 14px
+  }
 
-    .slide-subtitle {
-      font-size: 17px;
-      color: var(--text-dim);
-      margin-top: 4px; font-weight: 400;
-    }
+  .rmap-head h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800
+  }
 
-    .slide-header .right {
-      text-align: right;
-      color: var(--text-mute);
-      font-size: 14px;
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.05em;
-    }
+  .rtrack {
+    display: flex;
+    align-items: center;
+    gap: 4px
+  }
 
-    .slide-body {
-      flex: 1; display: flex;
-      flex-direction: column;
-      min-height: 0; overflow: hidden;
-    }
+  .rdot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block
+  }
 
-    .card {
-      background: var(--bg-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px 22px;
-    }
+  .rline {
+    width: 30px;
+    height: 2px;
+    background: #DDD;
+    display: inline-block
+  }
 
-    /* Pills */
-    .pill {
-      display: inline-flex; align-items: center; gap: 7px;
-      font-size: 13px; font-weight: 600; letter-spacing: 0.06em;
-      padding: 5px 12px; border-radius: 999px;
-      background: rgba(255,255,255,0.06); color: var(--text-dim);
-    }
-    .pill.done { color: var(--accent-2); background: rgba(16,185,129,0.14); }
-    .pill.progress { color: var(--accent); background: rgba(56,189,248,0.14); }
-    .pill.dot::before {
-      content: ''; display: inline-block;
-      width: 6px; height: 6px; border-radius: 999px;
-      background: currentColor;
-    }
+  .rdot.doing {
+    background: var(--teal)
+  }
 
-    /* Next chapter — 2×2 grid */
-    .next-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(2, 1fr);
-      gap: 18px; flex: 1; min-height: 0;
-    }
-    .next-card {
-      background: var(--bg-2); border: 1px solid var(--border);
-      border-radius: 12px; padding: 28px 32px;
-      display: flex; flex-direction: column; gap: 12px;
-      position: relative; overflow: hidden;
-    }
-    .next-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      border-radius: 12px 12px 0 0;
-    }
-    .next-num {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
-      color: var(--text-mute); text-transform: uppercase;
-    }
-    .next-title {
-      font-size: 22px; font-weight: 700;
-      color: var(--text); letter-spacing: -0.01em; line-height: 1.2;
-    }
-    .next-desc {
-      font-size: 14px; color: var(--text-dim); line-height: 1.75; flex: 1;
-    }
-    .next-tags {
-      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px;
-    }
-    .next-tag {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
-      color: var(--text-mute); background: var(--bg-3);
-      border: 1px solid var(--border); border-radius: 6px; padding: 4px 9px;
-    }
+  .rdot.plan {
+    background: #5B4FC2
+  }
 
-    /* Nav */
-    .nav {
-      position: fixed; bottom: 18px; left: 50%;
-      transform: translateX(-50%);
-      display: flex; align-items: center; gap: 12px;
-      background: rgba(20,20,20,0.85);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--border); border-radius: 999px;
-      padding: 8px 14px; z-index: 50;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px; color: var(--text-dim);
-    }
-    .nav button {
-      background: transparent; color: var(--text);
-      border: 1px solid var(--border-2); border-radius: 999px;
-      width: 28px; height: 28px; cursor: pointer;
-      font-size: 14px; display: inline-flex;
-      align-items: center; justify-content: center;
-      transition: all 0.15s;
-    }
-    .nav button:hover { background: rgba(56,189,248,0.12); border-color: var(--accent); color: var(--accent); }
-    .nav .pos { min-width: 50px; text-align: center; letter-spacing: 0.08em; }
-    .nav .dots { display: flex; gap: 6px; }
-    .nav .dots span { width: 6px; height: 6px; border-radius: 999px; background: var(--border-2); transition: all 0.2s; cursor: pointer; }
-    .nav .dots span.active { background: var(--accent); width: 18px; }
+  .rdot.todo {
+    background: #B9B9B9
+  }
 
-    .corner-brand {
-      position: fixed; top: 14px; right: 18px;
-      font-size: 11px; font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.14em; color: var(--text-mute);
-      text-transform: uppercase; z-index: 50;
-    }
+  .rphases {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap
+  }
 
-    /* Modal */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.7);
-      display: none; align-items: center; justify-content: center;
-      z-index: 100;
-    }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--bg-2);
-      border: 1px solid var(--border-2);
-      border-radius: 16px; padding: 36px 40px;
-      width: 560px; max-width: 90vw;
-      position: relative; max-height: 80vh; overflow-y: auto;
-    }
-    .modal-close {
-      position: absolute; top: 16px; right: 16px;
-      background: transparent; border: 1px solid var(--border);
-      color: var(--text-mute); border-radius: 999px;
-      width: 28px; height: 28px; cursor: pointer;
-      font-size: 12px; display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s;
-    }
-    .modal-close:hover { border-color: var(--accent); color: var(--accent); }
-    .modal-eyebrow {
-      font-size: 11px; letter-spacing: 0.18em;
-      color: var(--accent); text-transform: uppercase;
-      font-family: 'JetBrains Mono', monospace; margin-bottom: 8px;
-    }
-    .modal-title { font-size: 24px; font-weight: 600; margin: 0 0 8px; }
-    .modal-subtitle { font-size: 15px; color: var(--text-dim); margin-bottom: 24px; }
-  </style>
-</head>
-<body>
+  .rphase {
+    flex: 1 1 240px;
+    min-width: 210px;
+    border: 1.5px solid #EDEDED;
+    border-radius: 12px;
+    padding: 15px 16px;
+    background: #FAFAFA
+  }
 
-  <div class="corner-brand">組內提升計畫 · TEAM IMPROVEMENT</div>
+  .rphase.todo {
+    border-style: dashed
+  }
 
-  <div class="stage" id="stage">
-    <div class="slide-wrap" id="slideWrap">
-      <!-- Slides injected here -->
-    </div>
+  .rbadge {
+    font: 700 11px/1 ui-monospace, Consolas, monospace;
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 8px
+  }
+
+  .rbadge.doing {
+    background: var(--teal)
+  }
+
+  .rbadge.plan {
+    background: #5B4FC2
+  }
+
+  .rbadge.todo {
+    background: #9A9A9A
+  }
+
+  .rp-t {
+    font-weight: 800;
+    font-size: 14.5px;
+    margin: 9px 0 5px
+  }
+
+  .rphase p {
+    margin: 0;
+    font-size: 12.5px;
+    color: #5c5c5c;
+    line-height: 1.55
+  }
+
+  .rlist {
+    margin: 8px 0 0;
+    padding-left: 16px
+  }
+
+  .rlist li {
+    font-size: 12.5px;
+    color: #5c5c5c;
+    line-height: 1.5;
+    margin: 3px 0
+  }
+
+  /* method modal */
+  .mm {
+    max-width: 720px
+  }
+
+  .mm p {
+    font-size: 14px;
+    color: #3f3f3f;
+    line-height: 1.7;
+    margin: 0 0 12px
+  }
+
+  .mm-pos {
+    font-size: 13.5px;
+    color: #4c4c4c;
+    background: #F6F6F9;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin-bottom: 14px
+  }
+
+  .mm-pos b {
+    color: #2B2B2B;
+    margin-right: 8px
+  }
+
+  .mm-tag {
+    display: inline-block;
+    font: 700 12px/1 ui-monospace, Consolas, monospace;
+    border: 1.5px dashed;
+    border-radius: 6px;
+    padding: 5px 10px
+  }
+
+  /* TDD cycle */
+  .tdd-cycle {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 14px 0 16px
+  }
+
+  .tdd-step {
+    flex: 1 1 180px;
+    min-width: 168px;
+    border: 1.5px solid;
+    border-radius: 12px;
+    padding: 13px 15px;
+    background: #fff
+  }
+
+  .tdd-n {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    color: #fff;
+    font: 800 12px ui-monospace, Consolas, monospace;
+    align-items: center;
+    justify-content: center
+  }
+
+  .tdd-t {
+    font-weight: 800;
+    font-size: 14.5px;
+    margin: 7px 0 4px
+  }
+
+  .tdd-step p {
+    margin: 0;
+    font-size: 12.5px;
+    color: #5c5c5c;
+    line-height: 1.5
+  }
+
+  .tdd-step.red {
+    border-color: #F3B4B0;
+    background: #FDF3F2
+  }
+
+  .tdd-step.red .tdd-n {
+    background: #E8352B
+  }
+
+  .tdd-step.red .tdd-t {
+    color: #B42318
+  }
+
+  .tdd-step.green {
+    border-color: #A8DCC0;
+    background: #F0FAF4
+  }
+
+  .tdd-step.green .tdd-n {
+    background: #16A34A
+  }
+
+  .tdd-step.green .tdd-t {
+    color: #0F7A38
+  }
+
+  .tdd-step.blue {
+    border-color: #BDD3F0;
+    background: #F1F6FD
+  }
+
+  .tdd-step.blue .tdd-n {
+    background: #2F6FBF
+  }
+
+  .tdd-step.blue .tdd-t {
+    color: #1E4E8C
+  }
+
+  .tdd-step.purple {
+    border-color: #CFC9F0;
+    background: #F4F2FC
+  }
+
+  .tdd-step.purple .tdd-n {
+    background: #5B4FC2
+  }
+
+  .tdd-step.purple .tdd-t {
+    color: #443a9e
+  }
+
+  .tdd-step.teal {
+    border-color: #9DD8CE;
+    background: #EEF9F7
+  }
+
+  .tdd-step.teal .tdd-n {
+    background: #0D9488
+  }
+
+  .tdd-step.teal .tdd-t {
+    color: #0B5F59
+  }
+
+  .tdd-arrow {
+    display: flex;
+    align-items: center;
+    color: #C4C4C4;
+    font-size: 22px;
+    font-weight: 700
+  }
+
+  .tdd-arrow.loop {
+    color: #5B4FC2
+  }
+
+  .tdd-note {
+    font-size: 13px;
+    color: #4c4c4c;
+    background: #F6F6F9;
+    border-radius: 10px;
+    padding: 11px 14px;
+    margin: 0 0 14px
+  }
+</style>
+
+<div class="wrap">
+
+  <!-- ============ 製程 ============ -->
+  <div class="sechead">
+    <div class="k">Section 1 · 製程</div>
+    <h2>開發流程</h2>
   </div>
 
-  <div class="nav">
-    <button id="prevBtn" aria-label="prev">‹</button>
-    <span class="pos" id="navPos">01 / 07</span>
-    <div class="dots" id="navDots"></div>
-    <button id="nextBtn" aria-label="next">›</button>
+  <div class="tabs">
+    <button class="tab" data-k="before">導入前 · Before</button>
+    <button class="tab" data-k="now">現在 · Now</button>
   </div>
+  <div class="head"><span class="pill" id="pill"></span>
+    <h2 id="title" style="font-size:24px"></h2>
+  </div>
+  <div class="sub" id="sub"></div>
+  <div id="svghost"></div>
+  <div class="legend"><span class="swatch"></span> = AI 介入 / 自動化<span class="sep"></span><span
+      class="swatch plan"></span> = 預計導入（點紫色框看說明）</div>
 
+  <!-- ============ 交接清單 ============ -->
+  <div class="sechead" style="margin-top:40px">
+    <div class="k">Section 2 · 交接規範</div>
+    <h2>交接物清單（全端組）</h2>
+  </div>
+  <p class="tintro"><span class="tag tag-contract" style="margin-top:0">契約</span> 雙方逐項死綁、單方改即壞，須指定單一 owner、版控與簽核。
+    <span class="ai-core" style="padding:2px 6px">AI</span> 已由 AI 主導/自動化；<span class="ai-assist"
+      style="padding:2px 6px">AI 協助</span> AI 輔助、人把關。
+  </p>
+  <table id="handoff"></table>
+
+</div>
+
+<!-- 知識庫彈窗 -->
+<div class="modal-overlay" id="modal" style="display:none">
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" id="modalClose" aria-label="關閉">×</button>
+    <div id="modalbody"></div>
+  </div>
+</div>
 
 <script>
-    const slideData = {
-      cover: {
-        title: "組內提升計畫",
-        sub: "網頁 & 工具組 · AI Skills 研發路線",
-        date: "2026 / 06 / 11"
-      },
-
-      nextChapter: [
-        {
-          num: "01 · 整合 AI",
-          title: "AI 深度整合",
-          desc: "Skills 研發完成後，下一步是串成流程。Deploy → Code Review → CreateDoc 形成自動化 pipeline；遊戲官網與平台頁面導入瀏覽器端 AI，實現個人化互動與摘要功能。",
-          tags: ["Skills Pipeline", "Browser AI", "WebMCP"]
-        },
-        {
-          num: "02 · 網頁 UI & 效能",
-          title: "UI 品質與效能基線",
-          desc: "AI 加速了產出速度，但品質標準要先定好。建立 Core Web Vitals 監控與可複用 UI 元件庫，讓官網、平台頁、運營工具共享設計語言，避免越做越散。",
-          tags: ["Core Web Vitals", "元件庫", "Design System"]
-        },
-        {
-          num: "03 · 運營設定",
-          title: "AI 導入運營設定",
-          desc: "運營設定目前以手動操作為主，探索將 AI 整合進工作流程：搜尋功能由 AI 協助引導與推薦、公告設定以 AI 編輯器取代純文字輸入，降低操作門檻並提升設定品質。",
-          tags: ["AI 搜尋引導", "AI 編輯器", "公告設定"]
-        },
-        {
-          num: "04 · SEO / GEO",
-          title: "搜尋行為轉型",
-          desc: "Google AI 摘要普及後，關鍵字堆疊失效，結構化內容才能被 AI 引擎正確引用。遊戲官網從 SEO 升級到 GEO，現在佈局是提前卡位。",
-          tags: ["生成式引擎優化", "結構化內容", "遊戲官網"]
-        }
-      ]
-    };
-
-    function esc(s) {
-      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const TEAL = "#0D9488";
+  const SL = "#E6EDF3", SLT = "#27415A", SP = "#EFF2F5", SPT = "#59636E";
+  const BOX = {
+    req: { x: 60, y: 280, w: 190, h: 70, fill: SL, tc: SLT, label: "需求" },
+    feat: { x: 70, y: 451, w: 170, h: 55, fill: SP, tc: SPT, label: "功能" },
+    task: { x: 70, y: 519, w: 170, h: 55, fill: SP, tc: SPT, label: "任務" },
+    art: { x: 458, y: 186, w: 188, h: 60, fill: "#EAE4F5", tc: "#4A2072", label: "美術、server" },
+    design: { x: 335, y: 316, w: 125, h: 72, fill: SL, tc: SLT, label: "設計" },
+    dev: { x: 490, y: 316, w: 125, h: 72, fill: SL, tc: SLT, label: "開發" },
+    review: { x: 645, y: 316, w: 125, h: 72, fill: SL, tc: SLT, label: "審查" },
+    test: { x: 800, y: 316, w: 125, h: 72, fill: SL, tc: SLT, label: "測試" },
+    deploy: { x: 955, y: 316, w: 125, h: 72, fill: SL, tc: SLT, label: "部署" },
+    defect: { x: 800, y: 436, w: 125, h: 60, fill: "#F6DFDF", tc: "#8B1A1A", label: "缺陷" },
+    suggest: { x: 550, y: 516, w: 190, h: 58, fill: SP, tc: SPT, label: "建議" },
+    ops: { x: 1110, y: 316, w: 170, h: 72, fill: SL, tc: SLT, label: "維運" },
+    bug: { x: 890, y: 655, w: 170, h: 58, fill: "#E8352B", tc: "#FFFFFF", label: "錯誤 (Bug)" },
+  };
+  const BASE = [
+    { p: [[552, 246], [552, 316]], c: "#7E57C2", w: 2.4, a: 1 },
+    { p: [[180, 280], [180, 216], [458, 216]], c: "#7E57C2", w: 2, a: 1 },
+    { p: [[1080, 352], [1110, 352]], c: "#E0952A", w: 3, a: 1 },
+    { p: [[1220, 388], [1220, 684], [1060, 684]], c: "#CC0000", w: 2, a: 1 },
+    { p: [[890, 684], [160, 684], [160, 581]], c: "#CC0000", w: 2, a: 1 },
+    { p: [[1195, 316], [1195, 150], [130, 150], [130, 280]], c: "#8A8A8A", w: 2, a: 1 },
+    { p: [[155, 350], [155, 451]], c: "#8A8A8A", w: 1.8, a: 1 },
+    { p: [[260, 478], [430, 478], [430, 388]], c: "#8A8A8A", w: 1.8, a: 1 },
+    { p: [[862, 388], [862, 436]], c: "#E0952A", w: 3, a: 1 },
+    { p: [[397, 388], [397, 545], [550, 545]], c: "#9E9E9E", w: 1.6, a: 1 },
+    { p: [[600, 388], [600, 516]], c: "#9E9E9E", w: 1.6, a: 1, b: 1 },
+    { p: [[862, 496], [862, 545], [740, 545]], c: "#9E9E9E", w: 1.6, a: 1 },
+    { p: [[460, 352], [490, 352]], c: "#E0952A", w: 4, a: 1 },
+    { p: [[925, 352], [955, 352]], c: "#E0952A", w: 4, a: 1 },
+  ];
+  const WR = [{ p: [[615, 352], [645, 352]], c: "#E0952A", w: 4, a: 1 }, { p: [[770, 352], [800, 352]], c: "#E0952A", w: 4, a: 1 }];
+  const NR = [{ p: [[615, 352], [800, 352]], c: "#E0952A", w: 4, a: 1 }];
+  const STATES = {
+    before: {
+      pill: "導入前", pillColor: "#8A8A8A",
+      title: "導入 AI 前：全人工的線性開發流程",
+      sub: '每個階段靠人力逐棒銜接；缺陷、任務與回饋全靠人工蒐集，繞一大圈才回到需求端。',
+      ai: [], review: false
+    },
+    now: {
+      pill: "現在", pillColor: TEAL,
+      title: "現在：AI 已接手開發、審查、部署",
+      sub: '<b>綠框＝AI 介入：</b>開發 Claude Code、審查 Codex、部署 /deploy skill。<b>紫色虛線框＝預計導入：</b>測試（TDD）、SDD 規格驅動開發。設計、美術／server 仍以人為主。',
+      ai: ["dev", "review", "deploy"], plan: ["test"], review: true, kb: true
+    },
+  };
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+  function poly(cn) { const pts = cn.p.map(q => q.join(",")).join(" "); return `<polyline points="${pts}" fill="none" stroke="${cn.c}" stroke-width="${cn.w}" stroke-linejoin="round" stroke-linecap="round" ${cn.a ? 'marker-end="url(#arw)"' : ''} ${cn.b ? 'marker-start="url(#arw)"' : ''}/>`; }
+  function box(b, mark, domId) {
+    const cx = b.x + b.w / 2, cy = b.y + b.h / 2; let s = `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="9" ry="9" fill="${b.fill}" filter="url(#sh)"/>`;
+    s += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="19" font-weight="700" fill="${b.tc}">${esc(b.label)}</text>`;
+    if (mark) {
+      const ai = mark === "ai", col = ai ? TEAL : "#5B4FC2", lab = ai ? "AI" : "預計";
+      const dash = ai ? "" : ' stroke-dasharray="6 4"';
+      s += `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="9" ry="9" fill="none" stroke="${col}" stroke-width="3.2"${dash}/>`;
+      const bw = ai ? 40 : 48, bh = 22, bx = b.x + b.w - bw - 4, by = b.y - 11;
+      s += `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="5" ry="5" fill="${col}" filter="url(#sh)"/>`;
+      s += `<text x="${bx + bw / 2}" y="${by + bh / 2 + 1}" text-anchor="middle" dominant-baseline="central" font-size="${ai ? 12.5 : 12}" font-weight="800" fill="#fff"${ai ? ' font-family="Arial,sans-serif"' : ''}>${lab}</text>`;
     }
-
-    /* ── Renderers ─────────────────────────────────────────── */
-
-    function renderCover() {
-      const c = slideData.cover;
-      return `
-  <div class="cover-slide">
-    <div class="cover-center">
-      <div class="cover-rule"></div>
-      <h1 class="cover-title">${esc(c.title)}</h1>
-      <p class="cover-sub">${esc(c.sub)}</p>
-    </div>
-    <div class="cover-date-bottom">${esc(c.date)}</div>
-  </div>`;
+    return domId ? `<g id="${domId}">${s}</g>` : s;
+  }
+  function cont(x, y, w, h, st, red, label, lc) {
+    let s = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="7" ry="7" fill="${red ? '#F7F7F7' : '#FAFAFA'}" stroke="${st}" stroke-width="${red ? 2 : 1.3}" stroke-dasharray="7 5"/>`;
+    s += `<text x="${x + (red ? 12 : w / 2)}" y="${y + 16}" ${red ? '' : 'text-anchor="middle"'} font-size="14" font-style="italic" fill="${lc}">${label}</text>`; return s;
+  }
+  function renderProc(k) {
+    const st = STATES[k];
+    pill.textContent = st.pill; pill.style.background = st.pillColor;
+    title.textContent = st.title; sub.innerHTML = st.sub;
+    document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.k === k));
+    const conns = [...BASE, ...(st.review ? WR : NR)];
+    const order = ["req", "feat", "task", "art", "design", "dev", "review", "test", "deploy", "defect", "suggest", "ops", "bug"];
+    let bx = ""; for (const id of order) {
+      if (id === "review" && !st.review) continue;
+      const mark = (st.ai && st.ai.includes(id)) ? "ai" : ((st.plan && st.plan.includes(id)) ? "plan" : null);
+      const domId = (st.kb && id === "test") ? "testnode" : null;
+      bx += box(BOX[id], mark, domId);
     }
+    const svg = `<svg viewBox="35 128 1265 600" xmlns="http://www.w3.org/2000/svg"><defs>
+    <marker id="arw" markerWidth="7" markerHeight="7" refX="5.6" refY="3" orient="auto-start-reverse" markerUnits="strokeWidth"><path d="M0,0 L6.2,3 L0,6 Z" fill="context-stroke"/></marker>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="1.6" stdDeviation="2.2" flood-color="#000" flood-opacity="0.16"/></filter>
+  </defs>${cont(315, 286, 770, 300, "#CC0000", 1, "開發循環", "#CC0000")}${conns.map(poly).join("")}${bx}${st.kb ? sddPillSVG() + artPillSVG() + kbNodeSVG() : ""}</svg>`;
+    svghost.innerHTML = svg; const el = svghost.firstElementChild; el.style.opacity = 0;
+    if (st.kb) { bindNode("kbnode", "kb"); bindNode("sddnode", "sdd"); bindNode("testnode", "tdd"); bindNode("artnode", "art"); }
+    requestAnimationFrame(() => requestAnimationFrame(() => { el.style.opacity = 1; }));
+  }
+  function kbNodeSVG() {
+    const x = 680, y = 202, w = 320, h = 60;
+    let s = "";
+    [730, 810, 880, 955].forEach(sx => { s += `<line x1="${sx}" y1="${y + h}" x2="${sx}" y2="294" stroke="${TEAL}" stroke-width="1.6" stroke-dasharray="5 4" opacity="0.5"/>`; });
+    s += `<g id="kbnode"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="${TEAL}" filter="url(#sh)"/>`;
+    s += `<text x="${x + w / 2}" y="${y + 25}" text-anchor="middle" font-size="17" font-weight="800" fill="#fff">團隊 AI 知識庫</text>`;
+    s += `<text x="${x + w / 2}" y="${y + 46}" text-anchor="middle" font-size="12" font-weight="600" fill="#CFF3EF">▸ 點擊查看詳情</text>`;
+    s += `</g>`;
+    return s;
+  }
+  function sddPillSVG() {
+    const x = 262, y = 454, w = 98, h = 42;
+    return `<g id="sddnode"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="#F1F0FB" stroke="#5B4FC2" stroke-width="2" stroke-dasharray="5 3"/>` +
+      `<text x="${x + w / 2}" y="${y + 18}" text-anchor="middle" font-size="13" font-weight="800" fill="#5B4FC2">SDD</text>` +
+      `<text x="${x + w / 2}" y="${y + 33}" text-anchor="middle" font-size="9.5" fill="#5B4FC2">規格驅動 ▸</text></g>`;
+  }
+  function artPillSVG() {
+    const w = 112, h = 44, x = 496, y = 260;
+    return `<g id="artnode"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="#F1F0FB" stroke="#5B4FC2" stroke-width="2" stroke-dasharray="5 3"/>` +
+      `<text x="552" y="${y + 18}" text-anchor="middle" font-size="12.5" font-weight="800" fill="#5B4FC2">AI 文件格式</text>` +
+      `<text x="552" y="${y + 33}" text-anchor="middle" font-size="9.5" fill="#5B4FC2">▸ 說明</text></g>`;
+  }
+  function bindNode(id, key) { const e = document.getElementById(id); if (e) e.addEventListener("click", () => openModal(key)); }
 
-    function renderNextChapter() {
-      const cards = slideData.nextChapter.map(d => `
-      <div class="next-card">
-        <div class="next-num">${esc(d.num)}</div>
-        <div class="next-title">${esc(d.title)}</div>
-        <div class="next-desc">${esc(d.desc)}</div>
-        <div class="next-tags">${d.tags.map(t => `<span class="next-tag">${esc(t)}</span>`).join('')}</div>
-      </div>`).join('');
+  /* ---------- handoff table ---------- */
+  const AI = { core: t => `<span class="ai-core">★ ${t}</span>`, assist: t => `<span class="ai-assist">AI 協助 · ${t}</span>`, manual: t => `<span class="ai-manual">${t}</span>` };
+  const HANDOFF = [
+    {
+      n: 1, flow: ["需求方", "→", "前端·後端"], prod: "需求規格 (PRD)", contract: false,
+      content: ["畫面與流程", "驗收條件、範圍", "優先序"],
+      bd: ["需求方定「要做什麼、驗收標準」", "不碰實作方式"], ai: AI.assist("整理需求、拆任務")
+    },
+    {
+      n: 2, flow: ["設計/美術", "→", "前端"], prod: "設計稿 · 切版規範", contract: false,
+      content: ["Figma 稿、design tokens", "元件標註、切圖", "尺寸 / 字級 / 間距"],
+      bd: ["設計對視覺與一致性負責", "前端對還原度與 RWD 負責"], ai: AI.manual("外部交付，目前人工")
+    },
+    {
+      n: 3, flow: ["前端", "↔", "後端"], prod: "API 契約 (OpenAPI)", contract: true,
+      content: ["endpoint、request / response schema", "錯誤碼、認證", "版本管理"],
+      bd: ["建議後端主導定義、前端共同 review 簽核", "單一 owner、須版控"], ai: AI.assist("生成 schema / 型別草稿，契約由人簽核")
+    },
+    {
+      n: 4, flow: ["後端", "→", "資料層"], prod: "DB schema · migration", contract: true,
+      content: ["資料表、欄位、索引", "遷移腳本", "相容性 / 回溯"],
+      bd: ["後端對 schema 正確與遷移安全負責"], ai: AI.assist("產 migration，人審查")
+    },
+    {
+      n: 5, flow: ["前端·後端", "（內部）"], prod: "程式碼 · 審查", contract: false,
+      content: ["PR、變更集", "code review 意見"],
+      bd: ["開發產出程式碼", "審查者對正確性與可維護性負責"], ai: AI.core("開發 Claude Code · 審查 Codex")
+    },
+    {
+      n: 6, flow: ["前端·後端", "→", "測試"], prod: "測試案例 · 驗收", contract: false,
+      content: ["單元 / 整合 / E2E", "驗收條件、回歸"],
+      bd: ["產出者對測項覆蓋負責"], ai: AI.manual("目前人工；預計導入 TDD／AI")
+    },
+    {
+      n: 7, flow: ["後端", "→", "維運/發佈"], prod: "部署設定 · log schema", contract: false,
+      content: ["部署腳本、環境變數", "監控 log 欄位", "回滾機制"],
+      bd: ["對可上線與可回滾負責"], ai: AI.core("部署 /deploy skill + CICD")
+    },
+    {
+      n: 8, flow: ["前端·後端", "→", "發佈上線"], prod: "版本 · release notes · build", contract: false,
+      content: ["版本號、變更記錄", "build 產物"],
+      bd: ["對可發佈正確性負責"], ai: AI.assist("生成 release notes")
+    },
+  ];
+  function flowHTML(f) { return f.map(x => (x === "→" || x === "↔") ? `<span class="ar">${x}</span>` : x).join(""); }
+  function ul(arr, cls) { return `<ul class="${cls || ''}">` + arr.map(x => `<li>${x}</li>`).join("") + "</ul>"; }
+  function renderTable() {
+    const rows = HANDOFF.map(r => `<tr class="${r.contract ? 'contract' : ''}">
+    <td class="num">${r.n}</td>
+    <td class="flow">${flowHTML(r.flow)}</td>
+    <td class="prod">${r.prod}${r.contract ? '<br><span class="tag tag-contract">契約</span>' : ''}</td>
+    <td class="cell">${ul(r.content)}</td>
+    <td class="cell bd">${ul(r.bd, 'bd')}</td>
+    <td class="cell">${r.ai}</td></tr>`).join("");
+    handoff.innerHTML = `<thead><tr>
+    <th class="num">#</th><th>交接（上游 → 下游）</th><th>交接產物</th>
+    <th>產物內容（粗顆粒）</th><th>職責邊界判準</th><th>AI 介入</th></tr></thead><tbody>${rows}</tbody>`;
+  }
 
-      return `
-  <div class="slide-header">
-    <div class="left">
-      <span class="eyebrow">NEXT · Skills 研發之後</span>
-      <h1 class="slide-title">四大發展方向</h1>
-      <div class="slide-subtitle">運營工具 · 遊戲官網 · 遊戲平台網頁</div>
-    </div>
-  </div>
-  <div class="slide-body">
-    <div class="next-grid">${cards}</div>
-  </div>`;
-    }
+  /* ---------- knowledge base ---------- */
+  const ICONS = {
+    search: '<circle cx="11" cy="11" r="7"/><line x1="16.3" y1="16.3" x2="21" y2="21"/>',
+    net: '<circle cx="5" cy="6" r="2.1"/><circle cx="19" cy="6" r="2.1"/><circle cx="12" cy="18" r="2.1"/><line x1="7" y1="6.6" x2="17" y2="6.6"/><line x1="6.4" y1="7.7" x2="10.8" y2="16.3"/><line x1="17.6" y1="7.7" x2="13.2" y2="16.3"/>',
+    people: '<circle cx="8.5" cy="8" r="3"/><path d="M3.5 20c0-3 2.2-5 5-5s5 2 5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M15 20c0-2.4 1.6-4 3.6-4s3.4 1.4 3.4 3.4"/>',
+    spark: '<path d="M12 2.5l2.1 6.3 6.4.2-5.1 3.9 1.9 6.2-5.2-3.7-5.2 3.7 1.9-6.2-5.1-3.9 6.4-.2z"/>',
+    lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'
+  };
+  function icon(k) { return `<span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[k]}</svg></span>`; }
+  const ADV = [
+    { id: "c1", ic: "search", t: "快速檢索", d: "對話式 AI 直接從資料萃取答案、生成摘要，省下搜尋時間，不用逐一翻文件。" },
+    { id: "c3", ic: "people", t: "經驗傳承", d: "把資深成員的隱性經驗與歷史專案顯性化儲存，降低人員流動衝擊，新人快速上手。" },
+  ];
+  const FRAMES = {
+    boss: {
+      label: "給主管（提案）",
+      title: "把散落資料變成「知識複利」",
+      sub: '資料散落各處、重複查找費時、資深經驗隨人員流動流失。我們已著手建置 AI 知識庫，可省下約 <b>80%</b> 搜尋時間、把經驗留在團隊；建議持續投入、擴大到全組。',
+      lead: []
+    },
+    team: {
+      label: "給組內（推廣）",
+      title: "有問題先問知識庫，秒級找到答案",
+      sub: '把 SOP、會議記錄、規格文件都丟進來，用對話就能問。找答案、寫文案、擬草稿它都能幫你——這是給大家<b>日常用</b>的工具。',
+      lead: ["c1", "c4"]
+    },
+    status: {
+      label: "現況報告",
+      title: "現階段：正在建立團隊 AI 知識庫",
+      sub: '我們正把跨部門的結構化與非結構化文件（SOP、PDF、會議記錄、規格）匯整成一個可對話的知識中樞，<b>目前建置中</b>。目標與預期效益如下。',
+      lead: []
+    },
+  };
+  function hubSVG() {
+    const inputs = [["SOP", 40], ["PDF／文件", 108], ["會議記錄", 176], ["規格文件", 244], ["專案歷史", 312]];
+    const outs = [["開發循環各環節", 55], ["團隊成員即時問答", 170], ["跨部門協作", 285]];
+    let s = "";
+    s += `<text x="125" y="26" text-anchor="middle" font-size="13" font-weight="700" fill="#98A0A8">散落的內部資料</text>`;
+    inputs.forEach(([t, y]) => {
+      s += `<rect x="30" y="${y}" width="190" height="52" rx="9" fill="#EEF1F4" filter="url(#shk)"/>`;
+      s += `<text x="125" y="${y + 26}" text-anchor="middle" dominant-baseline="central" font-size="16" font-weight="600" fill="#3C4650">${t}</text>`;
+      s += `<line x1="220" y1="${y + 26}" x2="390" y2="${y + 26}" stroke="#B0B7BE" stroke-width="1.7"/>`;
+    });
+    s += `<line x1="390" y1="66" x2="390" y2="338" stroke="#B0B7BE" stroke-width="1.7"/>`;
+    s += `<polyline points="390,230 452,230" fill="none" stroke="#B0B7BE" stroke-width="1.9" marker-end="url(#arwk)"/>`;
+    s += `<rect x="455" y="150" width="270" height="160" rx="18" fill="${TEAL}" filter="url(#shk)"/>`;
+    s += `<text x="590" y="205" text-anchor="middle" font-size="27" font-weight="800" fill="#fff">團隊 AI</text>`;
+    s += `<text x="590" y="243" text-anchor="middle" font-size="27" font-weight="800" fill="#fff">知識庫</text>`;
+    s += `<text x="590" y="283" text-anchor="middle" font-size="14" fill="#CFF3EF">對話式問答 · 一處匯整</text>`;
+    s += `<text x="910" y="42" text-anchor="middle" font-size="13" font-weight="700" fill="${TEAL}">取用知識複利</text>`;
+    s += `<line x1="725" y1="230" x2="762" y2="230" stroke="${TEAL}" stroke-width="2.1"/>`;
+    s += `<line x1="762" y1="89" x2="762" y2="319" stroke="${TEAL}" stroke-width="2.1"/>`;
+    outs.forEach(([t, y]) => {
+      s += `<polyline points="762,${y + 34} 800,${y + 34}" fill="none" stroke="${TEAL}" stroke-width="2.1" marker-end="url(#arwkt)"/>`;
+      s += `<rect x="800" y="${y}" width="220" height="68" rx="11" fill="#EAF6F4" stroke="${TEAL}" stroke-width="1.4" filter="url(#shk)"/>`;
+      s += `<text x="910" y="${y + 34}" text-anchor="middle" dominant-baseline="central" font-size="16.5" font-weight="700" fill="#0B5F59">${t}</text>`;
+    });
+    return `<svg viewBox="10 8 1030 372" xmlns="http://www.w3.org/2000/svg"><defs>
+    <marker id="arwk" markerWidth="7" markerHeight="7" refX="5.6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6.2,3 L0,6 Z" fill="#B0B7BE"/></marker>
+    <marker id="arwkt" markerWidth="7" markerHeight="7" refX="5.6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6.2,3 L0,6 Z" fill="${TEAL}"/></marker>
+    <filter id="shk" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="1.6" stdDeviation="2.2" flood-color="#000" flood-opacity="0.14"/></filter>
+  </defs>${s}</svg>`;
+  }
+  function kbCards() {
+    const f = FRAMES.boss; return ADV.map(a => {
+      const lead = f.lead.includes(a.id);
+      return `<div class="card${lead ? ' lead' : ''}">${icon(a.ic)}<div><h3>${a.t}${lead ? '<span class="rtag">重點</span>' : ''}</h3><p>${a.d}</p></div></div>`;
+    }).join("");
+  }
+  const ROADMAP_HTML = `<div class="rmap"><div class="rmap-head"><h3>階段性導入</h3>` +
+    `<div class="rtrack"><span class="rdot doing"></span><span class="rline"></span><span class="rdot plan"></span><span class="rline"></span><span class="rdot todo"></span></div></div>` +
+    `<div class="rphases">` +
+    `<div class="rphase"><span class="rbadge doing">進行中</span><div class="rp-t">1 · 先建立現有專案</div><p>把現有專案文件、SOP、規格先匯整進知識庫，讓它先能用。</p></div>` +
+    `<div class="rphase"><span class="rbadge plan">規劃中</span><div class="rp-t">2 · 技術與 AI 知識累積迭代</div><p>持續累積技術決策與 AI 使用經驗，讓知識庫隨團隊一起成長。</p></div>` +
+    `<div class="rphase todo"><span class="rbadge todo">未來</span><div class="rp-t">3 · 驗證與持續優化</div><ul class="rlist"><li>驗證知識庫正確性（校對答案、標記過時內容）</li><li>回答附上來源出處，方便追溯查證</li><li>分析常問與問不到的盲點，反推該補的知識</li></ul></div>` +
+    `</div></div>`;
+  function kbContentHTML() {
+    const f = FRAMES.boss;
+    return `<div class="head"><span class="pill" style="background:var(--teal)">知識庫</span><h2 style="font-size:22px;margin:0">${f.title}</h2></div>` +
+      `<div class="sub">${f.sub}</div>${hubSVG()}<div class="cards">${kbCards()}</div>${ROADMAP_HTML}`;
+  }
+  function methodContentHTML(tag, title, body, pos) {
+    const c = "#5B4FC2";
+    return `<div class="head"><span class="pill" style="background:${c}">${tag}</span><h2 style="font-size:22px;margin:0">${title}</h2></div>` +
+      `<div class="mm"><p>${body}</p><div class="mm-pos"><b>位置</b>${pos}</div><span class="mm-tag" style="color:${c};border-color:${c}">預計導入</span></div>`;
+  }
+  function sddContentHTML() {
+    const c = "#5B4FC2";
+    return `<div class="head"><span class="pill" style="background:${c}">SDD</span><h2 style="font-size:22px;margin:0">規格驅動開發</h2></div>` +
+      `<div class="mm">` +
+      `<p>先把規格寫清楚，再讓 AI 依規格產出程式——規格成為開發的<b>單一依據</b>，減少反覆猜測與返工。流程是：</p>` +
+      `<div class="tdd-cycle">` +
+      `<div class="tdd-step purple"><span class="tdd-n">1</span><div class="tdd-t">寫規格</div><p>把功能寫成明確、結構化的規格：輸入輸出、行為、邊界情境。</p></div>` +
+      `<div class="tdd-arrow">→</div>` +
+      `<div class="tdd-step teal"><span class="tdd-n">2</span><div class="tdd-t">AI 生成</div><p>讓 AI 依規格產出程式（可一併產出測試），規格是唯一依據。</p></div>` +
+      `<div class="tdd-arrow">→</div>` +
+      `<div class="tdd-step blue"><span class="tdd-n">3</span><div class="tdd-t">對照驗收</div><p>人依規格檢查產出是否符合；不符就回頭修規格或重生成。</p></div>` +
+      `<div class="tdd-arrow loop">↺</div>` +
+      `</div>` +
+      `<p class="tdd-note">規格是單一事實來源：需求一變，先改規格再重生成，而不是直接改程式——這讓 AI 開發有明確依據、產出可被客觀驗收。</p>` +
+      `<div class="mm-pos"><b>位置</b>介於「待辦清單」與「設計」之間：先把待辦轉成明確規格，再進入設計與開發。</div>` +
+      `<span class="mm-tag" style="color:${c};border-color:${c}">預計導入</span></div>`;
+  }
+  function tddContentHTML() {
+    const c = "#5B4FC2";
+    return `<div class="head"><span class="pill" style="background:${c}">TDD</span><h2 style="font-size:22px;margin:0">測試驅動開發</h2></div>` +
+      `<div class="mm">` +
+      `<p>先寫測試、再寫實作——用測試<b>牽引開發</b>，不只是事後驗證。核心是「紅 → 綠 → 重構」的循環：</p>` +
+      `<div class="tdd-cycle">` +
+      `<div class="tdd-step red"><span class="tdd-n">1</span><div class="tdd-t">紅 Red</div><p>先寫一個會失敗的測試，定義你要的行為與介面（等於先寫規格）。</p></div>` +
+      `<div class="tdd-arrow">→</div>` +
+      `<div class="tdd-step green"><span class="tdd-n">2</span><div class="tdd-t">綠 Green</div><p>寫剛好能讓測試通過的最少程式，先求會動。</p></div>` +
+      `<div class="tdd-arrow">→</div>` +
+      `<div class="tdd-step blue"><span class="tdd-n">3</span><div class="tdd-t">重構 Refactor</div><p>在測試保護下整理程式、去除重複，測試維持綠燈。</p></div>` +
+      `<div class="tdd-arrow loop">↺</div>` +
+      `</div>` +
+      `<p class="tdd-note">每個小功能重複這個循環——所以 TDD 橫跨「開發 ↔ 測試」：測試先行、驅動設計，驗證與回歸保護只是副產品。</p>` +
+      `<div class="mm-pos"><b>位置</b>落在「開發 ↔ 測試」之間；與測試的 AI 化一起推進（AI 協助產生測試與實作）。</div>` +
+      `<span class="mm-tag" style="color:${c};border-color:${c}">預計導入</span></div>`;
+  }
+  function artContentHTML() {
+    const c = "#5B4FC2";
+    return `<div class="head"><span class="pill" style="background:${c}">美術・Server</span><h2 style="font-size:22px;margin:0">交付給「開發」：預計導入 AI</h2></div>` +
+      `<div class="mm">` +
+      `<div class="mm-row"><span class="mm-k">美術</span><div><b>Figma AI to HTML</b> <span class="mm-badge plan">預計導入</span><p>直接把設計稿轉成前端 HTML／CSS，減少人工切版與還原落差。</p></div></div>` +
+      `<div class="mm-row"><span class="mm-k">Server</span><div><b>以 Markdown 溝通 API</b> <span class="mm-badge now">現況順暢</span><p>改用 md 文件取代舊式 API 文件，交付清楚、版本好管理，溝通無痛。</p></div></div>` +
+      `</div>`;
+  }
+  function openModal(key) {
+    modalbody.innerHTML = key === "art" ? artContentHTML() : key === "sdd" ? sddContentHTML() : key === "tdd" ? tddContentHTML() : kbContentHTML();
+    modal.style.display = "flex"; document.body.style.overflow = "hidden";
+  }
+  function closeModal() { modal.style.display = "none"; document.body.style.overflow = ""; }
 
-    /* ── Build renderers ───────────────────────────────────── */
-    const renderers = [renderCover, renderNextChapter];
-
-    let currentIndex = 0;
-
-    function openModal(id) { document.getElementById(id).classList.add('open'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-    function mount() {
-      const wrap = document.getElementById('slideWrap');
-      wrap.innerHTML = renderers.map((fn, i) => `
-    <section class="slide ${i === 0 ? 'active' : ''}" data-index="${i}">${fn()}</section>
-  `).join('');
-
-      const dots = document.getElementById('navDots');
-      dots.innerHTML = renderers.map((_, i) => `<span class="${i === 0 ? 'active' : ''}" data-i="${i}"></span>`).join('');
-      dots.querySelectorAll('span').forEach(el => {
-        el.addEventListener('click', () => goTo(Number(el.dataset.i)));
-      });
-
-      document.getElementById('prevBtn').addEventListener('click', prev);
-      document.getElementById('nextBtn').addEventListener('click', next);
-
-      document.addEventListener('keydown', (e) => {
-        const openModals = document.querySelectorAll('.modal-overlay.open');
-        const anyOpen = openModals.length > 0;
-        if (e.key === 'Escape' && anyOpen) { e.preventDefault(); openModals.forEach(m => m.classList.remove('open')); return; }
-        if (anyOpen) return;
-        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
-        if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
-        if (e.key === 'Home') { e.preventDefault(); goTo(0); }
-        if (e.key === 'End') { e.preventDefault(); goTo(renderers.length - 1); }
-      });
-
-      updateNav();
-      fitStage();
-      window.addEventListener('resize', fitStage);
-
-      const params = new URLSearchParams(window.location.search);
-      const pageParam = parseInt(params.get('page'), 10);
-      if (!isNaN(pageParam) && pageParam >= 1 && pageParam <= renderers.length) {
-        if (pageParam - 1 !== 0) goTo(pageParam - 1);
-        else history.replaceState(null, '', '?page=1');
-      } else {
-        history.replaceState(null, '', '?page=1');
-      }
-    }
-
-    function goTo(i) {
-      if (i < 0 || i >= renderers.length || i === currentIndex) return;
-      const slides = document.querySelectorAll('.slide');
-      slides[currentIndex].classList.remove('active');
-      slides[i].classList.add('active');
-      currentIndex = i;
-      history.replaceState(null, '', `?page=${i + 1}`);
-      updateNav();
-    }
-    function next() { goTo(currentIndex + 1); }
-    function prev() { goTo(currentIndex - 1); }
-
-    function updateNav() {
-      document.getElementById('navPos').textContent =
-        `${String(currentIndex + 1).padStart(2,'0')} / ${String(renderers.length).padStart(2,'0')}`;
-      document.querySelectorAll('.nav .dots span').forEach((el, i) => {
-        el.classList.toggle('active', i === currentIndex);
-      });
-    }
-
-    function fitStage() {
-      const wrap = document.getElementById('slideWrap');
-      const stage = document.getElementById('stage');
-      const sw = wrap.offsetWidth, sh = wrap.offsetHeight;
-      const vw = stage.offsetWidth - 40, vh = stage.offsetHeight - 80;
-      const scale = Math.min(vw / sw, vh / sh, 1);
-      wrap.style.transform = `scale(${scale})`;
-    }
-
-    mount();
-  </script>
-</body>
-</html>
+  /* ---------- init ---------- */
+  document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => renderProc(t.dataset.k)));
+  modalClose.addEventListener("click", closeModal);
+  modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+  renderProc("now");
+  renderTable();
+</script>
