@@ -1,0 +1,646 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Obsidian AI 知識庫 · 架構設計與工作流</title>
+<style>
+  :root {
+    --teal: #0D9488;
+    --teal-d: #0B5F59;
+    --ink: #2B2B2B;
+    --muted: #7A7A7A;
+    --faint: #A9A69C;
+    --line: #E7E4DB;
+    --purple: #5B4FC2;
+    /* obsidian-style callout tokens */
+    --info: #3E8FD0;   --info-bg: #EAF3FB;
+    --tip: #0D9488;    --tip-bg: #EAF6F4;
+    --warn: #C77A0A;   --warn-bg: #FAEEDA;   --warn-line: #EF9F27;
+    --danger: #D0393E; --danger-bg: #FDECEC;
+    --note: #8A8A8A;   --note-bg: #F1F1F0;
+  }
+
+  * { box-sizing: border-box }
+
+  html { scroll-behavior: smooth }
+
+  body {
+    margin: 0;
+    background: #FCFCFB;
+    color: var(--ink);
+    font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", "Heiti TC", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.7;
+  }
+
+  code, .mono { font-family: ui-monospace, "SF Mono", Consolas, monospace }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 26px 90px }
+
+  /* ---------- hero ---------- */
+  .hero {
+    padding: 60px 26px 40px;
+    background:
+      radial-gradient(900px 320px at 15% 0%, rgba(13,148,136,.09), transparent 65%),
+      radial-gradient(700px 300px at 90% 10%, rgba(91,79,194,.07), transparent 60%);
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-inner { max-width: 1120px; margin: 0 auto }
+  .kicker {
+    font: 600 12px/1 ui-monospace, Consolas, monospace;
+    letter-spacing: .22em; text-transform: uppercase;
+    color: var(--teal); margin-bottom: 16px;
+  }
+  h1 { margin: 0; font-size: 40px; font-weight: 800; letter-spacing: .01em; line-height: 1.25 }
+  h1 .accent { color: var(--teal) }
+  .lede { margin: 16px 0 0; font-size: 17px; color: #52514C; max-width: 760px }
+  .lede b { color: var(--ink) }
+  .meta-row {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px;
+  }
+  .chip {
+    font: 600 12.5px/1 ui-monospace, Consolas, monospace;
+    padding: 7px 12px; border-radius: 20px;
+    border: 1px solid var(--line); background: #fff; color: #5c5c5c;
+  }
+  .chip b { color: var(--teal) }
+
+  /* ---------- sticky nav ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 30;
+    background: rgba(252,252,251,.9); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    max-width: 1120px; margin: 0 auto; padding: 10px 26px;
+    display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+  }
+  .nav-inner a {
+    text-decoration: none; color: #6a6a66;
+    font: 600 13px/1 inherit; padding: 8px 12px; border-radius: 8px;
+    display: flex; align-items: center; gap: 7px; transition: .15s;
+  }
+  .nav-inner a .n {
+    font: 700 11px/1 ui-monospace, Consolas, monospace; color: var(--faint);
+  }
+  .nav-inner a:hover { background: #F0EFEA; color: var(--ink) }
+  .nav-inner a.on { background: var(--teal); color: #fff }
+  .nav-inner a.on .n { color: #BEEDE7 }
+
+  /* ---------- section ---------- */
+  section { padding-top: 46px; scroll-margin-top: 60px }
+  .sechead { margin-bottom: 20px }
+  .sechead .k {
+    font: 700 12px/1 ui-monospace, Consolas, monospace;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--faint); margin-bottom: 9px;
+  }
+  .sechead h2 { margin: 0; font-size: 26px; font-weight: 800 }
+  .sechead p { margin: 9px 0 0; font-size: 15px; color: var(--muted); max-width: 800px }
+  .sechead p b { color: var(--teal) }
+
+  h3 { font-size: 16.5px; font-weight: 800; margin: 26px 0 12px }
+  p { font-size: 14.5px }
+
+  hr.divider { border: none; border-top: 2px solid var(--line); margin: 52px 0 0 }
+
+  /* ---------- obsidian-style callout ---------- */
+  .co {
+    border-radius: 10px; padding: 13px 16px 13px 17px;
+    border-left: 4px solid; margin: 14px 0; font-size: 14px;
+  }
+  .co .ct { font-weight: 800; font-size: 13.5px; display: flex; align-items: center; gap: 7px; margin-bottom: 3px }
+  .co p { margin: 4px 0 0; font-size: 13.5px; color: #4c4c4c; line-height: 1.6 }
+  .co.info   { background: var(--info-bg);   border-color: var(--info) }   .co.info .ct { color: var(--info) }
+  .co.tip    { background: var(--tip-bg);    border-color: var(--tip) }    .co.tip .ct { color: var(--teal-d) }
+  .co.warn   { background: var(--warn-bg);   border-color: var(--warn-line) } .co.warn .ct { color: var(--warn) }
+  .co.danger { background: var(--danger-bg); border-color: var(--danger) }  .co.danger .ct { color: var(--danger) }
+  .co.note   { background: var(--note-bg);   border-color: var(--note) }    .co.note .ct { color: #5f5f5f }
+
+  /* ---------- generic cards ---------- */
+  .cards { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 6px }
+  .card {
+    flex: 1 1 300px; min-width: 260px;
+    background: #fff; border: 1.5px solid #ECEBE5; border-radius: 14px;
+    padding: 18px 20px;
+  }
+  .card.lead { border-color: var(--teal); background: #F4FBFA }
+  .card h4 { margin: 0 0 8px; font-size: 15.5px; font-weight: 800; display: flex; align-items: center; gap: 9px }
+  .card p { margin: 0; font-size: 13.5px; color: #5b5b5b; line-height: 1.6 }
+  .card .em { font-size: 22px; line-height: 1 }
+  .card ul { margin: 8px 0 0; padding-left: 18px }
+  .card li { font-size: 13px; color: #565656; line-height: 1.55; margin: 3px 0 }
+
+  /* ---------- table ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-top: 8px }
+  thead th { background: #F2F0E9; text-align: left; font-weight: 800; color: var(--ink); padding: 11px 14px; border-bottom: 1px solid var(--line); font-size: 12.5px; white-space: nowrap }
+  tbody td { padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.55; color: #454545 }
+  tbody tr:last-child td { border-bottom: none }
+  tbody td:first-child { white-space: nowrap; font-weight: 700; color: var(--ink) }
+  td code, th code { font-size: 12.5px; background: #F0EFEA; padding: 1px 6px; border-radius: 5px; color: #444 }
+  tr.hl td { background: #FDF8EE }
+
+  /* status badges */
+  .st { display: inline-block; font: 700 11px/1 ui-monospace, Consolas, monospace; border-radius: 5px; padding: 3px 7px }
+  .st.current { color: #0B5F59; background: #EAF6F4; border: 1px solid #9DD8CE }
+  .st.spec    { color: var(--warn); background: var(--warn-bg); border: 1px solid var(--warn-line) }
+  .st.draft   { color: #5f5f5f; background: var(--note-bg); border: 1px solid #D5D5D2 }
+  .st.deprecated { color: var(--danger); background: var(--danger-bg); border: 1px solid #EDB6B8 }
+
+  /* ---------- flow (pipeline chips) ---------- */
+  .flow { display: flex; align-items: stretch; gap: 4px; flex-wrap: wrap; margin: 20px 0 6px }
+  .fstep {
+    flex: 1 1 150px; min-width: 138px;
+    border: 1.6px solid #E3E1DA; border-radius: 12px; padding: 13px 14px; background: #fff;
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .fstep .fn { font: 700 11px/1 ui-monospace, Consolas, monospace; color: var(--faint) }
+  .fstep .ft { font-weight: 800; font-size: 14px; margin-top: 3px }
+  .fstep .fd { font-size: 12px; color: #6a6a6a; line-height: 1.5 }
+  .fstep .fk { font: 600 11px/1 ui-monospace, Consolas, monospace; color: #999; margin-top: 4px }
+  .fstep.src   { background: #F5F4EF }
+  .fstep.raw   { border-color: var(--faint); border-style: dashed; background: #FAFAF7 }
+  .fstep.skill { border-color: var(--purple); background: #F3F1FC }
+  .fstep.skill .ft { color: var(--purple) }
+  .fstep.out   { border-color: var(--warn-line); background: var(--warn-bg) }
+  .fstep.out .ft { color: var(--warn) }
+  .fstep.reg   { border-color: var(--teal); background: var(--tip-bg) }
+  .fstep.reg .ft { color: var(--teal-d) }
+  .farrow { display: flex; align-items: center; justify-content: center; color: #C4C1B8; font-size: 20px; font-weight: 700; min-width: 16px }
+
+  /* ---------- 3-layer nav diagram ---------- */
+  .layers { display: flex; flex-direction: column; gap: 0; margin: 18px 0 6px }
+  .layer {
+    display: flex; align-items: center; gap: 16px;
+    border: 1.6px solid #E3E1DA; border-radius: 13px; background: #fff;
+    padding: 14px 18px; position: relative;
+  }
+  .layer + .layer { margin-top: 30px }
+  .layer + .layer::before {
+    content: "▼ 順著 wikilink 往下"; position: absolute; top: -25px; left: 26px;
+    font: 600 11px/1 ui-monospace, Consolas, monospace; color: var(--teal);
+  }
+  .layer .lv {
+    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 50%;
+    background: var(--teal); color: #fff; font: 800 15px ui-monospace, Consolas, monospace;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .layer.l2 .lv { background: #14A398 } .layer.l3 .lv { background: #43B5AB } .layer.l4 .lv { background: #7FCDC5 }
+  .layer .lt { font-weight: 800; font-size: 15px }
+  .layer .lt code { font-size: 12.5px }
+  .layer .ld { font-size: 12.5px; color: #6c6c6c; margin-top: 2px }
+  .layer .lgrow { flex: 1 }
+
+  /* ---------- log timeline ---------- */
+  .logbook { margin-top: 8px; border-left: 2px solid var(--line); padding-left: 0 }
+  .logitem { position: relative; padding: 4px 0 4px 26px; margin-left: 8px }
+  .logitem::before {
+    content: ""; position: absolute; left: -7px; top: 15px;
+    width: 12px; height: 12px; border-radius: 50%; background: var(--teal); border: 2.5px solid #fff; box-shadow: 0 0 0 1px var(--teal);
+  }
+  .logitem.lint::before { background: var(--purple); box-shadow: 0 0 0 1px var(--purple) }
+  .logitem > summary {
+    cursor: pointer; list-style: none; padding: 11px 15px;
+    background: #fff; border: 1.5px solid #ECEBE5; border-radius: 11px;
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  }
+  .logitem > summary::-webkit-details-marker { display: none }
+  .logitem > summary:hover { border-color: var(--teal) }
+  .logdate { font: 700 12px/1 ui-monospace, Consolas, monospace; color: var(--teal) }
+  .logtype { font: 700 10.5px/1 ui-monospace, Consolas, monospace; padding: 3px 7px; border-radius: 5px; color: #fff; background: var(--teal) }
+  .logtype.lint { background: var(--purple) }
+  .logtitle { font-weight: 700; font-size: 13.5px; flex: 1; min-width: 200px }
+  .logmore { margin-left: auto; color: var(--faint); font-size: 12px }
+  .logbody { padding: 12px 16px 4px 16px; font-size: 13px; color: #4f4f4f; line-height: 1.65 }
+  .logbody ul { margin: 6px 0 0; padding-left: 18px }
+  .logbody li { margin: 4px 0 }
+
+  /* ---------- two-col ---------- */
+  .cols { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px }
+  .col { flex: 1 1 320px; min-width: 280px }
+  .col h4 { font-size: 14px; font-weight: 800; margin: 0 0 6px; display: flex; align-items: center; gap: 8px }
+
+  .keep-tag { display: inline-block; font: 700 10.5px/1 ui-monospace, Consolas, monospace; padding: 3px 6px; border-radius: 5px }
+  .keep-tag.yes { color: #0B5F59; background: #EAF6F4; border: 1px solid #9DD8CE }
+  .keep-tag.no  { color: var(--danger); background: var(--danger-bg); border: 1px solid #EDB6B8 }
+
+  footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; text-align: center }
+  footer .mono { color: var(--faint) }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 30px } .hero { padding: 40px 22px 30px }
+    .farrow { transform: rotate(90deg); min-width: auto; padding: 2px 0 }
+  }
+</style>
+
+<!-- ============================ HERO ============================ -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="kicker">Team Knowledge Base · 全端組</div>
+    <h1>Obsidian <span class="accent">AI 知識庫</span><br>架構設計與工作流</h1>
+    <p class="lede">一套 <b>Karpathy 式 LLM Wiki</b>：一堆組織良好、彼此用 wikilink 連結的繁體中文 Markdown 筆記。
+      <b>不用向量資料庫、不做 embedding、不做相似度搜尋</b>——AI 靠讀索引 + 順著連結走來找答案。這份簡報介紹我如何設計它、如何版控、如何把企劃規格書變成可用知識，以及團隊怎麼透過 skill 每天使用。</p>
+    <div class="meta-row">
+      <span class="chip">📁 <b>2</b> 領域　work · research</span>
+      <span class="chip">🔗 導航　<b>index → 領域 → 專案 → 頁</b></span>
+      <span class="chip">🔄 同步　<b>git</b>，非 Obsidian Sync</span>
+      <span class="chip">🛠 <b>ingest</b> · <b>lint</b> skills</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ NAV ============================ -->
+<nav>
+  <div class="nav-inner" id="nav">
+    <a href="#arch"><span class="n">01</span> 架構設計</a>
+    <a href="#vcs"><span class="n">02</span> 版本控制</a>
+    <a href="#pipeline"><span class="n">03</span> 規格書轉換</a>
+    <a href="#usage"><span class="n">04</span> 開發中使用</a>
+    <a href="#log"><span class="n">05</span> 操作紀錄</a>
+    <a href="#skills"><span class="n">06</span> Skill 工作流</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ==================== 01 架構設計 ==================== -->
+  <section id="arch">
+    <div class="sechead">
+      <div class="k">Section 01 · Architecture</div>
+      <h2>我如何設計這個架構</h2>
+      <p>核心決定只有一個：<b>不做語意搜尋</b>。知識就是一堆結構良好、彼此連結的 Markdown，AI 靠「讀索引 + 順連結」導航，而不是丟進向量庫做相似度比對。這個決定牽動了整套結構。</p>
+    </div>
+
+    <div class="co tip">
+      <div class="ct">💡 為什麼不用向量庫</div>
+      <p>向量庫把知識變成「不透明的一團 embedding」——查得到但看不懂、無法版控、無法人工校對。改用純 Markdown + wikilink，知識<b>對人和對 AI 都是可讀、可 diff、可 review 的一等公民</b>；找答案靠明確的三層索引，結果可追溯、可解釋。</p>
+    </div>
+
+    <h3>三層導航（Three-layer navigation）</h3>
+    <p>找東西不盲目 grep 全 vault，而是從主索引一路收斂：先挑領域、再挑專案、再順連結追到頁面。</p>
+    <div class="layers">
+      <div class="layer l1">
+        <div class="lv">L1</div>
+        <div class="lgrow">
+          <div class="lt">主索引 <code>wiki/index.md</code></div>
+          <div class="ld">Master Index — 領域入口表 + 跨領域 tag 表。查資料的起點。</div>
+        </div>
+      </div>
+      <div class="layer l2">
+        <div class="lv">L2</div>
+        <div class="lgrow">
+          <div class="lt">領域總覽 <code>00 XX總覽 (Start Here)</code></div>
+          <div class="ld">work / research 各一個 MOC，挑對的專案或主題。</div>
+        </div>
+      </div>
+      <div class="layer l3">
+        <div class="lv">L3</div>
+        <div class="lgrow">
+          <div class="lt">專案／主題總覽 <code>00 總覽 (Start Here)</code></div>
+          <div class="ld">每個專案自己的 MOC：目錄表 + 依角色的閱讀路徑。</div>
+        </div>
+      </div>
+      <div class="layer l4">
+        <div class="lv">L4</div>
+        <div class="lgrow">
+          <div class="lt">具體頁面 · 順著 wikilink 追</div>
+          <div class="ld">跨領域抓同類型（所有 meeting、某人相關…）改用 tag 面板。</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>結構軸：領域為綱，類型走 tag</h3>
+    <div class="cards">
+      <div class="card lead">
+        <h4><span class="em">🗂</span> 資料夾＝領域（唯一結構軸）</h4>
+        <p>頂層只用「領域」分：<code>work/</code>（專案文件、決策 ADR、會議、流程 playbook）與 <code>research/</code>（純知識探索）。這是唯一的資料夾切分方式。</p>
+      </div>
+      <div class="card">
+        <h4><span class="em">🏷</span> 類型走 tag，跨領域</h4>
+        <p><code>meeting</code> / <code>decision</code> / <code>person</code> / <code>playbook</code>… 用 tag 橫跨所有領域，不用資料夾硬切。Obsidian tag 面板一點就列出同類型。</p>
+      </div>
+      <div class="card">
+        <h4><span class="em">🔗</span> wikilink 建關係</h4>
+        <p>內部連結一律 <code>[[頁面標題]]</code>；跨資料夾或同名檔用 <code>[[資料夾/檔名｜顯示名]]</code>。<code>app.json</code> 設 <code>newLinkFormat: absolute</code>，新連結自動帶絕對路徑消歧。</p>
+      </div>
+    </div>
+
+    <h3>頁面成熟度：<code>status</code> 是單一真相來源</h3>
+    <p>每頁 frontmatter 的 <code>status:</code> 標「這頁可信到什麼程度」，並配對應的頁首 banner，避免把規劃中的東西誤當現況。</p>
+    <table>
+      <thead><tr><th>status</th><th>意義</th><th>頁首 banner</th></tr></thead>
+      <tbody>
+        <tr><td><span class="st current">current</span></td><td>現況 / 已實作（預設）</td><td>無</td></tr>
+        <tr class="hl"><td><span class="st spec">spec</span></td><td>規格 / 規劃中，<b>非成品</b></td><td><code>&gt; [!warning] 規格文件（規劃中），非現況</code></td></tr>
+        <tr><td><span class="st draft">draft</span></td><td>草稿，未核實</td><td><code>&gt; [!note] 草稿，內容尚未核實</code></td></tr>
+        <tr><td><span class="st deprecated">deprecated</span></td><td>已棄用，僅供歷史參考</td><td><code>&gt; [!danger] 已棄用</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="co info">
+      <div class="ct">ℹ️ 撰寫慣例（讓 graph 與導航長得起來）</div>
+      <p>檔名 <code>NN 中文標題.md</code>（數字前綴定資料夾內閱讀順序）· 每個資料夾一個 <code>00 總覽 (Start Here)</code> MOC · 重點用 callout（<code>[!info]</code>/<code>[!warning]</code>/<code>[!tip]</code>…）· 每個專案一份 <code>&lt;專案&gt; 詞彙表</code>。</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ==================== 02 版本控制 ==================== -->
+  <section id="vcs">
+    <div class="sechead">
+      <div class="k">Section 02 · Version Control</div>
+      <h2>如何版控</h2>
+      <p>vault 是分享給同事的 <b>git 私有 repo</b>，每人各自 clone、用自己的 Obsidian 開。<b>刻意不開 Obsidian Sync</b>——兩套同步同時寫同一批檔會打架。</p>
+    </div>
+
+    <div class="co danger">
+      <div class="ct">⚠️ 走 git，不是 Obsidian Sync</div>
+      <p>Obsidian Sync 與 git 同時同步同一個 vault 會互相覆蓋、產生衝突殘檔。全隊統一走 git：好處是純文字 Markdown 天生適合版控——diff 清楚、衝突好解、歷史可追。</p>
+    </div>
+
+    <div class="cols">
+      <div class="col">
+        <h4>🔄 日常流程</h4>
+        <div class="flow" style="margin-top:8px">
+          <div class="fstep src"><span class="fn">1</span><span class="ft">git pull</span><span class="fd">編輯前先拉同事最新內容</span></div>
+          <div class="farrow">→</div>
+          <div class="fstep src"><span class="fn">2</span><span class="ft">小步 commit</span><span class="fd">常 commit、訊息清楚</span></div>
+          <div class="farrow">→</div>
+          <div class="fstep reg"><span class="fn">3</span><span class="ft">git push</span><span class="fd">改完盡早推上去</span></div>
+        </div>
+        <div class="co note">
+          <div class="ct">🧩 衝突怎麼辦</div>
+          <p>都是純文字 Markdown，手動解很直覺——沒有二進位打架的問題。</p>
+        </div>
+      </div>
+      <div class="col">
+        <h4>🚫 為什麼把原始檔擋在 repo 外</h4>
+        <p style="font-size:13.5px;color:#555"><code>raw/</code>（原始來源投放區：Excel、PDF、逐字稿）是<b>本機自用</b>，在 <code>.gitignore</code> 內、只保留 README。原因：避免二進位撐肥 git 歷史，且原始檔通常較敏感。真正的知識全在消化後的 <code>wiki/</code>。</p>
+        <div class="co tip">
+          <div class="ct">🔐 敏感資訊政策</div>
+          <p>同事全可信、內容全分享，但敏感點（密鑰、正式機位址、弱點）用 <code>&gt; [!danger] 敏感：…</code> 標顯眼，且不把可用的密鑰明文留在頁面。</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>關鍵在 <code>.gitignore</code>：per-user 狀態不進、共享設定要進</h3>
+    <p>Obsidian 的 <code>.obsidian/</code> 混了「個人 UI 狀態」和「團隊共享設定」，要精準切開才不會互相覆蓋。</p>
+    <table>
+      <thead><tr><th style="width:130px">是否進 repo</th><th>檔案</th><th>原因</th></tr></thead>
+      <tbody>
+        <tr><td><span class="keep-tag no">忽略</span></td><td><code>workspace.json</code></td><td>每個人的面板佈局，屬 per-user UI 狀態</td></tr>
+        <tr><td><span class="keep-tag no">忽略</span></td><td><code>plugins/*/data.json</code> · <code>sync.json</code></td><td>各 plugin 的本機設定</td></tr>
+        <tr><td><span class="keep-tag no">忽略</span></td><td><code>.DS_Store</code></td><td>macOS 殘檔</td></tr>
+        <tr class="hl"><td><span class="keep-tag yes">共享</span></td><td><code>app.json</code></td><td>已設 <code>newLinkFormat: absolute</code>，連結格式全隊一致</td></tr>
+        <tr class="hl"><td><span class="keep-tag yes">共享</span></td><td><code>graph.json</code> · <code>core/community-plugins.json</code></td><td>graph 樣式與啟用的 plugin 清單</td></tr>
+        <tr class="hl"><td><span class="keep-tag yes">共享</span></td><td><code>plugins/terminal/*</code></td><td>內含的 community plugin，新同事首開需手動信任</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ==================== 03 規格書轉換 ==================== -->
+  <section id="pipeline">
+    <div class="sechead">
+      <div class="k">Section 03 · Spec Ingestion</div>
+      <h2>把規格書轉成知識庫：Excel → PDF → Markdown</h2>
+      <p>企劃組的規格常是<b>線上 Excel</b>。它進不了向量庫也不好連結，我把它變成一條固定 pipeline，落地成帶 <code>status: spec</code> 的結構化 Markdown 頁，並登錄回母專案。</p>
+    </div>
+
+    <div class="flow">
+      <div class="fstep src"><span class="fn">來源</span><span class="ft">線上 Excel</span><span class="fd">企劃維護的規格表</span><span class="fk">.xlsx</span></div>
+      <div class="farrow">→</div>
+      <div class="fstep src"><span class="fn">匯出</span><span class="ft">PDF</span><span class="fd">凍結成一份可讀快照</span><span class="fk">.pdf</span></div>
+      <div class="farrow">→</div>
+      <div class="fstep raw"><span class="fn">投放</span><span class="ft">raw/</span><span class="fd">丟進本機暫存區（不進 repo）</span><span class="fk">.gitignore</span></div>
+      <div class="farrow">→</div>
+      <div class="fstep skill"><span class="fn">消化</span><span class="ft">spec-ingest</span><span class="fd">套規格頁模板</span><span class="fk">skill</span></div>
+      <div class="farrow">→</div>
+      <div class="fstep out"><span class="fn">產出</span><span class="ft">md 規格頁</span><span class="fd">status: spec + warning banner + 八段式</span><span class="fk">wiki/</span></div>
+      <div class="farrow">→</div>
+      <div class="fstep reg"><span class="fn">登錄</span><span class="ft">母專案</span><span class="fd">更新 MOC、寫 log</span><span class="fk">MOC</span></div>
+    </div>
+
+    <div class="co warn">
+      <div class="ct">📐 規格頁模板（spec-ingest 封裝的三件事）</div>
+      <p><b>①</b> frontmatter <code>status: spec</code>　<b>②</b> 頁首 <code>&gt; [!warning]</code> banner（標「規劃中、非現況」）　<b>③</b> <code>00</code> 八段式結構 + 「登錄回母專案」四件套清單。讓 AI 產出的規格頁結構一致、不會被誤讀成已實作。</p>
+    </div>
+
+    <h3>真實案例：opTool「批次上傳道具」規格</h3>
+    <div class="cards">
+      <div class="card">
+        <h4><span class="em">📄</span> 來源</h4>
+        <p><code>raw/規格書-道具批量上傳.pdf</code>（4 頁，「+批次新增道具」功能規格）。</p>
+      </div>
+      <div class="card">
+        <h4><span class="em">🧩</span> 拆成多頁</h4>
+        <ul>
+          <li><code>00 批次上傳道具總覽</code>（MOC）</li>
+          <li><code>01 操作流程與彈窗</code></li>
+          <li><code>02 錯誤處理與略過邏輯</code></li>
+          <li><code>03 欄位對應規則</code></li>
+        </ul>
+      </div>
+      <div class="card lead">
+        <h4><span class="em">🏆</span> 04 範例＝黃金樣本</h4>
+        <p><code>04 範例-限時組裝足球拉霸人</code>：四階合成樹 + 30 筆道具清單 + 對應批次模板的欄位固定值，可當實作／QA 的黃金樣本。此頁 <span class="st current">current</span>，但工具本身仍 <span class="st spec">spec</span>（頁內已標區隔）。</p>
+      </div>
+    </div>
+
+    <div class="co info">
+      <div class="ct">ℹ️ 一份來源常產生數個頁面</div>
+      <p>ingest 不是「一份 PDF 換一頁」，而是把內容拆成有意義的多個 wiki 頁、各設好 frontmatter、頁面之間用 wikilink 建立關係，最後更新領域總覽並在 <code>log.md</code> 記一筆。</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ==================== 04 開發中使用 ==================== -->
+  <section id="usage">
+    <div class="sechead">
+      <div class="k">Section 04 · Using specs in development</div>
+      <h2>如何在專案開發中使用知識庫的規格書</h2>
+      <p>規格頁不是寫完就擺著。它在開發時是<b>「要做成什麼」的單一依據</b>，在測試時是驗收樣本，也記錄了文件與實際程式碼之間的落差。</p>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h4><span class="em">🎯</span> 規格頁＝實作依據</h4>
+        <p><span class="st spec">spec</span> 頁描述的是「<b>要做成什麼</b>」，不是「現在是什麼」。頁首 warning banner 讓開發者一眼分清規劃 vs 現況，不會照著還沒實作的東西誤判現有行為。</p>
+      </div>
+      <div class="card lead">
+        <h4><span class="em">🧪</span> 黃金樣本＝QA 驗收</h4>
+        <p><code>04 範例</code> 把合成樹、30 筆道具、批次模板欄位固定值全列清楚——實作時照著填、QA 時照著驗，是可客觀比對的驗收樣本。</p>
+      </div>
+      <div class="card">
+        <h4><span class="em">🔍</span> 刻意記錄「文件 vs 程式碼」落差</h4>
+        <p>vault 常用來記錄 <b>vault 之外</b>的真實 repo（如 opTool、Rhino）。這類頁刻意保留 README／文件 與 <b>活的原始碼</b>之間的不一致（容器名不符、設定過時），是「已知問題與陷阱」頁的標準配備。</p>
+      </div>
+    </div>
+
+    <div class="co danger">
+      <div class="ct">⚠️ 更新時重新對照活的原始碼</div>
+      <p>原始碼在 vault 之外、要去真實路徑讀，別假設它在 vault 裡。維護這類文件時<b>重新對照當前程式碼</b>、更新 <code>updated:</code> 日期，別只信舊筆記；也不要默默把「已知問題與陷阱」蒐集的不一致主張「修掉」——那些落差本身就是要保留的知識。</p>
+    </div>
+
+    <h3>典型迴圈：規格 → 開發 → 回填知識</h3>
+    <div class="flow">
+      <div class="fstep out"><span class="ft">讀規格頁</span><span class="fd">從專案 MOC 順 wikilink 找到 spec 頁，對齊「要做什麼」</span></div>
+      <div class="farrow">→</div>
+      <div class="fstep src"><span class="ft">照樣本開發</span><span class="fd">以黃金樣本為實作/QA 依據</span></div>
+      <div class="farrow">→</div>
+      <div class="fstep reg"><span class="ft">回填現況</span><span class="fd">實作後把 status 由 spec 收斂到 current，更新落差頁與 log</span></div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ==================== 05 操作紀錄 ==================== -->
+  <section id="log">
+    <div class="sechead">
+      <div class="k">Section 05 · Operation Log</div>
+      <h2>操作紀錄：每次消化都留下軌跡</h2>
+      <p>每一次 ingest（消化來源）、lint（健檢）或大改動，都在 <code>wiki/log.md</code> 記一筆、最新的放最上面。這是 vault 的<b>稽核軌跡</b>——知道每頁怎麼來的、架構為何演進。點開任一筆看細節。</p>
+    </div>
+
+    <div class="logbook">
+      <details class="logitem">
+        <summary>
+          <span class="logdate">2026-07-01</span>
+          <span class="logtype">ingest</span>
+          <span class="logtitle">限時組裝「足球拉霸人」批次表（opTool 現況範例）</span>
+          <span class="logmore">展開 ▾</span>
+        </summary>
+        <div class="logbody">
+          <ul>
+            <li><b>來源：</b><code>raw/optool-batch/限時組裝.xlsx</code>（單一工作表 TW，30 筆道具）+ 31 張道具圖。</li>
+            <li><b>分診：</b>判為 opTool <b>現況範例</b>（非規格）——是既有批次上傳模板的真實填寫範例；資料 <span class="st current">current</span>，但工具本身仍規劃中（頁內標區隔）。</li>
+            <li><b>新頁：</b><code>04 範例-限時組裝足球拉霸人.md</code>——四階合成樹 + 完整 30 筆道具清單 + 批次模板欄位固定值，可當實作/QA 黃金樣本。</li>
+            <li><b>登錄：</b>資料夾 MOC 的「規格文件地圖」新增第 04 列。圖片未搬入（選文字描述），頁面已自足描述合成關係。</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="logitem lint" open>
+        <summary>
+          <span class="logdate">2026-06-29</span>
+          <span class="logtype lint">架構演進</span>
+          <span class="logtitle">團隊領域結構 + git 多人共用</span>
+          <span class="logmore">展開 ▾</span>
+        </summary>
+        <div class="logbody">
+          <ul>
+            <li><b>動機：</b>要容納多專案、會議/決策、團隊流程，並以 git 私有 repo 分享給同事。舊的扁平 <code>wiki/project/</code> 放不下，且每加東西都要動最熱的 <code>index.md</code>。</li>
+            <li><b>領域頂層：</b><code>wiki/</code> 改為 <code>work/</code>、<code>research/</code>（領域＝唯一結構軸，類型走 tag）；各層加 <code>00 XX總覽</code> MOC，形成三層導航。</li>
+            <li><b>定位為團隊 vault：</b>移除 <code>personal/</code>；<code>raw/</code> 改為本機自用、不進 repo。</li>
+            <li><b>狀態慣例：</b>新增 <code>status:</code>（current/spec/draft/deprecated）為成熟度單一真相來源；批次上傳 4 篇補 <span class="st spec">spec</span>。</li>
+            <li><b>git 共用：</b><code>git init</code> + 精準 <code>.gitignore</code>；新增給同事的 <code>README.md</code>。<b>改用 git 同步，不用 Obsidian Sync。</b></li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="logitem">
+        <summary>
+          <span class="logdate">2026-06-26</span>
+          <span class="logtype">ingest</span>
+          <span class="logtitle">規格書：opTool 批次上傳道具（規劃中功能）</span>
+          <span class="logmore">展開 ▾</span>
+        </summary>
+        <div class="logbody">
+          <ul>
+            <li><b>來源：</b><code>raw/規格書-道具批量上傳.pdf</code>（4 頁，「+批次新增道具」功能規格）。</li>
+            <li>拆成 <code>00–03</code> 規格頁，全標 <span class="st spec">spec</span> + warning banner，登錄回 opTool 母專案 MOC。</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <div class="co tip">
+      <div class="ct">💡 log 為什麼重要</div>
+      <p>知識庫最怕「不知道某頁是怎麼來的、可不可信」。log 把每次消化的<b>來源、分診判斷、產出、登錄</b>都留下，讓知識可追溯、架構演進有據可查。</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ==================== 06 Skill ==================== -->
+  <section id="skills">
+    <div class="sechead">
+      <div class="k">Section 06 · Skills</div>
+      <h2>有 skill：團隊怎麼每天使用</h2>
+      <p>使用者不用背流程。丟東西進 <code>raw/</code>、說一句「幫我 ingest」，skill 就會<b>先讀來源、反問確認、再路由</b>。ingest 的兩個 skill 是上下游關係，不是二選一。</p>
+    </div>
+
+    <div class="flow">
+      <div class="fstep raw"><span class="fn">投放</span><span class="ft">丟進 raw/</span><span class="fd">文章、逐字稿、規格、會議記錄…</span></div>
+      <div class="farrow">→</div>
+      <div class="fstep skill"><span class="fn">總入口</span><span class="ft">raw-ingest</span><span class="fd">分診 · 反問 類型／歸屬／深度／圖片</span></div>
+      <div class="farrow">→</div>
+      <div class="fstep skill"><span class="fn">判為規格</span><span class="ft">↳ spec-ingest</span><span class="fd">交棒下游、套規格頁模板</span></div>
+      <div class="farrow">→</div>
+      <div class="fstep reg"><span class="fn">落地</span><span class="ft">wiki 頁 + log</span><span class="fd">登錄回母專案、寫一筆 log</span></div>
+    </div>
+
+    <table>
+      <thead><tr><th style="width:90px"></th><th>raw-ingest</th><th>spec-ingest</th></tr></thead>
+      <tbody>
+        <tr><td>何時用</td><td>歸屬 / 類型<b>不明</b>（預設從這開始）</td><td>已確定是<b>企劃規格</b></td></tr>
+        <tr><td>角色</td><td>總入口、分診、路由</td><td>下游、專門模板</td></tr>
+        <tr><td>產出</td><td>現況 / 會議 / 決策 / 研究頁</td><td><span class="st spec">spec</span> 規格頁</td></tr>
+        <tr><td>關係</td><td>判為規格 → <b>交棒 spec-ingest</b></td><td>被 raw-ingest 呼叫（或直接用）</td></tr>
+      </tbody>
+    </table>
+
+    <div class="cards" style="margin-top:20px">
+      <div class="card">
+        <h4><span class="em">🗣</span> 怎麼喚起</h4>
+        <ul>
+          <li>不確定 → 「<b>幫我 ingest</b>」（走 raw-ingest 分診）</li>
+          <li>明確是規格 → 「<b>ingest 這份規格</b>」（直接 spec-ingest）</li>
+          <li>定期整理 → 「<b>幫我 lint</b>」（找不一致、補缺漏、提連結）</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4><span class="em">🧹</span> lint 健檢</h4>
+        <p>掃 <code>wiki/</code> 找不一致的資料、缺漏（可 web search 補）、值得新增的連結、孤立頁面，提出建議；不確定就回頭問。完成後在 <code>log.md</code> 記一筆。</p>
+      </div>
+      <div class="card">
+        <h4><span class="em">🤝</span> 團隊 skills 資料夾</h4>
+        <p>vault 另有共享 <code>skills/</code>，每位成員至少貢獻一個：<code>deploy-release</code>（部署發版）、<code>ui-components-pipeline</code>（UI 組件流程）、<code>create-doc</code>（專案分析文件化）。</p>
+      </div>
+    </div>
+
+    <div class="co info">
+      <div class="ct">ℹ️ skill 把「規則」變成「一句話」</div>
+      <p>ingest 的分診邏輯、規格頁模板、登錄四件套、寫 log——這些規則都封裝進 skill。使用者只要丟檔案 + 一句自然語言，不必記結構；AI 依 skill 走完整流程並保持一致風格。</p>
+    </div>
+  </section>
+
+  <footer>
+    <span class="mono">wiki/index.md → 領域總覽 → 專案總覽 → 頁面</span><br>
+    Obsidian AI 知識庫 · Karpathy 式 LLM Wiki · 全端組共享 vault
+  </footer>
+
+</div>
+
+<script>
+  // sticky-nav active section highlight
+  const links = [...document.querySelectorAll('#nav a')];
+  const map = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('on'));
+        const a = map.get(e.target.id);
+        if (a) a.classList.add('on');
+      }
+    });
+  }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+  document.querySelectorAll('section').forEach(s => obs.observe(s));
+
+  // close other log details when one opens (accordion feel, but allow manual multi-open on click of already-open)
+  const logs = [...document.querySelectorAll('.logitem')];
+  logs.forEach(d => d.addEventListener('toggle', () => {
+    const s = d.querySelector('.logmore');
+    if (s) s.textContent = d.open ? '收合 ▴' : '展開 ▾';
+  }));
+</script>
