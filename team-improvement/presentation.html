@@ -888,6 +888,7 @@
     <div class="k">Section 2 · 交接規範</div>
     <h2>交接物清單（全端組）</h2>
   </div>
+  <p class="tintro"><b style="color:var(--ink)">名詞：</b>「網頁」＝ 前端 ＋ 網頁後端（我們）；「server」＝ App server，資料與 API 的主要來源。網頁後端主要負責向 server 取資料並<b style="color:var(--ink)">轉拋</b>給前端。</p>
   <p class="tintro"><span class="tag tag-contract" style="margin-top:0">契約</span> 雙方逐項死綁、單方改即壞，須指定單一 owner、版控與簽核。
     <span class="ai-core" style="padding:2px 6px">AI</span> 已由 AI 主導/自動化；<span class="ai-assist"
       style="padding:2px 6px">AI 協助</span> AI 輔助、人把關。
@@ -1022,42 +1023,42 @@
   const AI = { core: t => `<span class="ai-core">★ ${t}</span>`, assist: t => `<span class="ai-assist">AI 協助 · ${t}</span>`, manual: t => `<span class="ai-manual">${t}</span>` };
   const HANDOFF = [
     {
-      n: 1, flow: ["需求方", "→", "前端·後端"], prod: "需求規格 (PRD)", contract: false,
+      n: 1, flow: ["需求方", "→", "網頁"], prod: "需求規格 (PRD)", contract: false,
       content: ["畫面與流程", "驗收條件、範圍", "優先序"],
       bd: ["需求方定「要做什麼、驗收標準」", "不碰實作方式"], ai: AI.assist("整理需求、拆任務")
     },
     {
-      n: 2, flow: ["設計/美術", "→", "前端"], prod: "設計稿 · 切版規範", contract: false,
+      n: 2, flow: ["設計/美術", "→", "網頁前端"], prod: "設計稿 · 切版規範", contract: false,
       content: ["Figma 稿、design tokens", "元件標註、切圖", "尺寸 / 字級 / 間距"],
       bd: ["設計對視覺與一致性負責", "前端對還原度與 RWD 負責"], ai: AI.manual("外部交付，目前人工")
     },
     {
-      n: 3, flow: ["前端", "↔", "後端"], prod: "API 契約 (OpenAPI)", contract: true,
+      n: 3, flow: ["server (App)", "↔", "網頁後端"], prod: "API 契約 (OpenAPI)", contract: true,
       content: ["endpoint、request / response schema", "錯誤碼、認證", "版本管理"],
-      bd: ["建議後端主導定義、前端共同 review 簽核", "單一 owner、須版控"], ai: AI.assist("生成 schema / 型別草稿，契約由人簽核")
+      bd: ["資料來源與 API 串接主要走 App server", "server 定義 API，網頁後端依約串接、轉拋", "單一 owner、須版控"], ai: AI.assist("生成 schema / 型別草稿，契約由人簽核")
     },
     {
-      n: 4, flow: ["後端", "→", "資料層"], prod: "DB schema · migration", contract: true,
-      content: ["資料表、欄位、索引", "遷移腳本", "相容性 / 回溯"],
-      bd: ["後端對 schema 正確與遷移安全負責"], ai: AI.assist("產 migration，人審查")
+      n: 4, flow: ["網頁後端", "→", "網頁前端"], prod: "資料轉拋", contract: false,
+      content: ["把 App server 的資料整理後轉拋給前端", "必要的組裝 / 快取 / 權限過濾"],
+      bd: ["網頁後端主要負責轉拋，不持有核心資料", "核心資料與邏輯在 App server"], ai: AI.assist("協助組裝 / 轉換")
     },
     {
-      n: 5, flow: ["前端·後端", "（內部）"], prod: "程式碼 · 審查", contract: false,
+      n: 5, flow: ["網頁", "（內部）"], prod: "程式碼 · 審查", contract: false,
       content: ["PR、變更集", "code review 意見"],
       bd: ["開發產出程式碼", "審查者對正確性與可維護性負責"], ai: AI.core("開發 Claude Code · 審查 Codex")
     },
     {
-      n: 6, flow: ["前端·後端", "→", "測試"], prod: "測試案例 · 驗收", contract: false,
+      n: 6, flow: ["網頁", "→", "測試"], prod: "測試案例 · 驗收", contract: false,
       content: ["單元 / 整合 / E2E", "驗收條件、回歸"],
       bd: ["產出者對測項覆蓋負責"], ai: AI.manual("目前人工；預計導入 TDD／AI")
     },
     {
-      n: 7, flow: ["後端", "→", "維運/發佈"], prod: "部署設定 · log schema", contract: false,
+      n: 7, flow: ["網頁後端", "→", "維運/發佈"], prod: "部署設定 · log schema", contract: false,
       content: ["部署腳本、環境變數", "監控 log 欄位", "回滾機制"],
       bd: ["對可上線與可回滾負責"], ai: AI.core("部署 /deploy skill + CICD")
     },
     {
-      n: 8, flow: ["前端·後端", "→", "發佈上線"], prod: "版本 · release notes · build", contract: false,
+      n: 8, flow: ["網頁", "→", "發佈上線"], prod: "版本 · release notes · build", contract: false,
       content: ["版本號、變更記錄", "build 產物"],
       bd: ["對可發佈正確性負責"], ai: AI.assist("生成 release notes")
     },
