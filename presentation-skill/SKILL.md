@@ -105,6 +105,24 @@ When building a browser-based HTML deck (not .pptx), follow these conventions:
 - **Scale**: the deck scales to viewport via `transform: scale()` so it stays 1280×720 regardless of window size.
 - **Data / renderer separation**: all content lives in a `slideData` object at the top of the script; renderers are pure functions that read from it. Edits to content should only touch `slideData`.
 
+### 4.1 投影片結構對照表（每次建立 / 改動後必附）
+
+每當**建立一份新 deck**，或對既有 deck 做任何**結構性改動**（新增 / 刪除 / 搬移 / 重編號投影片）後，回覆時務必附上一張 Markdown 表，讓使用者一眼核對每頁：
+
+| # | 頁面 | 序號 |
+|---|------|------|
+| 1 | 封面 | — |
+| 2 | 目的 | 01 |
+| 3 | 架構說明 ✦新 | 02 |
+| … | … | … |
+| N | 收尾 | — |
+
+- **#**：實際投影片順序（含封面，1-indexed，對應 `?page=N`）。
+- **頁面**：該頁主題（一句話）；剛改動的頁加註記（`✦新`、`(移到這)`、`(已刪)` 等）。
+- **序號**：頁面上顯示的 eyebrow 編號；封面 / 收尾等無編號頁用「—」。
+
+**做法**：貼表前先用 grep 驗證 `<section class="slide">` 數量、eyebrow 序號連續無跳號、`navPos` 與總頁數一致，再把表貼出來。用途是讓使用者不必逐頁翻就能確認順序、編號連續性與改動是否到位。
+
 ---
 
 ## 5. What this skill does NOT do
