@@ -365,6 +365,16 @@
       background: rgba(45, 212, 191, .06)
     }
 
+    .bcard.clk {
+      cursor: pointer;
+      transition: .15s
+    }
+
+    .bcard.clk:hover {
+      border-color: var(--teal);
+      transform: translateY(-2px)
+    }
+
     .bcard .bi {
       font-size: 40px;
       line-height: 1;
@@ -1026,29 +1036,168 @@
     }
 
     /* ===== genesis (如何初始化) ===== */
-    .gen2 { display: flex; gap: 24px; align-items: stretch; margin-top: 12px }
-    .gvideo { flex: 0 0 520px; display: flex; flex-direction: column }
-    .vidcard { display: block; text-decoration: none; border: 1.5px solid var(--border); border-radius: 16px; overflow: hidden; transition: .15s }
-    .vidcard:hover { border-color: #ff5c5c; transform: translateY(-2px) }
-    .vc-thumb { position: relative; height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
-      background: radial-gradient(420px 240px at 50% 42%, rgba(255,60,80,.16), transparent 70%), linear-gradient(160deg, #241517, #131917 62%) }
-    .vc-yt { position: absolute; top: 15px; left: 16px; font: 800 13px/1 'JetBrains Mono', monospace; color: #ff6b6b; letter-spacing: .04em }
-    .vc-play { width: 74px; height: 74px; border-radius: 50%; background: #ff0033; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 26px rgba(255,0,51,.42) }
-    .vc-play svg { width: 30px; height: 30px; margin-left: 4px }
-    .vc-vtitle { font-size: 22px; font-weight: 800; color: #fff; text-align: center; padding: 0 20px }
-    .vc-time { position: absolute; right: 15px; bottom: 14px; background: rgba(0,0,0,.62); color: #fff; font: 600 12.5px/1 'JetBrains Mono', monospace; padding: 5px 10px; border-radius: 6px }
-    .gsteps { flex: 1; display: flex; flex-direction: column; gap: 16px; justify-content: center }
-    .gstep { border: 1.5px solid var(--border); border-radius: 14px; background: var(--bg-2); padding: 20px 22px; display: flex; gap: 18px; align-items: center }
-    .gstep .gsn { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%; background: rgba(45,212,191,.14); border: 1px solid var(--teal-d); color: var(--teal); font: 800 16px/1 'JetBrains Mono', monospace; display: flex; align-items: center; justify-content: center }
-    .gstep .gst { font-size: 16.5px; color: var(--dim); line-height: 1.55 }
-    .gstep .gst b { color: var(--text) }
-    .gstep.clk { cursor: pointer; transition: .15s }
-    .gstep.clk:hover { border-color: var(--teal); background: var(--bg-3) }
-    .gcap { padding: 14px 6px 0; font-size: 14.5px; font-weight: 700; color: var(--dim) }
-    .gcap .gn { color: var(--teal); font-family: 'JetBrains Mono', monospace; margin-right: 6px }
-    .ytlink { margin-top: 20px; font-size: 14px; color: var(--mute) }
-    .ytlink a { color: var(--teal); text-decoration: none }
-    .ytlink a:hover { text-decoration: underline }
+    .gen2 {
+      display: flex;
+      gap: 24px;
+      align-items: stretch;
+      margin-top: 12px
+    }
+
+    .gvideo {
+      flex: 0 0 520px;
+      display: flex;
+      flex-direction: column
+    }
+
+    .vidcard {
+      display: block;
+      text-decoration: none;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: .15s
+    }
+
+    .vidcard:hover {
+      border-color: #ff5c5c;
+      transform: translateY(-2px)
+    }
+
+    .vc-thumb {
+      position: relative;
+      height: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      background: radial-gradient(420px 240px at 50% 42%, rgba(255, 60, 80, .16), transparent 70%), linear-gradient(160deg, #241517, #131917 62%)
+    }
+
+    .vc-yt {
+      position: absolute;
+      top: 15px;
+      left: 16px;
+      font: 800 13px/1 'JetBrains Mono', monospace;
+      color: #ff6b6b;
+      letter-spacing: .04em
+    }
+
+    .vc-play {
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      background: #ff0033;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 26px rgba(255, 0, 51, .42)
+    }
+
+    .vc-play svg {
+      width: 30px;
+      height: 30px;
+      margin-left: 4px
+    }
+
+    .vc-vtitle {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      text-align: center;
+      padding: 0 20px
+    }
+
+    .vc-time {
+      position: absolute;
+      right: 15px;
+      bottom: 14px;
+      background: rgba(0, 0, 0, .62);
+      color: #fff;
+      font: 600 12.5px/1 'JetBrains Mono', monospace;
+      padding: 5px 10px;
+      border-radius: 6px
+    }
+
+    .gsteps {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      justify-content: center
+    }
+
+    .gstep {
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg-2);
+      padding: 20px 22px;
+      display: flex;
+      gap: 18px;
+      align-items: center
+    }
+
+    .gstep .gsn {
+      flex: 0 0 auto;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(45, 212, 191, .14);
+      border: 1px solid var(--teal-d);
+      color: var(--teal);
+      font: 800 16px/1 'JetBrains Mono', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .gstep .gst {
+      font-size: 16.5px;
+      color: var(--dim);
+      line-height: 1.55
+    }
+
+    .gstep .gst b {
+      color: var(--text)
+    }
+
+    .gstep.clk {
+      cursor: pointer;
+      transition: .15s
+    }
+
+    .gstep.clk:hover {
+      border-color: var(--teal);
+      background: var(--bg-3)
+    }
+
+    .gcap {
+      padding: 14px 6px 0;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--dim)
+    }
+
+    .gcap .gn {
+      color: var(--teal);
+      font-family: 'JetBrains Mono', monospace;
+      margin-right: 6px
+    }
+
+    .ytlink {
+      margin-top: 20px;
+      font-size: 14px;
+      color: var(--mute)
+    }
+
+    .ytlink a {
+      color: var(--teal);
+      text-decoration: none
+    }
+
+    .ytlink a:hover {
+      text-decoration: underline
+    }
 
     /* ===== nav bar ===== */
     .nav {
@@ -1155,13 +1304,17 @@
         <div class="eyebrow"><span class="num">02</span> 如何初始化</div>
         <h2 class="title">架構怎麼來的:<span class="hl">一支影片 + Claude Code</span></h2>
         <div class="body">
-          <p class="lead" style="margin:0 0 4px;font-size:17px">架構不是憑空設計 —— 我把一支講 Karpathy「<b>LLM Wiki</b>」概念的影片<b>字幕逐字稿</b>貼進 Claude Code,讓它幾分鐘生成初始骨架。</p>
+          <p class="lead" style="margin:0 0 4px;font-size:17px">架構不是憑空設計 —— 我把一支講 Karpathy「<b>LLM
+              Wiki</b>」概念的影片<b>字幕逐字稿</b>貼進 Claude Code,讓它幾分鐘生成初始骨架。</p>
           <div class="gen2">
             <div class="gvideo">
-              <a class="vidcard" href="https://www.youtube.com/watch?v=sboNwYmH3AY&t=645s" target="_blank" rel="noopener">
+              <a class="vidcard" href="https://www.youtube.com/watch?v=sboNwYmH3AY&t=645s" target="_blank"
+                rel="noopener">
                 <div class="vc-thumb">
                   <span class="vc-yt">▶ YouTube</span>
-                  <div class="vc-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#fff"/></svg></div>
+                  <div class="vc-play"><svg viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" fill="#fff" />
+                    </svg></div>
                   <div class="vc-vtitle">Karpathy's LLM Wiki Idea</div>
                   <span class="vc-time">▶ 10:45</span>
                 </div>
@@ -1171,7 +1324,8 @@
             <div class="gsteps">
               <div class="gstep clk" data-modal="verbatim">
                 <span class="gsn">②</span>
-                <div class="gst"><b>複製影片的字幕逐字稿</b><br>YouTube「字幕記錄」整段複製起來。<span style="color:var(--teal);font-weight:700"> ▸ 點擊看逐字稿</span></div>
+                <div class="gst"><b>複製影片的字幕逐字稿</b><br>YouTube「字幕記錄」整段複製起來。<span
+                    style="color:var(--teal);font-weight:700"> ▸ 點擊看逐字稿</span></div>
               </div>
               <div class="gstep">
                 <span class="gsn">③</span>
@@ -1179,7 +1333,8 @@
               </div>
             </div>
           </div>
-          <div class="ytlink">▸ 影片來源:<a href="https://www.youtube.com/watch?v=sboNwYmH3AY&t=645s" target="_blank" rel="noopener">youtube.com/watch?v=sboNwYmH3AY</a>(從 10:45 開始)</div>
+          <div class="ytlink">▸ 影片來源:<a href="https://www.youtube.com/watch?v=sboNwYmH3AY&t=645s" target="_blank"
+              rel="noopener">youtube.com/watch?v=sboNwYmH3AY</a>(從 10:45 開始)</div>
         </div>
       </section>
 
@@ -1275,16 +1430,16 @@
         <h2 class="title">平時<span class="hl">怎麼運作</span></h2>
         <div class="body">
           <div class="cards2">
-            <div class="bcard lead">
+            <div class="bcard lead clk" data-modal="wikicap">
               <div class="bi">🧑‍💻</div>
-              <h3>我的做法 · 本機 skill</h3>
-              <p>裝一個 user-level skill <b>wiki-capture</b>。在專案裡分析完一段 code / 需求,它<b>主動反問「要不要把這份知識寫進團隊 wiki?」</b>—— 要,就按
-                vault 慣例入庫。</p>
+              <h3>自動攝取</h3>
+              <p>寫一份知識攝取的 skill <b>wiki-capture</b>。在專案裡分析完一段 code / 需求,它<b>主動反問「要不要把這份知識寫進團隊 wiki?」</b>—— 要,就按
+                vault 慣例入庫。<span style="color:var(--teal);font-weight:700"> ▸ 點擊看實例</span></p>
             </div>
             <div class="bcard">
               <div class="bi">👥</div>
-              <h3>其他人</h3>
-              <p>直接在<b>專案底下提供資料</b> / 丟進 raw/,理論上會跑 wiki 上的 ingest skill,消化成頁面。</p>
+              <h3>原始文件餵食</h3>
+              <p>直接在<b>專案底下提供資料</b> / 丟進 raw/,理論上會跑 wiki 上的 ingest skill,消化成 md 文件。</p>
             </div>
           </div>
           <div class="foot-note" style="margin-top:28px">知識入庫不用刻意 —— 順著日常的<b
@@ -1422,11 +1577,26 @@
     <div class="modal" style="width:min(560px,92vw);text-align:center">
       <button class="modal-close" data-close aria-label="關閉">×</button>
       <div class="m-head" style="justify-content:center">
-        <span class="m-tag" style="color:#ff6b6b;background:rgba(255,60,80,.12);border:1px solid rgba(255,60,80,.4)">字幕逐字稿</span>
+        <span class="m-tag"
+          style="color:#ff6b6b;background:rgba(255,60,80,.12);border:1px solid rgba(255,60,80,.4)">字幕逐字稿</span>
         <h3>影片字幕記錄</h3>
       </div>
-      <img src="images/verbatim.png" alt="影片字幕逐字稿" style="max-width:100%;max-height:70vh;width:auto;border-radius:12px;border:1px solid var(--border);display:block;margin:0 auto">
+      <img src="images/verbatim.png" alt="影片字幕逐字稿"
+        style="max-width:100%;max-height:70vh;width:auto;border-radius:12px;border:1px solid var(--border);display:block;margin:0 auto">
       <p style="margin:16px 0 0;font-size:14px;color:var(--dim)">把這整段字幕逐字稿複製起來,貼進 Claude Code 生成初始架構。</p>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-wikicap">
+    <div class="modal" style="width:min(780px,94vw);text-align:center">
+      <button class="modal-close" data-close aria-label="關閉">×</button>
+      <div class="m-head" style="justify-content:center">
+        <span class="m-tag t-raw">wiki-capture</span>
+        <h3>skill 實例:分析完主動反問入庫</h3>
+      </div>
+      <img src="images/wiki-capture-skill.png" alt="wiki-capture skill 反問是否寫進 wiki"
+        style="max-width:100%;max-height:66vh;width:auto;border-radius:12px;border:1px solid var(--border);display:block;margin:0 auto">
+      <p style="margin:16px 0 0;font-size:14px;color:var(--dim)">分析完一段 code 後,<b style="color:var(--text)">wiki-capture</b> 自動載入,反問「要寫進團隊 wiki 嗎?」並給更新既有頁 / 新增 / 先不用等選項。</p>
     </div>
   </div>
 
