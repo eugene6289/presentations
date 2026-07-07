@@ -646,6 +646,17 @@
       margin-right: 5px
     }
 
+    /* ===== vertical stacked shots (wide screenshots, modal scrolls) ===== */
+    .vshots { display: flex; flex-direction: column; gap: 16px; margin: 8px 0 2px }
+    .vshot { border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--bg-2) }
+    .vshot .vcap { padding: 11px 15px; font-size: 14.5px; font-weight: 700; color: var(--dim); border-bottom: 1px solid var(--border) }
+    .vshot .vcap .vn { color: var(--teal); font-family: 'JetBrains Mono', monospace; margin-right: 7px }
+    .vshot .vcap.ok { color: var(--teal) }
+    .vshot .vcap.no { color: var(--danger) }
+    .vshot img { width: 100%; height: auto; display: block; background: var(--bg-3) }
+    .vshot .vnote { padding: 11px 15px; font-size: 13px; color: var(--dim); line-height: 1.55 }
+    .vshot .vnote b { color: var(--text) }
+
     /* ===== litmus / highlight box ===== */
     .litmus {
       border: 1.5px solid var(--teal-d);
@@ -1424,22 +1435,27 @@
         </div>
       </section>
 
-      <!-- 6 · 平時運作 -->
+      <!-- 6 · 自動入庫 wiki-capture -->
       <section class="slide">
-        <div class="eyebrow"><span class="num">05</span> 平時運作</div>
-        <h2 class="title">平時<span class="hl">怎麼運作</span></h2>
+        <div class="eyebrow"><span class="num">05</span> 自動入庫</div>
+        <h2 class="title">讓入庫變自動:<span class="hl">wiki-capture</span></h2>
         <div class="body">
+          <p class="lead" style="margin:0 0 22px;font-size:17px">上一頁的三個 ingest 是「<b>我主動丟來源</b>進 raw/」。但平時分析 code 追出來的心得,當下常常就忘了入庫 —— 所以我另外寫了一個 user-level skill <b>wiki-capture</b> 補這塊。</p>
           <div class="cards2">
-            <div class="bcard lead clk" data-modal="wikicap">
+            <div class="bcard">
               <div class="bi">🧑‍💻</div>
-              <h3>自動攝取</h3>
-              <p>寫一份知識攝取的 skill <b>wiki-capture</b>。在專案裡分析完一段 code / 需求,它<b>主動反問「要不要把這份知識寫進團隊 wiki?」</b>—— 要,就按
-                vault 慣例入庫。<span style="color:var(--teal);font-weight:700"> ▸ 點擊看實例</span></p>
+              <h3>本機 skill</h3>
+              <p>user-level skill,在<b>任何專案</b>(opTool、Rhino、Puppy…)裡都能觸發。</p>
+            </div>
+            <div class="bcard lead clk" data-modal="wikicap">
+              <div class="bi">🙋</div>
+              <h3>分析完主動反問</h3>
+              <p><b>自動問「要寫進團隊 wiki 嗎?」</b>—— 不用自己記得。<span style="color:var(--teal);font-weight:700"> ▸ 點擊看實例</span></p>
             </div>
             <div class="bcard">
-              <div class="bi">👥</div>
-              <h3>原始文件餵食</h3>
-              <p>直接在<b>專案底下提供資料</b> / 丟進 raw/,理論上會跑 wiki 上的 ingest skill,消化成 md 文件。</p>
+              <div class="bi">🛡️</div>
+              <h3>會守門</h3>
+              <p>只收<b>值得的</b>(跨檔流程鏈、雷點);一般查得到的就不佔版面。</p>
             </div>
           </div>
           <div class="foot-note" style="margin-top:28px">知識入庫不用刻意 —— 順著日常的<b
@@ -1518,6 +1534,26 @@
         <div class="fstep accent"><span class="fn">3</span><span class="ft">路由</span><span class="fd">交棒或自己走完</span>
         </div>
       </div>
+      <div style="font:700 15px/1 'JetBrains Mono',monospace;color:var(--dim);margin:22px 0 10px">範例 · 紅色後台(Puppy Backend Tool)入庫</div>
+      <div class="vshots">
+        <div class="vshot">
+          <div class="vcap"><span class="vn">①</span>呼叫 raw-ingest,來源 =「紅色後台」資料夾</div>
+          <img src="images/raw-ingest1.png" alt="呼叫 raw-ingest">
+          <div class="vnote" style="display:flex;gap:16px;align-items:center;border-top:1px solid var(--border)">
+            <img src="images/raw-ingest1-pdf.png" alt="紅色後台資料夾內的 PDF 文件"
+              style="width:172px;flex:0 0 auto;border-radius:8px;border:1px solid var(--border);background:#fff;display:block">
+            <div><b>「紅色後台」是一個資料夾</b>,裡面是 <b>7 份 PDF</b> 交換文件(CICD 部署、前 / 後端架構、第三方窗口、機敏資料、權限…)—— 這些就是要 ingest 的來源。</div>
+          </div>
+        </div>
+        <div class="vshot">
+          <div class="vcap"><span class="vn">②</span>反問確認要歸哪類</div>
+          <img src="images/raw-ingest2.png" alt="反問確認要歸哪類">
+        </div>
+        <div class="vshot">
+          <div class="vcap"><span class="vn">③</span>完成入庫、登錄</div>
+          <img src="images/raw-ingest3.png" alt="完成入庫並登錄">
+        </div>
+      </div>
       <div class="srcs" style="margin-top:22px">
         <div class="srcchip">規格 → <b style="color:var(--amber)">spec-ingest</b></div>
         <div class="srcchip">研究知識 → <b style="color:var(--purple)">knowledge-digest</b></div>
@@ -1588,15 +1624,24 @@
   </div>
 
   <div class="modal-overlay" id="modal-wikicap">
-    <div class="modal" style="width:min(780px,94vw);text-align:center">
+    <div class="modal" style="width:min(880px,94vw)">
       <button class="modal-close" data-close aria-label="關閉">×</button>
       <div class="m-head" style="justify-content:center">
         <span class="m-tag t-raw">wiki-capture</span>
-        <h3>skill 實例:分析完主動反問入庫</h3>
+        <h3>skill 會「守門」:該入庫才入庫</h3>
       </div>
-      <img src="images/wiki-capture-skill.png" alt="wiki-capture skill 反問是否寫進 wiki"
-        style="max-width:100%;max-height:66vh;width:auto;border-radius:12px;border:1px solid var(--border);display:block;margin:0 auto">
-      <p style="margin:16px 0 0;font-size:14px;color:var(--dim)">分析完一段 code 後,<b style="color:var(--text)">wiki-capture</b> 自動載入,反問「要寫進團隊 wiki 嗎?」並給更新既有頁 / 新增 / 先不用等選項。</p>
+      <div class="vshots">
+        <div class="vshot">
+          <div class="vcap ok">✓ 值得 → 反問入庫</div>
+          <img src="images/wiki-capture-skill.png" alt="wiki-capture 反問是否寫進 wiki">
+          <div class="vnote">分析出<b>跨檔流程鏈 / 雷點</b> → 主動反問「要寫進 wiki 嗎?」,給更新 / 新增 / 先不用選項。</div>
+        </div>
+        <div class="vshot">
+          <div class="vcap no">✕ 不值得 → 守門不入庫</div>
+          <img src="images/wiki-capture-skill-fail.png" alt="wiki-capture 判斷不入庫">
+          <div class="vnote"><b>一般工具知識</b>(官方文件、一查就有)→ 不佔團隊 wiki 版面,直接結束。</div>
+        </div>
+      </div>
     </div>
   </div>
 
