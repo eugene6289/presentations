@@ -178,6 +178,44 @@
   .example .cap{font-size:14px;color:var(--muted);margin-top:11px;line-height:1.65}
   .exNote{margin-top:20px;font-size:15px;color:var(--muted);line-height:1.65;border-top:1px solid var(--rule);padding-top:16px}
 
+  /* ---------- screenshots ---------- */
+  .shot .st{
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    margin-bottom:10px;display:flex;align-items:center;gap:8px;
+  }
+  .shot .st::before{content:"";width:9px;height:9px;display:inline-block;background:var(--muted)}
+  .shot.one .st{color:var(--fail)}
+  .shot.one .st::before{background:var(--fail)}
+  .shot.two .st{color:var(--pass)}
+  .shot.two .st::before{background:var(--pass)}
+  .shot img{
+    display:block;max-width:100%;height:auto;
+    border:1px solid var(--rule);background:var(--ink);cursor:zoom-in;
+  }
+  .shot .cap{font-size:13.5px;color:var(--muted);margin-top:11px;line-height:1.65}
+  .shotsRow{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start}
+  .shotsRow .shot img{max-height:330px}
+  .shotSplit{display:grid;grid-template-columns:1.1fr .9fr;gap:38px;align-items:start}
+  .shotSplit .shot img{max-height:360px}
+  .shotSide ul{list-style:none}
+  .shotSide li{font-size:14.5px;line-height:1.7;padding-left:16px;position:relative;margin-bottom:15px}
+  .shotSide li::before{content:"";position:absolute;left:0;top:11px;width:7px;height:1px;background:var(--muted)}
+  .shotSide li b{display:block;font-weight:700;margin-bottom:3px}
+  .shotSide li span{color:var(--muted)}
+  .sideNote{
+    margin-top:18px;background:var(--card);border-left:3px solid var(--ink);
+    padding:13px 16px;font-size:13.5px;line-height:1.7;color:var(--muted);
+  }
+  .zoomHint{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-top:14px}
+
+  /* ---------- zoom overlay ---------- */
+  #zoom{
+    position:fixed;inset:0;z-index:100;background:rgba(15,30,38,.94);
+    display:flex;align-items:center;justify-content:center;padding:34px;cursor:zoom-out;
+  }
+  #zoom[hidden]{display:none}
+  #zoom img{max-width:96vw;max-height:92vh;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+
   /* ---------- tracks ---------- */
   .tracks{display:grid;grid-template-columns:1fr 1fr}
   .tracks .t{padding-right:34px}
@@ -277,6 +315,7 @@
   <nav id="grid" aria-label="投影片導覽"></nav>
   <div id="slides"></div>
 </div>
+<div id="zoom" hidden role="dialog" aria-modal="true" aria-label="放大檢視截圖"><img alt=""></div>
 
 <script>
 /* ============================================================
@@ -389,6 +428,30 @@ const slideData = {
     },
     {
       sec: "§04",
+      kicker: "實際畫面",
+      title: "紅燈與綠燈",
+      lede: "先讓測試以預期的理由失敗（紅燈），實作後才轉為通過（綠燈）。以下為兩個 repo 的實際執行結果。",
+      type: "shots",
+      shots: [
+        {
+          cls: "one",
+          state: "紅燈　前端",
+          src: "redlight.png",
+          alt: "前端測試執行結果：7 個測試失敗、29 個通過",
+          cap: "新寫的 7 個測試因為函式尚未存在而失敗。確認失敗的理由與預期相同，才開始寫實作。"
+        },
+        {
+          cls: "two",
+          state: "綠燈　後端",
+          src: "greenlight.png",
+          alt: "後端測試執行結果：133 個測試全數通過，格式與靜態檢查亦通過",
+          cap: "實作完成後全部通過：133 個測試 0.54 秒跑完，程式格式與靜態檢查一併通過。"
+        }
+      ],
+      note: "兩張皆為本次開發過程中的實際畫面。同一套測試在每次推送前會自動重跑一次，任一項失敗就無法推送。"
+    },
+    {
+      sec: "§05",
       kicker: "導入",
       title: "前後端兩條線",
       type: "tracks",
@@ -414,7 +477,7 @@ const slideData = {
       ]
     },
     {
-      sec: "§05",
+      sec: "§06",
       kicker: "現況",
       title: "目前的測試數量與執行時間",
       type: "stats",
@@ -430,7 +493,7 @@ const slideData = {
       ]
     },
     {
-      sec: "§06",
+      sec: "§07",
       kicker: "機制",
       title: "檢查點與規範",
       lede: "規範寫進專案文件，並在提交與推送兩個時間點自動執行檢查。",
@@ -448,7 +511,26 @@ const slideData = {
       ]
     },
     {
-      sec: "§07",
+      sec: "§08",
+      kicker: "規範",
+      title: "規範寫在專案文件裡",
+      lede: "TDD 流程、測試放置位置與執行指令都寫進 repo 的 CLAUDE.md，成員與 AI 工具依同一份執行。",
+      type: "shotSplit",
+      shot: {
+        src: "readTDDrules.png",
+        alt: "後端 repo CLAUDE.md 的 TDD 強制流程與測試慣例",
+        cap: "後端 repo 的 CLAUDE.md（節錄）。前端 repo 另有一份對應規範。"
+      },
+      points: [
+        { t: "TDD 強制流程", d: "新功能先寫失敗的單元測試，確認以預期的理由失敗，再寫最小實作。" },
+        { t: "修 bug 必先寫重現測試", d: "修復前測試必須失敗，修復後才動 production code。" },
+        { t: "測試目錄鏡射程式目錄", d: "tests/unit/ 對應 app/，找得到程式就找得到對應的測試。" },
+        { t: "執行指令固定", d: "uv run pytest tests/unit。commit 前必須全綠，推送前再自動跑一次。" }
+      ],
+      note: "規範放在 repo 內，新成員與 AI 工具接手時讀的是同一份，不需另外口頭交代。"
+    },
+    {
+      sec: "§09",
       kicker: "效益",
       title: "三個面向的變化",
       type: "benefits",
@@ -569,6 +651,33 @@ const renderers = {
       <p class="exNote">${d.note}</p>
     </div>`,
 
+  shots: d => `${head(d)}
+    <div class="body">
+      <div class="shotsRow">
+        ${d.shots.map(s => `
+          <figure class="shot ${s.cls}">
+            <figcaption class="st">${s.state}</figcaption>
+            <img class="zoomable" src="${s.src}" alt="${s.alt}">
+            <p class="cap">${s.cap}</p>
+          </figure>`).join("")}
+      </div>
+      <p class="exNote">${d.note}</p>
+    </div>`,
+
+  shotSplit: d => `${head(d)}
+    <div class="body">
+      <div class="shotSplit">
+        <figure class="shot">
+          <img class="zoomable" src="${d.shot.src}" alt="${d.shot.alt}">
+          <figcaption class="cap">${d.shot.cap}</figcaption>
+        </figure>
+        <div class="shotSide">
+          <ul>${d.points.map(p => `<li><b>${p.t}</b><span>${p.d}</span></li>`).join("")}</ul>
+          ${d.note ? `<p class="sideNote">${d.note}</p>` : ""}
+        </div>
+      </div>
+    </div>`,
+
   tracks: d => `${head(d)}
     <div class="body">
       <div class="tracks">
@@ -685,7 +794,21 @@ function show(i, push = true) {
   }
 }
 
+// 截圖點擊放大：疊在舞台之上，Esc 或再次點擊關閉
+const zoom = document.getElementById("zoom");
+const zoomImg = zoom.querySelector("img");
+slidesEl.addEventListener("click", e => {
+  const img = e.target.closest("img.zoomable");
+  if (!img) return;
+  e.stopPropagation();
+  zoomImg.src = img.getAttribute("src");
+  zoomImg.alt = img.alt;
+  zoom.hidden = false;
+});
+zoom.addEventListener("click", () => { zoom.hidden = true; });
+
 document.addEventListener("keydown", e => {
+  if (!zoom.hidden) { e.preventDefault(); zoom.hidden = true; return; }
   if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); show(cur + 1); }
   else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); show(cur - 1); }
   else if (e.key === "Home") show(0);
