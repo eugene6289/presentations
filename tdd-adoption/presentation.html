@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>商務後台（紅色後台）導入 TDD</title>
+<style>
+  :root{
+    --paper:#E8EBEE;
+    --card:#DFE4E9;
+    --ink:#0F1E26;
+    --muted:#5B6C77;
+    --rule:#C3CBD2;
+    --fail:#C1402B;
+    --pass:#1B6E52;
+    --display:"PingFang TC","Noto Sans TC","Hiragino Sans GB","Microsoft JhengHei",-apple-system,BlinkMacSystemFont,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:#20272C;
+    font-family:var(--display);
+    color:var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+
+  /* ---------- stage ---------- */
+  #stage{
+    width:1280px;height:720px;
+    transform-origin:center center;
+    position:relative;
+    background:var(--paper);
+    box-shadow:0 24px 80px rgba(0,0,0,.5);
+    overflow:hidden;
+  }
+  .slide{
+    position:absolute;inset:0;
+    padding:44px 68px 56px;
+    display:none;
+    flex-direction:column;
+  }
+  .slide.is-active{display:flex}
+
+  /* ---------- signature: test status grid ---------- */
+  #grid{
+    position:absolute;top:0;left:0;right:0;
+    height:44px;
+    display:flex;align-items:center;gap:5px;
+    padding:0 68px;
+    z-index:5;
+  }
+  #grid button{
+    width:24px;height:9px;border:1px solid var(--rule);background:transparent;
+    padding:0;cursor:pointer;border-radius:1px;
+    transition:background-color .35s ease,border-color .35s ease,transform .2s ease;
+  }
+  #grid button:hover{transform:translateY(-2px)}
+  #grid button:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+  #gridLabel{
+    margin-left:14px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+    color:var(--muted);text-transform:uppercase;
+  }
+
+  /* ---------- shared slide chrome ---------- */
+  .head{display:flex;align-items:baseline;gap:18px;padding-top:16px}
+  .sec{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--muted)}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+  h2{font-size:38px;font-weight:800;letter-spacing:-.02em;line-height:1.16;margin-top:10px}
+  .lede{font-size:16px;color:var(--muted);margin-top:11px;line-height:1.7;max-width:880px}
+  .hr{height:1px;background:var(--rule);margin:22px 0 0}
+  .body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:8px 0}
+  .foot{
+    position:absolute;left:68px;right:68px;bottom:22px;
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);
+    border-top:1px solid var(--rule);padding-top:12px;
+  }
+
+  /* ---------- cover ---------- */
+  .cover{justify-content:center}
+  .cover .stamp{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--muted);
+  }
+  .cover .stamp b{color:var(--fail);font-weight:600}
+  .cover .stamp i{font-style:normal;color:var(--pass);font-weight:600}
+  .cover h1{
+    font-size:72px;font-weight:800;letter-spacing:-.035em;line-height:1.08;margin-top:26px;
+  }
+  .cover .sub{font-size:20px;color:var(--muted);margin-top:22px;letter-spacing:-.01em}
+  .cover .meta{
+    margin-top:46px;display:flex;border-top:1px solid var(--rule);padding-top:18px;max-width:940px;
+  }
+  .cover .meta div{padding-right:38px;margin-right:38px;border-right:1px solid var(--rule)}
+  .cover .meta div:last-child{border:0}
+  .cover .meta dt{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+  .cover .meta dd{font-size:18px;font-weight:600;margin-top:7px}
+
+  /* ---------- brief: 需求 → 開發 → 部署 ---------- */
+  .wf{display:flex;align-items:stretch;margin-bottom:28px}
+  .wf .box{flex:1;background:var(--card);padding:18px 20px;position:relative;border-top:3px solid var(--rule)}
+  .wf .box:last-child{border-top-color:var(--pass)}
+  .wf .box + .box{margin-left:32px}
+  .wf .box + .box::before{
+    content:"→";position:absolute;left:-24px;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:16px;color:var(--muted);
+  }
+  .wf .n{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--muted);margin-top:10px}
+  .wf h3{font-size:19px;font-weight:700;margin-top:6px;letter-spacing:-.01em}
+  .wf p{font-size:14px;color:var(--muted);line-height:1.7;margin-top:9px}
+  .wf .meta{
+    margin-top:14px;padding-top:11px;border-top:1px solid var(--rule);
+    font-family:var(--mono);font-size:12px;letter-spacing:.04em;
+  }
+  .figs5{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--rule);padding-top:20px}
+  .figs5 div{padding:0 20px}
+  .figs5 div:first-child{padding-left:0}
+  .figs5 div + div{border-left:1px solid var(--rule)}
+  .figs5 .v{
+    font-family:var(--mono);font-size:42px;font-weight:600;letter-spacing:-.04em;
+    color:var(--pass);font-variant-numeric:tabular-nums;line-height:1;
+  }
+  .figs5 .v small{font-size:17px;letter-spacing:0;margin-left:3px}
+  .figs5 .k{font-size:13.5px;font-weight:600;margin-top:11px}
+  .figs5 .s{font-size:12px;color:var(--muted);margin-top:4px}
+  .briefNote{margin-top:22px;font-size:14.5px;color:var(--muted);line-height:1.7}
+
+  /* ---------- evolution timeline ---------- */
+  .evo{display:grid;grid-template-columns:repeat(2,1fr)}
+  .evo .stage{padding:0 30px}
+  .evo .stage:first-child{padding-left:0}
+  .evo .stage:last-child{padding-right:0}
+  .evo .rail{height:3px;margin-bottom:18px;position:relative}
+  .evo .rail::after{
+    content:"";position:absolute;right:-30px;top:0;width:30px;height:3px;
+    background:repeating-linear-gradient(90deg,var(--rule) 0 4px,transparent 4px 8px);
+  }
+  .evo .stage:last-child .rail::after{display:none}
+  .evo .mk{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+  .evo h3{font-size:20px;font-weight:700;margin-top:10px;letter-spacing:-.01em;line-height:1.35}
+  .evo .exp{font-size:14px;color:var(--muted);line-height:1.7;margin-top:10px}
+  .evo ul{margin-top:12px;list-style:none}
+  .evo li{font-size:14.5px;line-height:1.7;padding-left:16px;position:relative;margin-top:8px}
+  .evo li::before{content:"";position:absolute;left:0;top:11px;width:7px;height:1px;background:var(--muted)}
+  .evoNote{
+    margin-top:34px;background:var(--card);border-left:3px solid var(--ink);
+    padding:16px 20px;font-size:15px;line-height:1.7;
+  }
+  .evoNote em{font-style:normal;font-weight:700}
+
+  /* ---------- code example ---------- */
+  .req{
+    background:var(--card);padding:14px 18px;font-size:15.5px;line-height:1.6;
+    border-left:3px solid var(--ink);margin-bottom:20px;
+  }
+  .req em{font-style:normal;font-family:var(--mono);font-size:14px}
+  .example{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+  .example .file{
+    font-family:var(--mono);font-size:11px;color:var(--muted);
+    margin-bottom:7px;word-break:break-all;
+  }
+  .example .st{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+  .example .st::before{content:"";width:9px;height:9px;display:inline-block}
+  .example .one .st{color:var(--fail)}
+  .example .one .st::before{background:var(--fail)}
+  .example .two .st{color:var(--pass)}
+  .example .two .st::before{background:var(--pass)}
+  .example pre{
+    background:var(--ink);color:#C9D6DA;font-family:var(--mono);
+    font-size:12px;line-height:1.85;padding:18px;overflow:auto;
+    -moz-tab-size:2;tab-size:2;
+  }
+  .example pre .k{color:#8FA3AC}
+  .example pre .s{color:#D9A05B}
+  .example pre .g{color:#7FD3AE}
+  .example .cap{font-size:14px;color:var(--muted);margin-top:11px;line-height:1.65}
+  .exNote{margin-top:20px;font-size:15px;color:var(--muted);line-height:1.65;border-top:1px solid var(--rule);padding-top:16px}
+
+  /* ---------- tracks ---------- */
+  .tracks{display:grid;grid-template-columns:1fr 1fr}
+  .tracks .t{padding-right:34px}
+  .tracks .t + .t{border-left:1px solid var(--rule);padding-left:34px;padding-right:0}
+  .tracks .tag{
+    display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+    background:var(--ink);color:var(--paper);padding:5px 9px;text-transform:uppercase;
+  }
+  .tracks h3{font-size:22px;font-weight:700;margin-top:14px;letter-spacing:-.01em}
+  .tracks p{font-size:15px;color:var(--muted);line-height:1.75;margin-top:10px}
+  .tracks ul{margin-top:14px;list-style:none}
+  .tracks li{font-size:15px;line-height:1.9;padding-left:18px;position:relative}
+  .tracks li::before{content:"";position:absolute;left:0;top:12px;width:8px;height:1px;background:var(--muted)}
+  .timeline{margin-top:30px;border-top:1px solid var(--rule);padding-top:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .timeline div{position:relative;padding-top:16px}
+  .timeline div::before{content:"";position:absolute;top:0;left:0;width:9px;height:9px;background:var(--fail)}
+  .timeline div:nth-child(2)::before{background:#9A5A34}
+  .timeline div:nth-child(3)::before{background:#4F6B49}
+  .timeline div:nth-child(4)::before{background:var(--pass)}
+  .timeline dt{font-family:var(--mono);font-size:13px;letter-spacing:.08em;font-weight:600}
+  .timeline dd{font-size:14px;color:var(--muted);line-height:1.6;margin-top:6px}
+
+  /* ---------- stats ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr)}
+  .stats div{padding:0 26px}
+  .stats div:first-child{padding-left:0}
+  .stats div + div{border-left:1px solid var(--rule)}
+  .stats .num{
+    font-family:var(--mono);font-size:60px;font-weight:600;letter-spacing:-.04em;
+    color:var(--pass);font-variant-numeric:tabular-nums;line-height:1;
+  }
+  .stats .num small{font-size:24px;letter-spacing:0;margin-left:2px}
+  .stats .lbl{font-size:15px;font-weight:600;margin-top:14px}
+  .stats .sub{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6}
+  .note{margin-top:34px;display:flex;border-top:1px solid var(--rule);padding-top:18px}
+  .note p{font-size:15px;color:var(--muted);line-height:1.7;padding-right:30px;margin-right:30px;border-right:1px solid var(--rule)}
+  .note p:last-child{border:0;margin:0;padding:0}
+  .note b{color:var(--ink);font-weight:600}
+
+  /* ---------- benefits ---------- */
+  .benefits{display:grid;grid-template-columns:repeat(3,1fr)}
+  .benefits .b{padding:0 28px}
+  .benefits .b:first-child{padding-left:0}
+  .benefits .b + .b{border-left:1px solid var(--rule)}
+  .benefits .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+  .benefits h3{font-size:21px;font-weight:700;margin-top:12px;line-height:1.35;letter-spacing:-.01em}
+  .benefits p{font-size:14.5px;color:var(--muted);line-height:1.8;margin-top:12px}
+  .benefits .ev{margin-top:16px;background:var(--card);padding:14px 16px;font-size:13px;line-height:1.7;border-left:2px solid var(--pass)}
+  .benefits .ev em{font-style:normal;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--muted);display:block;margin-bottom:5px}
+
+  /* ---------- gates ---------- */
+  .flow{display:flex;align-items:stretch;margin-bottom:26px}
+  .flow .node{flex:1;background:var(--card);padding:18px 20px;position:relative}
+  .flow .node + .node{margin-left:28px}
+  .flow .node + .node::before{
+    content:"→";position:absolute;left:-22px;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:15px;color:var(--muted);
+  }
+  .flow .node.gate{background:var(--ink);color:var(--paper)}
+  .flow .node.gate .nlbl{color:#7FD3AE}
+  .flow .node.stop{background:transparent;border:2px solid var(--fail)}
+  .flow .nlbl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+  .flow .node.stop .nlbl{color:var(--fail)}
+  .flow h3{font-size:17px;font-weight:700;margin-top:9px}
+  .flow p{font-size:13px;line-height:1.6;margin-top:7px;color:var(--muted)}
+  .flow .node.gate p{color:#A9BAC2}
+  .rules{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);padding-top:20px}
+  .rules div{padding:0 24px}
+  .rules div:first-child{padding-left:0}
+  .rules div + div{border-left:1px solid var(--rule)}
+  .rules dt{font-size:17px;font-weight:700}
+  .rules dd{font-size:14px;color:var(--muted);line-height:1.7;margin-top:8px}
+
+  /* ---------- closing ---------- */
+  .next{display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:34px}
+  .next div{padding:0 26px}
+  .next div:first-child{padding-left:0}
+  .next div + div{border-left:1px solid var(--rule)}
+  .next .n{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--muted)}
+  .next h3{font-size:20px;font-weight:700;margin-top:10px;letter-spacing:-.01em}
+  .next p{font-size:14.5px;color:var(--muted);line-height:1.75;margin-top:9px}
+  .summary{background:var(--ink);color:#DCE6E9;padding:26px 30px;display:flex;gap:56px;align-items:baseline}
+  .summary .t{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:#7F949D;text-transform:uppercase}
+  .summary .v{font-size:22px;font-weight:600;margin-top:8px;letter-spacing:-.01em}
+  .summary .v span{color:#7FD3AE;font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+  .fadein{animation:rise .42s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){
+    .fadein{animation:none}
+    #grid button{transition:none}
+  }
+</style>
+</head>
+<body>
+<div id="stage" aria-live="polite">
+  <nav id="grid" aria-label="投影片導覽"></nav>
+  <div id="slides"></div>
+</div>
+
+<script>
+/* ============================================================
+   slideData — 所有內容都在這裡，改內容只要動這個物件
+   ============================================================ */
+const slideData = {
+  deck: "商務後台（紅色後台）導入 TDD",
+  slides: [
+    {
+      type: "cover",
+      stamp: "2026.07.27 – 08.06",
+      title: ["商務後台（紅色後台）", "導入 TDD"],
+      sub: "第一個月的做法與現況",
+      meta: [
+        { k: "範圍", v: "前端 ＋ 後端 兩個 repo" },
+        { k: "自動化測試", v: "189 個，全數通過" },
+        { k: "執行時機", v: "每次推送前自動執行" }
+      ]
+    },
+    {
+      sec: "§01",
+      kicker: "對照",
+      title: "以前與現在",
+      lede: "這次隨新功能一併調整了開發流程，先說明改的是什麼。",
+      type: "evolution",
+      stages: [
+        {
+          color: "var(--fail)",
+          mk: "以前",
+          h: "只有人工驗證",
+          li: [
+            "驗證範圍憑印象決定，容易漏看",
+            "改動 A 造成 B，多半等回報才發現",
+            "規則與邊界值沒有留下紀錄",
+            "每次改動都要重做一次，結果不會累積"
+          ]
+        },
+        {
+          color: "var(--pass)",
+          mk: "現在",
+          h: "人工驗證 ＋ 單元測試（TDD）",
+          exp: "單元測試是一小段程式：給定輸入，檢查輸出是否符合預期。這次連同 TDD 一起導入——測試寫在實作之前。",
+          li: [
+            "先寫驗收條件，確認失敗後才寫實作",
+            "涵蓋範圍由需求決定，不受實作影響",
+            "規則以測試留下紀錄，每次改動自動重跑"
+          ]
+        }
+      ],
+      note: "<em>自動測試沒有取代人工檢查。</em>重複性的規則驗證交由測試執行，畫面與實際操作情境仍由人工確認。兩者並行，目的是減少漏看的機率。"
+    },
+    {
+      sec: "§02",
+      kicker: "本次需求",
+      title: "子商戶遊戲參數設定",
+      lede: "商務端提出需求：在後台設定各子商戶的遊戲參數（RTP、押注上下限），資料透過 BEAPI Slot 存取。此功能全程以 TDD 開發。",
+      type: "brief",
+      flow: [
+        { n: "01", h: "需求", p: "子商戶遊戲參數的建立、查詢、修改與生效，共五項操作。", meta: "商務端提出" },
+        { n: "02", h: "以 TDD 開發", p: "每條規則先寫測試並確認失敗，再寫實作。前後端同步進行。", meta: "07 / 30 – 07 / 31" },
+        { n: "03", h: "更新測試機", p: "測試全綠後標記版本部署，交由商務端確認。", meta: "07 / 31、08 / 03" }
+      ],
+      figs: [
+        { v: "5", k: "個 API 端點", s: "建立／查詢／列表／修改／生效" },
+        { v: "46", k: "個測試", s: "後端 17 ／ 前端 29" },
+        { v: "17", k: "個純邏輯函式", s: "前端表單與資料轉換" },
+        { v: "4", k: "顆操作權限", s: "三個頁面的按鈕層級" },
+        { v: "2", u: "天", k: "前後端完成", s: "07/30 起算" }
+      ],
+      note: "08/03 商務端調整 RTP 範圍（7000 → 9000）：先改測試，再改程式，變更兩個檔案各四行，測試通過後當天再次更新測試機。"
+    },
+    {
+      sec: "§03",
+      kicker: "範例",
+      title: "轉帳錢包子商戶功能的一條規則",
+      lede: "以本專案前端 repo 的實際程式碼為例：子商戶名稱的格式規則。",
+      type: "example",
+      req: '需求：使用者輸入的子商戶名稱，需轉為小寫，空白與符號一律換成底線。<em>Jin Gaming-Coin → jin_gaming_coin</em>',
+      panels: [
+        {
+          cls: "one",
+          file: "src/utils/__tests__/subMerchantTransferForm.test.js",
+          state: "步驟一　執行結果：失敗",
+          code: [
+            '<span class="k">it</span>(<span class="s">\'輸入期間：轉小寫、非法字元換底線、連續底線折疊\'</span>, () =&gt; {',
+            '  <span class="k">expect</span>(normalizeNameInput(<span class="s">\'Jin Gaming-Coin\'</span>)).<span class="k">toBe</span>(<span class="g">\'jin_gaming_coin\'</span>)',
+            '  <span class="k">expect</span>(normalizeNameInput(<span class="s">\'a——b\'</span>)).<span class="k">toBe</span>(<span class="g">\'a_b\'</span>)',
+            '  <span class="k">expect</span>(normalizeNameInput(<span class="s">\'ABC123\'</span>)).<span class="k">toBe</span>(<span class="g">\'abc123\'</span>)',
+            '})'
+          ],
+          cap: "先把「輸入什麼、應該得到什麼」寫下來。此時函式還不存在，測試失敗。"
+        },
+        {
+          cls: "two",
+          file: "src/utils/subMerchantTransferForm.js",
+          state: "步驟二　執行結果：通過",
+          code: [
+            '<span class="k">export function</span> normalizeNameInput(raw) {',
+            '  <span class="k">if</span> (!raw) <span class="k">return</span> <span class="s">\'\'</span>',
+            '  <span class="k">return</span> raw',
+            '    .toLowerCase()',
+            '    .replace(<span class="s">/[^a-z0-9_]/g</span>, <span class="s">\'_\'</span>)',
+            '    .replace(<span class="s">/_+/g</span>, <span class="s">\'_\'</span>)',
+            '}'
+          ],
+          cap: "再寫出剛好能通過的實作。測試轉綠，這條規則完成。"
+        }
+      ],
+      note: "以上為專案內的實際程式碼。這些規則原本寫在 907 行的畫面元件裡，抽出後共 13 條規則、168 行、29 個測試，每次改動全部自動重跑。"
+    },
+    {
+      sec: "§04",
+      kicker: "導入",
+      title: "前後端兩條線",
+      type: "tracks",
+      tracks: [
+        {
+          tag: "BACKEND",
+          h: "後端：業務規則獨立出來測",
+          p: "誰能建立子代理商、資料如何組成、外部系統的回應如何解讀，這些判斷從流程中拆出，逐條寫成測試。",
+          li: ["業務流程與資料規則", "外部 API 的回應語意", "日誌遮罩、追蹤編號等共用機制"]
+        },
+        {
+          tag: "FRONTEND",
+          h: "前端：畫面內的邏輯抽出來測",
+          p: "表單驗證、資料轉換、錯誤訊息處理原本寫在畫面元件內，先抽成獨立函式，再逐條加上測試。",
+          li: ["表單驗證與欄位轉換", "API 回應解析與錯誤訊息", "畫面元件只負責顯示"]
+        }
+      ],
+      timeline: [
+        { d: "07 / 27", t: "建立測試環境、第一批測試與推送前檢查" },
+        { d: "07 / 30", t: "開發規範寫入專案文件，前後端各一份" },
+        { d: "07 / 31", t: "之後的新功能與修復，先寫測試再動程式" },
+        { d: "08 / 03", t: "第一次需求變更，以測試確認影響範圍" }
+      ]
+    },
+    {
+      sec: "§05",
+      kicker: "現況",
+      title: "目前的測試數量與執行時間",
+      type: "stats",
+      stats: [
+        { v: "189", lbl: "個自動化測試", sub: "後端 128 ／ 前端 61" },
+        { v: "20", lbl: "個測試檔案", sub: "對應各自的功能模組" },
+        { v: "1", u: "秒", lbl: "全部執行完成", sub: "後端 0.83 秒、前端 0.16 秒" },
+        { v: "0", lbl: "個失敗", sub: "當前全數通過" }
+      ],
+      notes: [
+        "後端 <b>1,847 行</b>測試碼，對應 <b>13,821 行</b>程式。",
+        "每次推送前自動執行一次，未通過則無法推送。"
+      ]
+    },
+    {
+      sec: "§06",
+      kicker: "機制",
+      title: "檢查點與規範",
+      lede: "規範寫進專案文件，並在提交與推送兩個時間點自動執行檢查。",
+      type: "gates",
+      flow: [
+        { lbl: "日常", h: "寫程式", p: "先寫測試，再寫實作。" },
+        { lbl: "提交時", h: "自動檢查", p: "程式格式、資安掃描、套件相依性。" },
+        { lbl: "推送前", h: "執行全部測試", p: "前後端各自設定，一併執行。", gate: true },
+        { lbl: "未通過", h: "無法推送", p: "未通過的程式不會進入共用分支。", stop: true }
+      ],
+      rules: [
+        { t: "新功能先寫測試", d: "先紅後綠，實作前確認驗收條件。" },
+        { t: "修 bug 先寫重現測試", d: "修復前測試必須失敗，修復後才會通過。" },
+        { t: "純邏輯與畫面分離", d: "判斷邏輯獨立可測，畫面與流程保持單純。" }
+      ]
+    },
+    {
+      sec: "§07",
+      kicker: "效益",
+      title: "三個面向的變化",
+      type: "benefits",
+      items: [
+        {
+          lbl: "品質",
+          h: "修復過的問題持續被驗證",
+          p: "修復前先寫一條對應該問題的測試並確認失敗，修復後轉綠，這條測試留在測試集內。",
+          evk: "實例",
+          ev: "07/31 子代理商的錢包型別傳錯，修復的同時新增 100 行測試。"
+        },
+        {
+          lbl: "速度",
+          h: "變更的影響範圍可確認",
+          p: "改完執行一次測試，即可確認其他部分未受影響，不需另外安排一輪全面回歸。",
+          evk: "實例",
+          ev: "07/31 與 08/03 兩次更新測試機，皆在測試全綠後才標記版本部署。"
+        },
+        {
+          lbl: "協作",
+          h: "規則記錄在專案內",
+          p: "開發規範與測試都放在 repo，前後端各一份文件，成員與 AI 工具依同一份執行。",
+          evk: "附帶效果",
+          ev: "程式行為與測試不一致時測試會失敗，內容不會與實際狀況脫節。"
+        }
+      ]
+    },
+    {
+      kicker: "後續",
+      title: "接下來的三項工作",
+      type: "closing",
+      next: [
+        { n: "01", h: "報表後台比照導入", p: "綠色報表後台目前只有空的測試目錄，可依同一套流程建立。" },
+        { n: "02", h: "補上整合驗證", p: "單元測試之外，將跨模組的主要流程納入自動化。" },
+        { n: "03", h: "維持既有流程", p: "新功能與修復持續依規範執行，測試隨功能一併累積。" }
+      ],
+      summary: [
+        { t: "範圍", v: "前後端 <span>2</span> 個 repo" },
+        { t: "測試", v: "<span>189</span> 個，全數通過" },
+        { t: "執行", v: "每次推送前自動執行" }
+      ]
+    }
+  ]
+};
+
+/* ============================================================
+   renderers — 純函式，只讀 slideData
+   ============================================================ */
+const head = d => `
+  <div class="head">
+    ${d.sec ? `<span class="sec">${d.sec}</span>` : ""}
+    ${d.kicker ? `<span class="kicker">${d.kicker}</span>` : ""}
+  </div>
+  <h2>${d.title}</h2>
+  ${d.lede ? `<p class="lede">${d.lede}</p>` : ""}
+  <div class="hr"></div>`;
+
+const renderers = {
+  cover: d => `
+    <div class="body cover">
+      <div class="stamp"><b>●</b><i>●</i>${d.stamp}</div>
+      <h1>${d.title.join("<br>")}</h1>
+      <p class="sub">${d.sub}</p>
+      <dl class="meta">
+        ${d.meta.map(m => `<div><dt>${m.k}</dt><dd>${m.v}</dd></div>`).join("")}
+      </dl>
+    </div>`,
+
+  brief: d => `${head(d)}
+    <div class="body">
+      <div class="wf">
+        ${d.flow.map(f => `
+          <div class="box">
+            <div class="n">${f.n}</div>
+            <h3>${f.h}</h3>
+            <p>${f.p}</p>
+            <div class="meta">${f.meta}</div>
+          </div>`).join("")}
+      </div>
+      <div class="figs5">
+        ${d.figs.map(f => `
+          <div>
+            <div class="v">${f.v}${f.u ? `<small>${f.u}</small>` : ""}</div>
+            <div class="k">${f.k}</div>
+            <div class="s">${f.s}</div>
+          </div>`).join("")}
+      </div>
+      <p class="briefNote">${d.note}</p>
+    </div>`,
+
+  evolution: d => `${head(d)}
+    <div class="body">
+      <div class="evo">
+        ${d.stages.map(s => `
+          <div class="stage">
+            <div class="rail" style="background:${s.color}"></div>
+            <div class="mk">${s.mk}</div>
+            <h3>${s.h}</h3>
+            ${s.exp ? `<p class="exp">${s.exp}</p>` : ""}
+            <ul>${s.li.map(x => `<li>${x}</li>`).join("")}</ul>
+          </div>`).join("")}
+      </div>
+      <p class="evoNote">${d.note}</p>
+    </div>`,
+
+  example: d => `${head(d)}
+    <div class="body">
+      <p class="req">${d.req}</p>
+      <div class="example">
+        ${d.panels.map(p => `
+          <div class="${p.cls}">
+            <div class="file">${p.file}</div>
+            <div class="st">${p.state}</div>
+            <pre>${p.code.join("\n")}</pre>
+            <p class="cap">${p.cap}</p>
+          </div>`).join("")}
+      </div>
+      <p class="exNote">${d.note}</p>
+    </div>`,
+
+  tracks: d => `${head(d)}
+    <div class="body">
+      <div class="tracks">
+        ${d.tracks.map(t => `
+          <div class="t">
+            <span class="tag">${t.tag}</span>
+            <h3>${t.h}</h3>
+            <p>${t.p}</p>
+            <ul>${t.li.map(x => `<li>${x}</li>`).join("")}</ul>
+          </div>`).join("")}
+      </div>
+      <dl class="timeline">
+        ${d.timeline.map(x => `<div><dt>${x.d}</dt><dd>${x.t}</dd></div>`).join("")}
+      </dl>
+    </div>`,
+
+  stats: d => `${head(d)}
+    <div class="body">
+      <div class="stats">
+        ${d.stats.map(s => `
+          <div>
+            <div class="num">${s.v}${s.u ? `<small>${s.u}</small>` : ""}</div>
+            <div class="lbl">${s.lbl}</div>
+            <div class="sub">${s.sub}</div>
+          </div>`).join("")}
+      </div>
+      <div class="note">${d.notes.map(n => `<p>${n}</p>`).join("")}</div>
+    </div>`,
+
+  benefits: d => `${head(d)}
+    <div class="body">
+      <div class="benefits">
+        ${d.items.map(i => `
+          <div class="b">
+            <div class="lbl">${i.lbl}</div>
+            <h3>${i.h}</h3>
+            <p>${i.p}</p>
+            <div class="ev"><em>${i.evk}</em>${i.ev}</div>
+          </div>`).join("")}
+      </div>
+    </div>`,
+
+  gates: d => `${head(d)}
+    <div class="body">
+      <div class="flow">
+        ${d.flow.map(n => `
+          <div class="node${n.gate ? " gate" : ""}${n.stop ? " stop" : ""}">
+            <div class="nlbl">${n.lbl}</div>
+            <h3>${n.h}</h3>
+            <p>${n.p}</p>
+          </div>`).join("")}
+      </div>
+      <dl class="rules">
+        ${d.rules.map(r => `<div><dt>${r.t}</dt><dd>${r.d}</dd></div>`).join("")}
+      </dl>
+    </div>`,
+
+  closing: d => `${head(d)}
+    <div class="body">
+      <div class="next">
+        ${d.next.map(n => `<div><div class="n">${n.n}</div><h3>${n.h}</h3><p>${n.p}</p></div>`).join("")}
+      </div>
+      <div class="summary">
+        ${d.summary.map(s => `<div><div class="t">${s.t}</div><div class="v">${s.v}</div></div>`).join("")}
+      </div>
+    </div>`
+};
+
+/* ============================================================
+   build + navigation
+   ============================================================ */
+const slides = slideData.slides;
+const N = slides.length;
+const stage = document.getElementById("stage");
+const slidesEl = document.getElementById("slides");
+const gridEl = document.getElementById("grid");
+
+slidesEl.innerHTML = slides.map((d, i) => `
+  <section class="slide" data-i="${i}" role="group" aria-roledescription="slide" aria-label="第 ${i + 1} 頁，共 ${N} 頁">
+    ${renderers[d.type](d)}
+    ${d.type === "cover" ? "" : `<div class="foot"><span>${slideData.deck}</span><span>${String(i + 1).padStart(2, "0")} / ${String(N).padStart(2, "0")}</span></div>`}
+  </section>`).join("");
+
+// 狀態格：顏色沿頁次由紅漸轉綠，對應紅燈到全綠的過程
+const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+const FAIL = [193, 64, 43], PASS = [27, 110, 82];
+gridEl.innerHTML = slides.map((_, i) =>
+  `<button type="button" data-i="${i}" aria-label="跳到第 ${i + 1} 頁"></button>`).join("") +
+  `<span id="gridLabel"></span>`;
+const cells = [...gridEl.querySelectorAll("button")];
+const label = document.getElementById("gridLabel");
+
+let cur = 0;
+
+function show(i, push = true) {
+  cur = Math.max(0, Math.min(N - 1, i));
+  document.querySelectorAll(".slide").forEach(s => {
+    const on = Number(s.dataset.i) === cur;
+    s.classList.toggle("is-active", on);
+    if (on) { s.classList.remove("fadein"); void s.offsetWidth; s.classList.add("fadein"); }
+  });
+  cells.forEach((c, k) => {
+    const t = N > 1 ? k / (N - 1) : 1;
+    const [r, g, b] = mix(FAIL, PASS, t);
+    const filled = k <= cur;
+    c.style.background = filled ? `rgb(${r},${g},${b})` : "transparent";
+    c.style.borderColor = filled ? `rgb(${r},${g},${b})` : "var(--rule)";
+  });
+  label.textContent = `${String(cur + 1).padStart(2, "0")} / ${String(N).padStart(2, "0")}`;
+  if (push) {
+    const u = new URL(location.href);
+    u.searchParams.set("page", cur + 1);
+    history.replaceState(null, "", u);
+  }
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); show(cur + 1); }
+  else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); show(cur - 1); }
+  else if (e.key === "Home") show(0);
+  else if (e.key === "End") show(N - 1);
+});
+gridEl.addEventListener("click", e => {
+  const b = e.target.closest("button");
+  if (b) show(Number(b.dataset.i));
+});
+stage.addEventListener("click", e => {
+  if (e.target.closest("#grid")) return;
+  show(e.clientX < window.innerWidth / 2 ? cur - 1 : cur + 1);
+});
+
+function fit() {
+  const s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+  stage.style.transform = `scale(${s})`;
+}
+window.addEventListener("resize", fit);
+fit();
+
+const start = Number(new URLSearchParams(location.search).get("page")) || 1;
+show(start - 1, false);
+</script>
+</body>
+</html>
