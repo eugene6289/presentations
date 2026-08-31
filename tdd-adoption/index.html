@@ -78,6 +78,14 @@
     border-top:1px solid var(--rule);padding-top:12px;
   }
 
+  /* ---------- 全幅圖片頁 ---------- */
+  .imgSlide{
+    position:absolute;inset:0;
+    background:#1A2025;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .imgSlide img{width:100%;height:100%;object-fit:contain;display:block}
+
   /* ---------- cover ---------- */
   .cover{justify-content:center}
   .cover .stamp{
@@ -326,9 +334,7 @@ const slideData = {
   slides: [
     {
       type: "cover",
-      stamp: "2026.07.27 – 08.06",
       title: ["商務後台（紅色後台）", "導入 TDD"],
-      sub: "第一個月的做法與現況",
       meta: [
         { k: "範圍", v: "前端 ＋ 後端 兩個 repo" },
         { k: "自動化測試", v: "189 個，全數通過" },
@@ -336,56 +342,19 @@ const slideData = {
       ]
     },
     {
-      sec: "§01",
-      kicker: "對照",
-      title: "以前與現在",
-      lede: "這次隨新功能一併調整了開發流程，先說明改的是什麼。",
-      type: "evolution",
-      stages: [
-        {
-          color: "var(--fail)",
-          mk: "以前",
-          h: "只有人工驗證",
-          li: [
-            "驗證範圍憑印象決定，容易漏看",
-            "改動 A 造成 B，多半等回報才發現",
-            "規則與邊界值沒有留下紀錄",
-            "每次改動都要重做一次，結果不會累積"
-          ]
-        },
-        {
-          color: "var(--pass)",
-          mk: "現在",
-          h: "人工驗證 ＋ 單元測試（TDD）",
-          exp: "單元測試是一小段程式：給定輸入，檢查輸出是否符合預期。這次連同 TDD 一起導入——測試寫在實作之前。",
-          li: [
-            "先寫驗收條件，確認失敗後才寫實作",
-            "涵蓋範圍由需求決定，不受實作影響",
-            "規則以測試留下紀錄，每次改動自動重跑"
-          ]
-        }
-      ],
-      note: "<em>自動測試沒有取代人工檢查。</em>重複性的規則驗證交由測試執行，畫面與實際操作情境仍由人工確認。兩者並行，目的是減少漏看的機率。"
+      type: "image",
+      src: "TDDBA.png",
+      alt: "TDD 與 BA"
     },
     {
-      sec: "§02",
-      kicker: "本次需求",
-      title: "子商戶遊戲參數設定",
-      lede: "商務端提出需求：在後台設定各子商戶的遊戲參數（RTP、押注上下限），資料透過 BEAPI Slot 存取。此功能全程以 TDD 開發。",
-      type: "brief",
-      flow: [
-        { n: "01", h: "需求", p: "子商戶遊戲參數的建立、查詢、修改與生效，共五項操作。", meta: "商務端提出" },
-        { n: "02", h: "以 TDD 開發", p: "每條規則先寫測試並確認失敗，再寫實作。前後端同步進行。", meta: "07 / 30 – 07 / 31" },
-        { n: "03", h: "更新測試機", p: "測試全綠後標記版本部署，交由商務端確認。", meta: "07 / 31、08 / 03" }
-      ],
-      figs: [
-        { v: "5", k: "個 API 端點", s: "建立／查詢／列表／修改／生效" },
-        { v: "46", k: "個測試", s: "後端 17 ／ 前端 29" },
-        { v: "17", k: "個純邏輯函式", s: "前端表單與資料轉換" },
-        { v: "4", k: "顆操作權限", s: "三個頁面的按鈕層級" },
-        { v: "2", u: "天", k: "前後端完成", s: "07/30 起算" }
-      ],
-      note: "08/03 商務端調整 RTP 範圍（7000 → 9000）：先改測試，再改程式，變更兩個檔案各四行，測試通過後當天再次更新測試機。"
+      type: "image",
+      src: "TDDxAI-1.png",
+      alt: "TDD x AI（一）"
+    },
+    {
+      type: "image",
+      src: "TDDxAI-2.png",
+      alt: "TDD x AI（二）"
     },
     {
       sec: "§03",
@@ -451,66 +420,6 @@ const slideData = {
       note: "兩張皆為本次開發過程中的實際畫面。同一套測試在每次推送前會自動重跑一次，任一項失敗就無法推送。"
     },
     {
-      sec: "§05",
-      kicker: "導入",
-      title: "前後端兩條線",
-      type: "tracks",
-      tracks: [
-        {
-          tag: "BACKEND",
-          h: "後端：業務規則獨立出來測",
-          p: "誰能建立子代理商、資料如何組成、外部系統的回應如何解讀，這些判斷從流程中拆出，逐條寫成測試。",
-          li: ["業務流程與資料規則", "外部 API 的回應語意", "日誌遮罩、追蹤編號等共用機制"]
-        },
-        {
-          tag: "FRONTEND",
-          h: "前端：畫面內的邏輯抽出來測",
-          p: "表單驗證、資料轉換、錯誤訊息處理原本寫在畫面元件內，先抽成獨立函式，再逐條加上測試。",
-          li: ["表單驗證與欄位轉換", "API 回應解析與錯誤訊息", "畫面元件只負責顯示"]
-        }
-      ],
-      timeline: [
-        { d: "07 / 27", t: "建立測試環境、第一批測試與推送前檢查" },
-        { d: "07 / 30", t: "開發規範寫入專案文件，前後端各一份" },
-        { d: "07 / 31", t: "之後的新功能與修復，先寫測試再動程式" },
-        { d: "08 / 03", t: "第一次需求變更，以測試確認影響範圍" }
-      ]
-    },
-    {
-      sec: "§06",
-      kicker: "現況",
-      title: "目前的測試數量與執行時間",
-      type: "stats",
-      stats: [
-        { v: "189", lbl: "個自動化測試", sub: "後端 128 ／ 前端 61" },
-        { v: "20", lbl: "個測試檔案", sub: "對應各自的功能模組" },
-        { v: "1", u: "秒", lbl: "全部執行完成", sub: "後端 0.83 秒、前端 0.16 秒" },
-        { v: "0", lbl: "個失敗", sub: "當前全數通過" }
-      ],
-      notes: [
-        "後端 <b>1,847 行</b>測試碼，對應 <b>13,821 行</b>程式。",
-        "每次推送前自動執行一次，未通過則無法推送。"
-      ]
-    },
-    {
-      sec: "§07",
-      kicker: "機制",
-      title: "檢查點與規範",
-      lede: "規範寫進專案文件，並在提交與推送兩個時間點自動執行檢查。",
-      type: "gates",
-      flow: [
-        { lbl: "日常", h: "寫程式", p: "先寫測試，再寫實作。" },
-        { lbl: "提交時", h: "自動檢查", p: "程式格式、資安掃描、套件相依性。" },
-        { lbl: "推送前", h: "執行全部測試", p: "前後端各自設定，一併執行。", gate: true },
-        { lbl: "未通過", h: "無法推送", p: "未通過的程式不會進入共用分支。", stop: true }
-      ],
-      rules: [
-        { t: "新功能先寫測試", d: "先紅後綠，實作前確認驗收條件。" },
-        { t: "修 bug 先寫重現測試", d: "修復前測試必須失敗，修復後才會通過。" },
-        { t: "純邏輯與畫面分離", d: "判斷邏輯獨立可測，畫面與流程保持單純。" }
-      ]
-    },
-    {
       sec: "§08",
       kicker: "規範",
       title: "規範寫在專案文件裡",
@@ -528,50 +437,6 @@ const slideData = {
         { t: "執行指令固定", d: "uv run pytest tests/unit。commit 前必須全綠，推送前再自動跑一次。" }
       ],
       note: "規範放在 repo 內，新成員與 AI 工具接手時讀的是同一份，不需另外口頭交代。"
-    },
-    {
-      sec: "§09",
-      kicker: "效益",
-      title: "三個面向的變化",
-      type: "benefits",
-      items: [
-        {
-          lbl: "品質",
-          h: "修復過的問題持續被驗證",
-          p: "修復前先寫一條對應該問題的測試並確認失敗，修復後轉綠，這條測試留在測試集內。",
-          evk: "實例",
-          ev: "07/31 子代理商的錢包型別傳錯，修復的同時新增 100 行測試。"
-        },
-        {
-          lbl: "速度",
-          h: "變更的影響範圍可確認",
-          p: "改完執行一次測試，即可確認其他部分未受影響，不需另外安排一輪全面回歸。",
-          evk: "實例",
-          ev: "07/31 與 08/03 兩次更新測試機，皆在測試全綠後才標記版本部署。"
-        },
-        {
-          lbl: "協作",
-          h: "規則記錄在專案內",
-          p: "開發規範與測試都放在 repo，前後端各一份文件，成員與 AI 工具依同一份執行。",
-          evk: "附帶效果",
-          ev: "程式行為與測試不一致時測試會失敗，內容不會與實際狀況脫節。"
-        }
-      ]
-    },
-    {
-      kicker: "後續",
-      title: "接下來的三項工作",
-      type: "closing",
-      next: [
-        { n: "01", h: "報表後台比照導入", p: "綠色報表後台目前只有空的測試目錄，可依同一套流程建立。" },
-        { n: "02", h: "補上整合驗證", p: "單元測試之外，將跨模組的主要流程納入自動化。" },
-        { n: "03", h: "維持既有流程", p: "新功能與修復持續依規範執行，測試隨功能一併累積。" }
-      ],
-      summary: [
-        { t: "範圍", v: "前後端 <span>2</span> 個 repo" },
-        { t: "測試", v: "<span>189</span> 個，全數通過" },
-        { t: "執行", v: "每次推送前自動執行" }
-      ]
     }
   ]
 };
@@ -589,11 +454,13 @@ const head = d => `
   <div class="hr"></div>`;
 
 const renderers = {
+  image: d => `<div class="imgSlide"><img src="${d.src}" alt="${d.alt}"></div>`,
+
   cover: d => `
     <div class="body cover">
-      <div class="stamp"><b>●</b><i>●</i>${d.stamp}</div>
+      <div class="stamp"><b>●</b><i>●</i>${d.stamp || ""}</div>
       <h1>${d.title.join("<br>")}</h1>
-      <p class="sub">${d.sub}</p>
+      ${d.sub ? `<p class="sub">${d.sub}</p>` : ""}
       <dl class="meta">
         ${d.meta.map(m => `<div><dt>${m.k}</dt><dd>${m.v}</dd></div>`).join("")}
       </dl>
@@ -758,7 +625,7 @@ const gridEl = document.getElementById("grid");
 slidesEl.innerHTML = slides.map((d, i) => `
   <section class="slide" data-i="${i}" role="group" aria-roledescription="slide" aria-label="第 ${i + 1} 頁，共 ${N} 頁">
     ${renderers[d.type](d)}
-    ${d.type === "cover" ? "" : `<div class="foot"><span>${slideData.deck}</span><span>${String(i + 1).padStart(2, "0")} / ${String(N).padStart(2, "0")}</span></div>`}
+    ${d.type === "cover" || d.type === "image" ? "" : `<div class="foot"><span>${slideData.deck}</span><span>${String(i + 1).padStart(2, "0")} / ${String(N).padStart(2, "0")}</span></div>`}
   </section>`).join("");
 
 // 狀態格：顏色沿頁次由紅漸轉綠，對應紅燈到全綠的過程
