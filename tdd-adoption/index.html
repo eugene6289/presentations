@@ -78,13 +78,17 @@
     border-top:1px solid var(--rule);padding-top:12px;
   }
 
-  /* ---------- 全幅圖片頁 ---------- */
-  .imgSlide{
-    position:absolute;inset:0;
-    background:#1A2025;
+  /* ---------- 說明圖表頁 ---------- */
+  .diagram{display:flex;flex-direction:column;min-height:0;justify-content:flex-start}
+  .diagram .fig{
+    flex:1;min-height:0;
     display:flex;align-items:center;justify-content:center;
+    margin-top:14px;
   }
-  .imgSlide img{width:100%;height:100%;object-fit:contain;display:block}
+  .diagram img{
+    max-width:100%;max-height:100%;object-fit:contain;display:block;
+    border:1px solid var(--rule);background:#fff;cursor:zoom-in;
+  }
 
   /* ---------- cover ---------- */
   .cover{justify-content:center}
@@ -342,22 +346,31 @@ const slideData = {
       ]
     },
     {
-      type: "image",
+      sec: "§01",
+      kicker: "觀念",
+      title: "傳統開發與 TDD 的差別",
+      type: "figure",
       src: "TDDBA.png",
-      alt: "TDD 與 BA"
+      alt: "BEFORE 傳統開發與 AFTER TDD 的流程對照：先寫程式才驗證，對比先寫測試再實作的紅燈、綠燈、重構循環"
     },
     {
-      type: "image",
+      sec: "§02",
+      kicker: "AI 協作",
+      title: "AI × TDD：測試是驗收機制與護欄",
+      type: "figure",
       src: "TDDxAI-1.png",
-      alt: "TDD x AI（一）"
-    },
-    {
-      type: "image",
-      src: "TDDxAI-2.png",
-      alt: "TDD x AI（二）"
+      alt: "AI × TDD 全流程：人定義需求與驗收標準，AI Agent 產生測試、執行測試、撰寫程式碼、重構，最後由人 review"
     },
     {
       sec: "§03",
+      kicker: "AI 協作",
+      title: "AI 執行 TDD 循環的流程",
+      type: "figure",
+      src: "TDDxAI-2.png",
+      alt: "AI × TDD 流程簡圖：人定義需求，AI Agent 執行 RED、GREEN、REFACTOR 循環，產出程式碼、測試檔案與品質保障"
+    },
+    {
+      sec: "§04",
       kicker: "範例",
       title: "轉帳錢包子商戶功能的一條規則",
       lede: "以本專案前端 repo 的實際程式碼為例：子商戶名稱的格式規則。",
@@ -396,7 +409,7 @@ const slideData = {
       note: "以上為專案內的實際程式碼。這些規則原本寫在 907 行的畫面元件裡，抽出後共 13 條規則、168 行、29 個測試，每次改動全部自動重跑。"
     },
     {
-      sec: "§04",
+      sec: "§05",
       kicker: "實際畫面",
       title: "紅燈與綠燈",
       lede: "先讓測試以預期的理由失敗（紅燈），實作後才轉為通過（綠燈）。以下為兩個 repo 的實際執行結果。",
@@ -420,7 +433,7 @@ const slideData = {
       note: "兩張皆為本次開發過程中的實際畫面。同一套測試在每次推送前會自動重跑一次，任一項失敗就無法推送。"
     },
     {
-      sec: "§08",
+      sec: "§06",
       kicker: "規範",
       title: "規範寫在專案文件裡",
       lede: "TDD 流程、測試放置位置與執行指令都寫進 repo 的 CLAUDE.md，成員與 AI 工具依同一份執行。",
@@ -454,7 +467,11 @@ const head = d => `
   <div class="hr"></div>`;
 
 const renderers = {
-  image: d => `<div class="imgSlide"><img src="${d.src}" alt="${d.alt}"></div>`,
+  figure: d => `${head(d)}
+    <div class="body diagram">
+      <div class="fig"><img class="zoomable" src="${d.src}" alt="${d.alt}"></div>
+      ${d.note ? `<p class="exNote">${d.note}</p>` : ""}
+    </div>`,
 
   cover: d => `
     <div class="body cover">
@@ -625,7 +642,7 @@ const gridEl = document.getElementById("grid");
 slidesEl.innerHTML = slides.map((d, i) => `
   <section class="slide" data-i="${i}" role="group" aria-roledescription="slide" aria-label="第 ${i + 1} 頁，共 ${N} 頁">
     ${renderers[d.type](d)}
-    ${d.type === "cover" || d.type === "image" ? "" : `<div class="foot"><span>${slideData.deck}</span><span>${String(i + 1).padStart(2, "0")} / ${String(N).padStart(2, "0")}</span></div>`}
+    ${d.type === "cover" ? "" : `<div class="foot"><span>${slideData.deck}</span><span>${String(i + 1).padStart(2, "0")} / ${String(N).padStart(2, "0")}</span></div>`}
   </section>`).join("");
 
 // 狀態格：顏色沿頁次由紅漸轉綠，對應紅燈到全綠的過程
