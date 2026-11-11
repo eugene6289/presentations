@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金好運遊戲館流程串接</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --ink: #1a2140;
+  --sub: #5b657e;
+  --mute: #8a93ab;
+  --line: #dbe0ec;
+  --night: #1d2660;
+  --night-2: #141b4a;
+  --night-sub: #b9c2ea;
+  --gold: #f4bb1f;
+  --gold-soft: #fff5d6;
+  --gold-line: #e5b52f;
+  --indigo: #3a4bd0;
+  --indigo-soft: #eceffd;
+  --red: #c4412a;
+  --red-soft: #fdeee9;
+  --green: #1f8a5b;
+  --green-soft: #e5f5ec;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body {
+  background: #0e1335;
+  color: var(--ink);
+  font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+/* ---------- stage & scaling ---------- */
+#stage {
+  position: absolute; left: 50%; top: 50%;
+  width: 1280px; height: 720px;
+  transform-origin: center center;
+}
+.slide {
+  position: absolute; inset: 0;
+  background: var(--bg);
+  padding: 52px 68px 64px;
+  flex-direction: column;
+  overflow: hidden;
+}
+.slide {
+  display: flex;
+  opacity: 0; visibility: hidden;
+  transform: translateX(60px) scale(.985);
+  transition: opacity .5s ease, transform .6s cubic-bezier(.2,.7,.2,1), visibility 0s linear .6s;
+}
+.slide.before { transform: translateX(-60px) scale(.985); }
+.slide.active {
+  opacity: 1; visibility: visible; transform: none;
+  transition: opacity .5s ease, transform .6s cubic-bezier(.2,.7,.2,1), visibility 0s;
+}
+
+/* ---------- entrance animations ---------- */
+.rv { opacity: 0; }
+.slide.active .rv { animation: rise .6s cubic-bezier(.2,.7,.2,1) var(--d, 0ms) both; }
+svg .rv { transform-box: fill-box; transform-origin: center; }
+.slide.active .kpi.rv,
+.slide.active .decide .card.rv,
+.slide.active .st.rv,
+.slide.active svg .rv.pop { animation-name: pop; }
+.slide.active .shot.rv { animation-name: fromRight; }
+.slide.active .demo li.rv { animation: bounce .7s cubic-bezier(.3,1.6,.5,1) var(--d) both; }
+.slide.active .flowrow.now .chip.rv { animation-name: popGold; }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes pop { from { opacity: 0; transform: scale(.86); } to { opacity: 1; transform: none; } }
+@keyframes fromLeft { from { opacity: 0; transform: translateX(-36px); } to { opacity: 1; transform: none; } }
+@keyframes fromRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+@keyframes bounce { 0% { opacity: 0; transform: translateY(24px) scale(.8); } 100% { opacity: 1; transform: none; } }
+@keyframes popGold {
+  0% { opacity: 0; transform: scale(.8); }
+  60% { opacity: 1; transform: scale(1.06); box-shadow: 0 0 0 6px rgba(244,187,31,.35); }
+  100% { opacity: 1; transform: none; box-shadow: 0 0 0 0 rgba(244,187,31,0); }
+}
+
+/* svg arrows draw themselves */
+.draw { stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; }
+.slide.active .draw { animation: draw .7s ease var(--d, 0ms) forwards; }
+@keyframes draw { 0% { opacity: 0; stroke-dashoffset: 1; } 15% { opacity: 1; } 100% { opacity: 1; stroke-dashoffset: 0; } }
+.slide.active .ants { animation: ants 1.1s linear infinite; }
+@keyframes ants { to { stroke-dashoffset: -24; } }
+
+/* loops: things we want eyes on */
+.slide.active .pulse { animation: pulse 1.8s ease-in-out 2s infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+.slide.active .st.ai.rv, .slide.active .st.aisug.rv { animation: pop .6s cubic-bezier(.2,.7,.2,1) var(--d) both, glow 2s ease-in-out calc(var(--d) + .6s) infinite; }
+@keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(244,187,31,0); } 50% { box-shadow: 0 0 0 4px rgba(244,187,31,.55); } }
+.slide.active .goldcard.rv { animation: rise .6s cubic-bezier(.2,.7,.2,1) var(--d) both, flash 1.2s ease calc(var(--d) + .6s) 1; }
+@keyframes flash { 40% { box-shadow: 0 0 0 8px rgba(244,187,31,.45); } 100% { box-shadow: 0 0 0 0 rgba(244,187,31,0); } }
+.slide.active .shake.rv { animation: rise .6s cubic-bezier(.2,.7,.2,1) var(--d) both, shake .5s ease calc(var(--d) + .6s) 1; }
+@keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+/* cover ken burns + shimmer */
+.slide.active.cover .bgimg { animation: kenburns 14s ease-out both; }
+@keyframes kenburns { from { transform: scale(1.12); } to { transform: scale(1); } }
+.shimmer {
+  background: linear-gradient(100deg, var(--gold) 0%, var(--gold) 40%, #fff6cf 50%, var(--gold) 60%, var(--gold) 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.slide.active .shimmer { animation: shimmer 3.2s ease-in-out 1.2s infinite; }
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+.closing .qa.shimmer { background-image: linear-gradient(100deg, #fff 0%, #fff 40%, var(--gold) 50%, #fff 60%, #fff 100%); }
+
+/* typing caret */
+.say.typing::after { content: "▍"; margin-left: 2px; animation: caret .8s steps(1) infinite; color: var(--gold); }
+@keyframes caret { 50% { opacity: 0; } }
+
+/* top progress bar */
+#progress { position: fixed; left: 0; top: 0; height: 4px; z-index: 12; background: var(--gold); width: 0; transition: width .6s cubic-bezier(.2,.7,.2,1); box-shadow: 0 0 10px rgba(244,187,31,.6); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .rv { opacity: 1 !important; }
+  .draw { stroke-dashoffset: 0 !important; opacity: 1 !important; }
+}
+.slide.dark { background: var(--night); color: #fff; }
+
+.eyebrow {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 14px; font-weight: 700; letter-spacing: .08em;
+  color: var(--indigo);
+}
+.eyebrow .num {
+  display: grid; place-items: center;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--gold); color: var(--ink);
+  font-family: "JetBrains Mono", monospace; font-size: 13px;
+}
+.title { margin-top: 12px; font-size: 34px; font-weight: 900; line-height: 1.25; letter-spacing: .01em; }
+.subtitle { margin-top: 8px; font-size: 17px; color: var(--sub); line-height: 1.6; }
+.body { flex: 1; min-height: 0; margin-top: 26px; display: flex; }
+.hl { color: var(--red); font-weight: 700; }
+.gd { background: linear-gradient(transparent 58%, rgba(244,187,31,.45) 58%); font-weight: 700; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px 22px;
+}
+.tag {
+  display: inline-block;
+  padding: 2px 10px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 700;
+}
+.tag.gold { background: var(--gold-soft); color: #8a6100; border: 1px solid var(--gold-line); }
+.tag.indigo { background: var(--indigo-soft); color: var(--indigo); }
+.tag.red { background: var(--red-soft); color: var(--red); }
+.tag.green { background: var(--green-soft); color: var(--green); }
+.tag.gray { background: #eef0f5; color: var(--sub); }
+
+/* ---------- cover ---------- */
+.cover { padding: 0; }
+.cover .bgimg {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  opacity: .42;
+}
+.cover .shade {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(20,27,74,.97) 0%, rgba(20,27,74,.86) 48%, rgba(20,27,74,.25) 100%);
+}
+.cover .inner { position: relative; padding: 0 76px; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+.cover .kicker { color: var(--gold); font-size: 16px; font-weight: 700; letter-spacing: .14em; }
+.cover h1 { margin-top: 18px; font-size: 64px; font-weight: 900; line-height: 1.15; }
+.cover h2 { margin-top: 18px; font-size: 26px; font-weight: 500; color: #e6e9f8; line-height: 1.5; }
+.cover h2 b { color: var(--gold); }
+.cover .bgimg { will-change: transform; }
+.cover h2 b.shimmer { color: transparent; }
+.cover .meta { margin-top: 44px; display: flex; gap: 14px; flex-wrap: wrap; color: var(--night-sub); font-size: 15px; }
+.cover .meta span { padding: 6px 14px; border: 1px solid rgba(185,194,234,.35); border-radius: 999px; }
+
+/* ---------- 01 why ---------- */
+.why { gap: 26px; width: 100%; align-items: center; padding-bottom: 30px; }
+.why .compare { flex: 1.25; display: flex; flex-direction: column; gap: 14px; }
+.flowrow { display: flex; align-items: center; gap: 10px; }
+.flowrow .lbl { width: 64px; flex: none; font-weight: 900; font-size: 17px; }
+.flowrow .chip {
+  flex: 1; padding: 13px 12px; border-radius: 10px;
+  font-size: 15px; font-weight: 700; text-align: center; line-height: 1.35;
+  background: #eef0f5; color: var(--sub);
+}
+.flowrow .arr { color: var(--mute); font-weight: 700; flex: none; }
+.flowrow.now .chip { background: var(--gold-soft); color: var(--ink); border: 1px solid var(--gold-line); }
+.flowrow.now .lbl { color: #a07000; }
+.why .note { margin-top: 6px; font-size: 15.5px; color: var(--sub); line-height: 1.75; }
+.why .kpis { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-content: start; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+.kpi .v { font-size: 44px; font-weight: 900; color: var(--night); line-height: 1.1; font-family: "JetBrains Mono", monospace; }
+.kpi .v small { font-size: 18px; font-family: "Noto Sans TC", sans-serif; margin-left: 4px; }
+.kpi .k { margin-top: 6px; font-size: 15px; font-weight: 700; }
+.kpi .h { margin-top: 2px; font-size: 13px; color: var(--mute); line-height: 1.5; }
+
+/* ---------- 02 steps ---------- */
+.steps { width: 100%; gap: 26px; }
+.steps .list { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+.step { display: flex; gap: 16px; align-items: flex-start; }
+.step .coin {
+  flex: none; display: grid; place-items: center;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--gold); color: var(--ink);
+  font-weight: 900; font-size: 19px; font-family: "JetBrains Mono", monospace;
+  box-shadow: inset 0 0 0 3px rgba(26,33,64,.18);
+}
+.step .t { font-size: 20px; font-weight: 900; line-height: 1.35; }
+.step .d { margin-top: 3px; font-size: 14.5px; color: var(--sub); line-height: 1.65; }
+.step .say {
+  margin-top: 8px; padding: 9px 14px; border-radius: 10px 10px 10px 2px;
+  background: var(--night); color: #fff; font-size: 14.5px; line-height: 1.55; display: inline-block;
+}
+.steps .footnote { margin-top: auto; font-size: 14px; color: var(--sub); padding: 12px 16px; border-left: 3px solid var(--gold); background: var(--surface); border-radius: 0 10px 10px 0; }
+.steps .shots { flex: none; width: 520px; display: flex; flex-direction: column; gap: 12px; }
+.shot { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: #0e1335; }
+.shot img { display: block; width: 100%; }
+.shot .cap {
+  position: absolute; left: 10px; bottom: 10px;
+  padding: 3px 10px; border-radius: 999px;
+  background: rgba(20,27,74,.85); color: #fff; font-size: 12.5px; font-weight: 700;
+}
+.shotrow { display: flex; gap: 12px; }
+.shotrow .shot { flex: 1; }
+
+/* ---------- 04 swimlane ---------- */
+.lanewrap { width: 100%; display: flex; flex-direction: column; margin-top: 4px; }
+.zones { display: grid; grid-template-columns: 112px repeat(9, 1fr); gap: 0 6px; margin-bottom: 6px; }
+.zones .z { grid-column: span 3; text-align: center; font-size: 12.5px; font-weight: 700; padding: 4px 0; border-radius: 8px; }
+.zones .z.gl { background: #fbe7d9; color: #9a4a14; }
+.zones .z.gh { grid-column: span 6; background: var(--indigo-soft); color: var(--indigo); }
+.lane-grid { display: grid; grid-template-columns: 112px repeat(9, 1fr); gap: 5px; }
+.lane-grid .sh {
+  background: var(--night); color: #fff; border-radius: 8px;
+  text-align: center; padding: 7px 2px; font-size: 14.5px; font-weight: 900; line-height: 1.2;
+}
+.lane-grid .sh span { display: block; font-size: 11px; font-weight: 500; color: var(--night-sub); margin-top: 2px; }
+.lane-grid .rh {
+  display: flex; align-items: center; padding-left: 12px;
+  font-size: 14.5px; font-weight: 900; border-radius: 8px; background: var(--surface); border: 1px solid var(--line);
+}
+.lane-grid .rh i { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; flex: none; }
+.lane-grid .cell {
+  min-height: 44px; border-radius: 8px; background: rgba(58,75,208,.035);
+  border: 1px dashed #d5dbea; padding: 5px; display: flex; flex-direction: column; gap: 4px; justify-content: center;
+}
+.lane-grid .cell .st {
+  border-radius: 6px; padding: 3px 6px; font-size: 12px; font-weight: 700; line-height: 1.3;
+  background: var(--surface); border: 1.5px solid #9aa4bd;
+}
+.lane-grid .cell .st em { font-style: normal; font-family: "JetBrains Mono", monospace; font-size: 10.5px; color: var(--mute); margin-right: 3px; }
+.lane-grid .cell .st.user { background: var(--gold-soft); border-color: var(--gold-line); }
+.lane-grid .cell .st.suggest { border-style: dashed; border-color: var(--red); }
+.lane-grid .cell .st.ai { background: var(--night); border-color: var(--night); color: #fff; }
+.lane-grid .cell .st.aisug { border: 1.5px dashed var(--night); }
+.lane-grid .cell .st.aisug em { color: var(--night); font-weight: 700; }
+.lane-grid .rh.airow { background: var(--night); color: var(--gold); border-color: var(--night); }
+.lane-grid .cell .st.ai em { color: var(--gold); font-weight: 700; }
+.lane-legend { margin-top: 8px; display: flex; gap: 20px; font-size: 13px; color: var(--sub); align-items: center; }
+.lane-legend i { display: inline-block; width: 16px; height: 12px; border-radius: 4px; margin-right: 6px; vertical-align: -1px; }
+
+/* ---------- rules hub ---------- */
+.rules { width: 100%; gap: 28px; }
+.rules .hub { flex: none; width: 520px; display: flex; flex-direction: column; }
+.rules .hub svg { width: 520px; height: 360px; display: block; overflow: visible; }
+.rules .hubnote { margin-top: 10px; font-size: 15px; font-weight: 700; color: var(--ink); padding: 10px 14px; border-left: 3px solid var(--gold); background: var(--surface); border-radius: 0 10px 10px 0; }
+.rules .side { flex: 1; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.rules .defs { padding: 16px 20px; }
+.rules .defs .dt { font-size: 15px; font-weight: 900; color: var(--indigo); letter-spacing: .04em; }
+.rules .defs ul { list-style: none; margin-top: 8px; display: flex; flex-direction: column; gap: 7px; }
+.rules .defs li { display: flex; gap: 12px; align-items: baseline; font-size: 14.5px; line-height: 1.5; }
+.rules .defs li b { flex: none; width: 88px; font-weight: 900; }
+.rules .defs li span { color: var(--sub); }
+.rules .chg { padding: 14px 20px; background: var(--gold-soft); border-color: var(--gold-line); }
+.rules .chg b { font-size: 15.5px; font-weight: 900; }
+.rules .chg p { margin-top: 4px; font-size: 14.5px; line-height: 1.6; }
+
+/* ---------- ai message ---------- */
+.aimsg { width: 100%; display: grid; grid-template-columns: 1fr 300px; grid-template-rows: 1fr auto; gap: 16px 24px; }
+.aimsg .term { border-radius: 12px; overflow: hidden; background: #0c1230; border: 1px solid #263070; box-shadow: 0 14px 30px rgba(20,27,74,.25); }
+.aimsg .term .bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: #1b2257; }
+.aimsg .term .bar i { width: 10px; height: 10px; border-radius: 50%; background: #3b4488; }
+.aimsg .term .bar span { margin-left: 8px; font-size: 12px; color: #8f9bd8; font-family: "JetBrains Mono", monospace; }
+.aimsg .term pre { padding: 12px 16px; font-family: "JetBrains Mono", "Noto Sans TC", monospace; font-size: 13px; line-height: 1.62; color: #dfe4ff; white-space: pre; }
+.aimsg .term .dim { color: #8f9bd8; }
+.aimsg .term .red { color: #ff8d7a; font-weight: 700; }
+.aimsg .term .gold { color: var(--gold); font-weight: 700; }
+.aimsg .tnote { margin-top: 6px; font-size: 12.5px; color: var(--mute); }
+.aimsg .loop { display: flex; flex-direction: column; align-items: stretch; }
+.aimsg .lp { display: flex; gap: 12px; align-items: center; padding: 10px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.aimsg .lp:nth-child(5) { background: var(--gold-soft); border-color: var(--gold-line); }
+.aimsg .lp .no { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--night); color: #fff; font-weight: 900; font-family: "JetBrains Mono", monospace; font-size: 13px; }
+.aimsg .lp b { display: block; font-size: 16px; font-weight: 900; }
+.aimsg .lp span { display: block; font-size: 13px; color: var(--sub); }
+.aimsg .la { text-align: center; color: var(--mute); font-weight: 700; line-height: 1.3; }
+.aimsg .back { margin-top: 10px; text-align: center; font-size: 14px; font-weight: 900; color: var(--indigo); }
+.aimsg .strip { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.aimsg .sg { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.aimsg .sg b { font-weight: 900; }
+.aimsg .sg span:last-child { color: var(--sub); }
+.aimsg .sa { color: var(--mute); font-weight: 700; }
+/* ---------- aigen ---------- */
+.aigen { width: 100%; display: grid; grid-template-columns: 330px 1fr; grid-template-rows: 1fr auto; gap: 16px 24px; }
+.aigen .flow { display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
+.aigen .gs { flex: 1; display: flex; gap: 12px; align-items: center; padding: 10px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.aigen .gs .no { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--night); color: #fff; font-weight: 900; font-family: "JetBrains Mono", monospace; font-size: 13px; }
+.aigen .gs b { display: block; font-size: 16px; font-weight: 900; }
+.aigen .gs span { display: block; margin-top: 2px; font-size: 13px; color: var(--sub); line-height: 1.45; }
+.aigen .gallery { display: flex; flex-direction: column; justify-content: space-around; gap: 6px; padding: 10px 20px; }
+.aigen .glbl { font-size: 13px; font-weight: 900; color: var(--indigo); letter-spacing: .04em; margin-bottom: 6px; }
+.aigen .gitems { display: flex; align-items: flex-start; gap: 12px; }
+.aigen .gim { margin: 0; width: 100px; text-align: center; }
+.aigen .gim img { display: block; width: 100px; height: 100px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); background: #fff; }
+.aigen .gim.ref img { border: 2px solid var(--gold-line); box-shadow: 0 0 0 3px var(--gold-soft); }
+.aigen .gim.bad img { border: 1.5px dashed var(--red); opacity: .85; }
+.aigen .gim.bad figcaption { color: var(--red); font-weight: 700; }
+.aigen .gim.wide { width: 178px; }
+.aigen .gim.wide img { width: 178px; }
+.aigen .ggap { flex: 1; }
+.aigen .gim figcaption { margin-top: 5px; font-size: 12px; color: var(--sub); line-height: 1.35; }
+.aigen .garr { align-self: center; margin-top: -18px; font-size: 13px; font-weight: 900; color: var(--mute); white-space: nowrap; }
+.aigen .gstat { grid-column: 1 / -1; display: flex; align-items: center; gap: 22px; padding: 12px 16px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.aigen .gst { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.aigen .gst b { font-weight: 900; }
+.aigen .gstat em { margin-left: auto; font-style: normal; font-size: 13px; color: var(--mute); }
+.aigen .gchip { flex: 1; padding: 8px 10px; border-radius: 10px; background: #fff; border: 1px solid var(--line); }
+.aigen .gchip b { display: block; font-size: 13.5px; font-weight: 900; }
+.aigen .gchip span { display: block; margin-top: 2px; font-size: 12px; color: var(--sub); line-height: 1.35; }
+.aigen .gchip.bad { border: 1.5px dashed var(--red); }
+.aigen .gchip.bad b { color: var(--red); }
+.aigen .gchip.sum { background: var(--night); border-color: var(--night); }
+.aigen .gchip.sum b { color: var(--gold); }
+.aigen .gchip.sum span { color: rgba(255,255,255,.75); }
+.aimsg .strip em { margin-left: auto; font-style: normal; font-size: 12.5px; color: var(--mute); max-width: 230px; line-height: 1.45; }
+
+/* ---------- ai route ---------- */
+.airoute { width: 100%; flex-direction: column; gap: 0; }
+.airoute .src { display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-radius: 12px; background: var(--night); color: #fff; }
+.airoute .src b { font-size: 17px; font-weight: 900; color: var(--gold); }
+.airoute .src .path { font-size: 14px; color: #e6e9f8; }
+.airoute .src .path b { font-size: 14px; color: #fff; }
+.airoute .src .s { margin-left: auto; font-size: 13px; color: var(--night-sub); }
+.airoute .arrows { display: grid; grid-template-columns: 1fr 1fr; padding: 4px 0; text-align: center; font-size: 13px; font-weight: 700; color: var(--indigo); margin-right: 0; }
+.airoute .cks { display: grid; grid-template-columns: 1fr 56px 1fr; align-items: stretch; }
+.airoute .ck { position: relative; background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 14px 18px 16px; }
+.airoute .ck:first-child { border-color: var(--gold-line); }
+.airoute .ck:last-child { border-color: var(--indigo); }
+.airoute .hd { display: flex; align-items: center; gap: 8px; }
+.airoute .hd .no { font-size: 20px; font-weight: 900; color: var(--indigo); }
+.airoute .hd b { font-size: 19px; font-weight: 900; }
+.airoute .hd .where { margin-left: auto; padding: 2px 10px; border-radius: 999px; background: var(--indigo-soft); color: var(--indigo); font-size: 12.5px; font-weight: 700; font-family: "JetBrains Mono", "Noto Sans TC", monospace; }
+.airoute .when { margin-top: 4px; font-size: 13.5px; color: var(--sub); }
+.airoute .lbl { margin-top: 10px; font-size: 12.5px; font-weight: 900; color: var(--mute); letter-spacing: .06em; }
+.airoute ul { margin-top: 3px; padding-left: 18px; font-size: 14px; line-height: 1.6; }
+.airoute ul.out li::marker { color: var(--gold-line); }
+.airoute .ctag { position: absolute; top: -10px; right: 14px; padding: 1px 10px; border-radius: 999px; background: var(--red); color: #fff; font-size: 12px; font-weight: 700; }
+.airoute .mid { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: var(--mute); }
+.airoute .mid small { font-size: 11.5px; font-weight: 700; }
+.airoute .foot { margin-top: 12px; display: flex; justify-content: space-between; gap: 20px; font-size: 13.5px; color: var(--sub); }
+.airoute .foot span:last-child { color: var(--red); font-weight: 700; }
+.slide.active .airoute .ck.rv { animation-name: pop; }
+
+/* ---------- todo ---------- */
+.todo { width: 100%; display: grid; grid-template-columns: 1.45fr 1fr 1fr 1fr 1fr; gap: 12px; align-items: stretch; padding-bottom: 20px; }
+.todo .col { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 0 0 14px; overflow: hidden; }
+.todo .who { padding: 10px 16px; font-size: 17px; font-weight: 900; color: #fff; background: var(--night); }
+.todo .col.gold { border-color: var(--gold-line); background: var(--gold-soft); }
+.todo .col.gold .who { background: var(--gold); color: var(--ink); }
+.todo .col.purple .who { background: #7b5cd6; }
+.todo .col.indigo .who { background: var(--indigo); }
+.todo .col.green .who { background: var(--green); }
+.todo .col.red .who { background: var(--red); }
+.todo .grp { margin: 12px 16px 4px; font-size: 12.5px; font-weight: 900; color: var(--mute); letter-spacing: .06em; }
+.todo ol { margin: 0 16px; padding-left: 18px; font-size: 14px; line-height: 1.55; display: flex; flex-direction: column; gap: 5px; }
+.todo li::marker { font-family: "JetBrains Mono", monospace; font-weight: 700; color: var(--sub); }
+.slide.active .todo .col.rv { animation-name: rise; }
+
+/* ---------- next ---------- */
+.next { width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; align-content: center; padding-bottom: 20px; }
+.next .card { padding: 18px 22px; }
+.next .t { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 900; }
+.next .t .n { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--gold); font-size: 13px; font-family: "JetBrains Mono", monospace; }
+.next .row { margin-top: 10px; display: flex; gap: 10px; align-items: baseline; font-size: 14.5px; line-height: 1.6; color: var(--sub); }
+.next .row .tag { flex: none; }
+.next .row.ai span:last-child { color: var(--ink); font-weight: 500; }
+.next .foot { grid-column: 1 / -1; font-size: 14px; color: var(--mute); }
+.slide.active .next .card.rv { animation-name: pop; }
+
+/* ---------- 07 decisions ---------- */
+.decide { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto; gap: 16px; align-content: center; padding-bottom: 30px; }
+.decide .card { min-height: 190px; }
+.decide .card { display: flex; flex-direction: column; padding: 18px 20px; }
+.decide .q { display: flex; gap: 10px; align-items: flex-start; font-size: 18px; font-weight: 900; line-height: 1.4; }
+.decide .q .n {
+  flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--red-soft); color: var(--red); font-size: 13px; font-family: "JetBrains Mono", monospace;
+  margin-top: 1px;
+}
+.decide .why { margin-top: 8px; font-size: 14px; color: var(--sub); line-height: 1.65; }
+.decide .sug { margin-top: auto; padding-top: 12px; font-size: 14px; line-height: 1.6; }
+.decide .sug b { color: var(--indigo); margin-right: 4px; }
+.decide .ask {
+  background: var(--night); color: #fff; border: 0;
+  justify-content: center;
+}
+.decide .ask .big { font-size: 22px; font-weight: 900; line-height: 1.45; }
+.decide .ask p { margin-top: 10px; color: var(--night-sub); font-size: 14.5px; line-height: 1.7; }
+
+/* ---------- closing ---------- */
+.closing .inner { height: 100%; display: flex; flex-direction: column; justify-content: center; }
+.closing .kicker { color: var(--gold); font-size: 15px; font-weight: 700; letter-spacing: .14em; }
+.closing .roles { margin-top: 22px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.closing .role { border: 1px solid rgba(185,194,234,.3); border-radius: 14px; padding: 20px 22px; background: rgba(255,255,255,.04); }
+.closing .role b { display: block; font-size: 15px; color: var(--gold); letter-spacing: .06em; }
+.closing .role span { display: block; margin-top: 6px; font-size: 26px; font-weight: 900; line-height: 1.35; }
+.closing .demo { margin-top: 34px; }
+.closing .demo h3 { font-size: 16px; color: var(--night-sub); font-weight: 700; }
+.closing .demo ul { margin-top: 12px; list-style: none; display: flex; gap: 12px; flex-wrap: wrap; }
+.closing .demo li { padding: 10px 18px; border-radius: 999px; background: var(--gold); color: var(--ink); font-weight: 900; font-size: 16px; }
+.closing .qa { margin-top: 36px; font-size: 44px; font-weight: 900; letter-spacing: .04em; }
+
+/* ---------- nav ---------- */
+#nav {
+  position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 12px; z-index: 10;
+  padding: 6px 12px; border-radius: 999px;
+  background: rgba(14,19,53,.82); color: #fff;
+  font-family: "JetBrains Mono", monospace; font-size: 13px;
+  opacity: .35; transition: opacity .2s;
+}
+#nav:hover { opacity: 1; }
+#nav button {
+  border: 0; background: none; color: #fff; cursor: pointer;
+  width: 26px; height: 26px; border-radius: 50%; font-size: 15px;
+}
+#nav button:hover { background: rgba(255,255,255,.15); }
+#dots { display: flex; gap: 6px; }
+#dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.3); cursor: pointer; }
+#dots i.on { background: var(--gold); }
+
+/* ---------- speaker notes (press N) ---------- */
+#notes {
+  position: fixed; left: 16px; right: 16px; bottom: 56px; z-index: 11;
+  max-width: 880px; margin: 0 auto;
+  padding: 16px 20px; border-radius: 12px;
+  background: rgba(14,19,53,.95); color: #e6e9f8;
+  font-size: 16px; line-height: 1.75;
+  display: none;
+}
+#notes.open { display: block; }
+#notes b { color: var(--gold); margin-right: 8px; font-family: "JetBrains Mono", monospace; }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="stage"></div>
+<div id="notes"></div>
+<nav id="nav" aria-label="投影片導覽">
+  <button id="prev" aria-label="上一頁">‹</button>
+  <span id="navPos">01 / 09</span>
+  <div id="dots"></div>
+  <button id="next" aria-label="下一頁">›</button>
+</nav>
+
+<script>
+/* =====================================================================
+   slideData：所有內容都在這裡，renderer 只讀資料
+   數字來源：arcade-games 的 games/（不含 example-）、git log、arcade.lobby.json（2026-11-10）
+   流程來源：金好運遊戲館製程流程圖（2026-11-05，非最終版）
+   ===================================================================== */
+const slideData = [
+  {
+    type: 'cover',
+    kicker: '部門 AI 個人分享',
+    title: '金好運遊戲館',
+    sub: '<b class="shimmer">AI 讓編導自己做遊戲</b>，<br>一路串到官網正式機',
+    meta: ['Eugene', '2026-11', '8 分鐘說明 ＋ 7 分鐘互動'],
+    bg: 'screenshots/lobby.jpg',
+    notes: '今天分享金好運遊戲館：編導怎麼用 AI 自己做出小遊戲，以及入選的遊戲怎麼一路串到官網正式機。',
+  },
+  {
+    type: 'why',
+    eyebrow: '成果',
+    title: '從「排前端時程」變成「編導當天就能玩到」',
+    before: ['編導有點子', '寫企劃', '排前端時程', '做完才知道好不好玩'],
+    after: ['編導有點子', '跟 AI 說玩法', '當天手機試玩', '好玩的才進正式流程'],
+    note: '框架和腳本是我用 <b>Claude Code</b> 寫的；編導用自己習慣的 AI 工具做遊戲。<br>目前編導做遊戲沒出什麼狀況，因為腳本先把關好了。',
+    kpis: [
+      { v: '15', u: '款', k: '原型遊戲', h: '不含前端做的 4 款範例' },
+      { v: '5', u: '位', k: '作者', h: '編導、運營、前端都有' },
+      { v: '3', u: '天', k: 'Claude Code 寫腳本', h: '安裝、存檔腳本＋處理編導陸續的回饋' },
+      { v: '1', u: '份', k: '共用規則', h: 'AGENTS.md：所有 AI 工具都照它寫' },
+    ],
+    notes: '先講成果：5 個人做了 15 款。框架、安裝和存檔腳本是我用 Claude Code 寫的，腳本加上處理編導的回饋大概 3 天。編導用自己習慣的 AI 工具，目前沒出什麼狀況，因為該擋的腳本都擋好了。',
+  },
+  {
+    type: 'steps',
+    eyebrow: '編導怎麼做',
+    title: '編導只要做 3 個動作，不用打任何指令',
+    steps: [
+      { t: '點兩下 start.bat', d: '電腦不用裝 Node.js，只要 Git，第一次會自動下載並在桌面建捷徑。' },
+      { t: '跟 AI 說想要的玩法', d: 'Cursor、Antigravity、VS Code + Codex 或 Gemini 都可以。AI 改了檔案，瀏覽器自動重新整理。', say: '請先讀 AGENTS.md，然後幫我建立一款新遊戲：（描述玩法）' },
+      { t: '說「幫我存檔」', d: '3～5 分鐘後預覽站更新，用手機試玩，網址貼到群組給大家玩。' },
+    ],
+    footnote: '遊戲館已經提供返回鍵、登入、排行榜、彈窗、音效、手機轉向，編導只寫玩法。',
+    shots: [
+      { src: 'screenshots/lobby.jpg', cap: '大廳：世界地圖選國家' },
+      { src: 'screenshots/game.jpg', cap: '手搖飲大師' },
+      { src: 'screenshots/game2.jpg', cap: '章魚全壘打' },
+    ],
+    notes: '編導的電腦只要 Git。點 start.bat、跟 AI 說玩法、說幫我存檔，三個動作。大廳、排行榜、登入這些共用功能框架都做好了，編導只要想玩法。',
+  },
+  {
+    type: 'rules',
+    eyebrow: '一份規則',
+    title: '不管用哪個 AI 工具，都照同一份規則寫遊戲',
+    entries: [
+      { f: 'CLAUDE.md', t: 'Claude Code', d: '一行：請先讀 AGENTS.md' },
+      { f: 'GEMINI.md', t: 'Gemini', d: '一行：請先讀 AGENTS.md' },
+      { f: '直接讀取', t: 'Codex、Cursor…', d: '支援 AGENTS.md 的工具' },
+      { f: 'README 第一句話', t: '其他 AI 工具', d: '「請先讀 AGENTS.md，再幫我…」' },
+    ],
+    defs: [
+      ['使用者是誰', '非工程師、電腦沒有 Node.js、不會打指令'],
+      ['AI 怎麼做事', '用白話溝通、技術選擇自己決定、指令 AI 自己跑'],
+      ['絕對規則', '只改自己的遊戲資料夾、只寫一般 JS、金幣由伺服器決定'],
+      ['API 與範例', '遊戲館提供的功能＋範例遊戲，照著寫'],
+      ['畫面與素材', '橫向 16:9、尺寸上限，連給生圖 AI 的提示詞都附上'],
+      ['常見狀況', '看到哪種錯誤，該怎麼修'],
+    ],
+    changelog: '框架改版時，編導只要說「<b>幫我更新到最新架構</b>」，AI 會讀 CHANGELOG.md 自己把遊戲改好。',
+    notes: '編導可能用 Cursor、Codex、Gemini、Claude，規則只寫一份 AGENTS.md。CLAUDE.md 和 GEMINI.md 都只有一行，叫 AI 去讀 AGENTS.md；其他工具就靠 README 教編導的第一句話。AGENTS.md 裡定義了使用者是誰、AI 該怎麼做事、絕對規則，連生圖的提示詞都有。框架改版時，AI 會讀 CHANGELOG 自己把遊戲改好。',
+  },
+  {
+    type: 'aimsg',
+    eyebrow: '寫給 AI 看的錯誤訊息',
+    title: '存檔被擋時，訊息是寫給 AI 看的',
+    term: [
+      ['dim', '> 存檔上傳.bat'],
+      ['dim', '檢查修改中…'],
+      ['', ''],
+      ['red', '■ 改到了不屬於你的檔案，這次沒有存檔'],
+      ['', '  下面這些檔案在你的遊戲資料夾以外，只有前端可以改：'],
+      ['', '    · app/components/Arcade/GameFrame.vue'],
+      ['', ''],
+      ['', '  如果是不小心改到的：請把它們還原。'],
+      ['gold', '    給 AI：請執行 git restore --source=origin/main'],
+      ['gold', '    --staged --worktree -- &lt;上面的檔案&gt;，只修改自己'],
+      ['gold', '    games/&lt;國家&gt;/&lt;遊戲&gt;/ 裡的檔案'],
+      ['', '  如果真的需要改框架或已上線的遊戲：請聯絡前端。'],
+    ],
+    termNote: '示意畫面，訊息文字取自 scripts/save.ps1',
+    loop: [
+      ['存檔被擋', '腳本說明原因'],
+      ['整段貼給 AI', '編導不用看懂'],
+      ['AI 照「給 AI」修', '還原檔案或修正程式'],
+      ['再存一次', '通過就上傳 ✓'],
+    ],
+    strip: [
+      ['AGENTS.md', '先講好規則'],
+      ['存檔檢查', '擋下來，並告訴 AI 怎麼修'],
+      ['CI 守門', '有人繞過，寄信給前端'],
+    ],
+    stripNote: 'AI 有時會自己 commit，存檔腳本會把這些 commit 一起檢查。',
+    notes: '光寫規則不夠，AI 還是可能改錯，所以存檔腳本會擋。重點是擋下來的訊息是寫給 AI 看的，裡面直接寫「給 AI：請執行什麼」。編導不用看懂，整段貼給 AI 就能修好再存。這樣規則、存檔檢查、CI 守門三層，編導都不需要懂 git。',
+  },
+  {
+    type: 'aigen',
+    eyebrow: '素材也用 AI 做',
+    title: '圖片、音樂、音效、配音，都用內網 AI 平台產生',
+    steps: [
+      ['說「做素材」', 'AI 先看遊戲還缺什麼，列清單讓我勾'],
+      ['定畫風，一次生幾張挑', '先做主角，其他角色和表情拿它當參考圖，畫風才一致'],
+      ['自動處理，直接放進遊戲', '圖片去背、壓縮；聲音剪靜音、調音量，存進遊戲的素材資料夾'],
+      ['AI 先檢查，再給我挑', '圖片看有沒有切邊；配音用語音辨識比對台詞，唸錯就重生'],
+    ],
+    rows: [
+      { lbl: '生圖 → 去背', items: [
+        { src: 'screenshots/ai/fish-raw.jpg', cap: 'AI 生成（純色底）' },
+        { arrow: '去背' },
+        { src: 'screenshots/ai/fish-cut.jpg', cap: '透明 PNG，可直接放進遊戲' },
+        { gap: 1 },
+        { src: 'screenshots/ai/bg.jpg', cap: '背景 16:9，1920×1080', wide: 1 },
+      ] },
+      { lbl: '同一張參考圖延伸', items: [
+        { src: 'screenshots/ai/char-mag.jpg', cap: '參考圖', ref: 1 },
+        { arrow: '→' },
+        { src: 'screenshots/ai/edit-flux-happy.jpg', cap: '改成開心' },
+        { src: 'screenshots/ai/edit-flux-angry.jpg', cap: '改成生氣' },
+        { src: 'screenshots/ai/flux-newchar.jpg', cap: '新角色，同畫風' },
+        { src: 'screenshots/ai/edit-qwen-newchar.jpg', cap: '反例：換模型跑掉', bad: 1 },
+      ] },
+      { lbl: '聲音實例：手搖飲大師', items: [
+        { chip: '背景音樂', sub: '45 秒，生 2 首挑 1' },
+        { chip: 'UI 音效 × 5', sub: '本機合成，不花點數' },
+        { chip: '配音 4 位客人', sub: '每位不同聲音' },
+        { chip: '配音唸錯字', sub: '「謝謝」→「姐姐」，辨識抓到重生', bad: 1 },
+        { chip: '整款 1.5MB', sub: '這一輪約 70 點', sum: 1 },
+      ] },
+    ],
+    status: [
+      ['green', '圖片', '已實測'],
+      ['green', '音樂／音效／配音', '已實測'],
+      ['gray', '編導版（Windows）', '之後做'],
+    ],
+    statusNote: '目前我自己在 Mac 上用；只在做素材時用，遊戲執行時不會呼叫 AI。',
+    notes: '素材也交給 AI。公司內網有自架的 AI 平台（RD5 Local AI Studio），可以產圖片、音樂、音效、配音，用點數計費。我把它包成 Claude Code 的 skill：說「做素材」，AI 先讀遊戲列出還缺的素材讓我勾；定好畫風後一次生幾張挑，系列角色拿主角當參考圖，畫風才一致；產生後自動去背、壓縮、剪靜音、調音量，直接放進遊戲資料夾；AI 先自己檢查一輪再給我挑。手搖飲大師是實例：背景音樂、5 個 UI 音效、4 位客人的配音，整款 1.5MB、約 70 點；有 3 句「謝謝」被唸成「姐姐」，是語音辨識抓出來後重生的。目前只有我自己在 Mac 上用，編導的 Windows 版之後再做。<br><br>' +
+      '<b>技術細節</b>平台在內網 192.168.5.33:8080，REST API，帶 API Key，非同步建 job 再輪詢下載。skill 放在 arcade-games 的 .claude/skills/local-ai/（本機排除、不上 git，因為有個人金鑰），用 Python 標準庫＋sips＋ffmpeg 做後處理。每個素材記在遊戲根目錄的 art.json（畫風、提示詞、模型、seed、job id），日後可以重生或補同風格素材。<br>' +
+      '模型與成本：生圖 z-image-turbo 1 點／10～16 秒、背景 3 點；改圖／換表情 flux2-klein-4b 2 點；音樂 ace-step15 依秒數（45 秒 12 點）；配音 qwen3-tts 3 點；語音辨識 qwen3-asr 2 點；UI 音效本機合成 0 點。一款整套素材約 100～200 點。<br><br>' +
+      '<b>限制</b>只有內網能用，在家要開 VPN。遊戲本身不能呼叫：AGENTS.md 禁止 fetch、平台不允許跨網域、金鑰會外洩。沒有透明背景選項，用洋紅底生成再去背。Qwen 改圖每張約 4 分鐘而且畫風會跑掉。1 秒內的音效 AI 做常是雜訊，所以 UI 音效一律本機合成。',
+  },
+  {
+    type: 'lanes',
+    eyebrow: '全流程',
+    title: '一款遊戲從做到上線：AI 做什麼、人把關什麼',
+    stages: [
+      { n: '製作', s: 'GitLab' }, { n: '篩選', s: '預覽站' }, { n: '定版', s: 'GitLab' },
+      { n: '串接', s: '後端・官網' }, { n: '進官網', s: '搬實體檔案' }, { n: '測試機', s: 'test＋live' },
+      { n: 'Stage', s: 'test＋live' }, { n: '放行', s: 'GitHub' }, { n: '正式機', s: '只有 live' },
+    ],
+    roles: [
+      { n: 'AI', c: '#f4bb1f', ai: 1 },
+      { n: '編導', c: '#e5b52f' }, { n: '評審／主管', c: '#7b5cd6' }, { n: '前端', c: '#3a4bd0' },
+      { n: '後端', c: '#1f8a5b' }, { n: 'QA／運營', c: '#c4412a' },
+    ],
+    // cells[role][stage] = [[步驟號, 名稱, 類別]]  類別：user 原本就有、added 專案規定、suggest 建議新增、ai AI 負責、aisug 建議交給 AI
+    cells: {
+      0: { 0: [['AI', '寫遊戲', 'ai'], ['AI', '看錯誤訊息自己修', 'ai']], 2: [['AI', '入選檢查報告', 'aisug']], 3: [['AI', 'mocks.js＝後端規格', 'ai']], 7: [['AI', 'Claude code review', 'ai'], ['AI', '對照上線清單', 'aisug']], 8: [['AI', '同步回 GitLab', 'aisug']] },
+      1: { 0: [[1, '說玩法', 'user'], [2, '存檔上傳', 'user']] },
+      2: { 1: [[4, '試玩投票', 'user'], [5, '上線前審核', 'suggest']], 8: [[18, '核准上線', 'added']] },
+      3: { 0: [[3, '預覽站自動更新', 'added']], 2: [[6, '定版檢查', 'added'], [7, '標 test 鎖定', 'added']], 3: [[9, '串接指令', 'added']], 4: [[10, '搬進官網', 'user'], [11, '/deploy', 'user']], 5: [[12, '上測試機', 'user']], 6: [[14, '上 stage', 'user']], 7: [[16, '改 live', 'added'], [17, '開上線 PR', 'added']], 8: [[21, '同步回 GitLab', 'suggest']] },
+      4: { 3: [[8, '做正式 API', 'added']] },
+      5: { 5: [[13, '驗證', 'user']], 6: [[15, 'Stage 驗證', 'suggest']], 8: [[20, '上線後監看', 'suggest']] },
+    },
+    notes: '整條流程收成一張圖。最上面一排是 AI 做的事：寫遊戲、看錯誤訊息自己修、mocks.js 順便產出給後端的規格，上線 PR 由 Claude 做 code review。下面是人把關的地方：評審投票、前端定版和部署、QA 驗證、主管核准。入選的遊戲會從 GitLab 搬進官網，跟一般功能走同一套 /deploy；驗證出問題就依類型退給編導、前端或後端。',
+  },
+  {
+    type: 'airoute',
+    eyebrow: '提案：AI 品管路線',
+    title: '遊戲入選後，先讓 AI 檢查一輪再進官網',
+    source: { t: '規則寫在團隊 wiki', p: 'web-team-knowledge-base／arcade-games／<b>02 上線檢查清單</b>', s: '人在 Obsidian 維護，AI 在雲端讀同一份' },
+    checks: [
+      { no: '①', t: '入選檢查', where: 'GitLab CI', when: '前端把遊戲標成 test 時自動跑',
+        does: ['跑完整規則檢查，再讓 AI 對照清單讀整款遊戲', '找出漏掉的東西：素材太大、分數上限不合理、低階手機效能風險'],
+        out: ['給編導：要修的地方', '給後端：從 mocks.js 整理好的 API 規格', '給前端：上線風險'],
+        tag: '自動開 issue 通知' },
+      { no: '②', t: '進官網 PR 檢查', where: 'GitHub Actions', when: 'panther_website 開 PR 時自動跑',
+        does: ['Claude code review，加上同一份上線清單', '確認：只搬了入選的遊戲、沒混入框架修改、每個伺服器指令都登記了 cmd_id、遊戲狀態正確'],
+        out: ['PR 留言：逐項打勾的檢查結果', '沒過的項目標紅，主管核准前一眼看得到'],
+        tag: 'PR 留言' },
+    ],
+    alt: '不用 wiki 的話：清單改放 repo 的 docs/ 裡，跟程式一起版控，雲端檢查的機制不變。',
+    need: '要準備：CI 用的 Claude API key、CI 讀 wiki repo 的權限',
+    notes: '這是我想新增的 AI 路線。遊戲入選之後，前端一標成 test，GitLab CI 就自動讓 AI 對照上線清單檢查整款遊戲，把要修的、後端要做的 API、上線風險分別整理給對的人。進官網開 PR 時，再用同一份清單讓 Claude code review 確認沒漏搬、沒混入其他修改、指令都有登記。清單寫在團隊 wiki，人維護、AI 讀同一份；不想用 wiki，就放在 repo 裡，機制一樣。',
+  },
+  {
+    type: 'todo',
+    eyebrow: '上手教學',
+    title: '每個人要做的事',
+    cols: [
+      { who: '編導', c: 'gold', first: ['從 GitLab 下載 start.bat，點兩下', '跳出登入視窗時輸入公司帳號密碼（只要一次）'],
+        daily: ['點桌面「金好運遊戲館」，黑色視窗不要關', '用 AI 工具打開 C:\\arcade\\arcade-games', '說「請先讀 AGENTS.md，幫我做…」', '說「幫我存檔」或點存檔上傳.bat', '存檔被擋：整段訊息貼給 AI'] },
+      { who: '評審／主管', c: 'purple', first: ['請前端把你加進 GitLab 專案', '手機第一次開預覽站要登入 GitLab'],
+        daily: ['在預覽站試玩、投票', '上線時在 GitHub Actions 按核准'] },
+      { who: '前端', c: 'indigo', first: ['官網接入遊戲館（只做一次）'],
+        daily: ['入選遊戲定版、標 test 鎖定', '搬進官網分支，/deploy 上測試機、stage', '改 live、開上線 PR'] },
+      { who: '後端', c: 'green', first: [],
+        daily: ['遊戲有用伺服器指令時，照 mocks.js 的註解做 API', '跟著上測試機、stage、正式機'] },
+      { who: 'QA／運營', c: 'red', first: ['裝好 App 測試版'],
+        daily: ['測試機、stage 驗證：登入、玩法、分數、低階手機', '有問題回報給前端分流'] },
+    ],
+    notes: '這頁是上手教學。編導第一次只要下載 start.bat、登入一次公司帳號，之後就是開遊戲館、跟 AI 說玩法、說幫我存檔；存檔被擋就把訊息整段貼給 AI。評審和主管要先加入 GitLab 專案才開得了預覽站。前端、後端、QA 只有入選的遊戲才需要動。',
+  },
+  {
+    type: 'next',
+    eyebrow: '下一步',
+    title: '還可以交給 AI 的事',
+    items: [
+      { t: '流程圖讓 AI 維護', now: '21 步流程圖是人工整理', ai: '讓 Claude Code 讀 arcade-games 和官網 repo，整理成流程圖；流程改了，請它重讀一次就更新' },
+      { t: '同步回 GitLab', now: '手動，腳本還沒做', ai: '讓 AI 寫同步腳本：取出上次同步後的差異、套回 GitLab，有衝突就停下來' },
+      { t: '後端 API 草稿', now: '後端照 mocks.js 註解手寫', ai: '讓 AI 依 mocks.js 先產生 API 草稿，後端再 review' },
+    ],
+    foot: '以上都是建議，還沒做。',
+    notes: '除了品管路線，還有幾件事可以交給 AI。第一個是這張流程圖本身，可以讓 Claude Code 讀兩個 repo 來整理，流程改了就請它重讀更新。另外同步回 GitLab 的腳本、後端 API 草稿也適合讓 AI 先做，人再 review。這些都還只是建議。',
+  },
+  {
+    type: 'decide',
+    eyebrow: '還要團隊決定',
+    title: '專案裡還沒寫的 5 件事',
+    items: [
+      { q: '投票怎麼進行？', why: '誰有投票權、看什麼標準、選幾款。預覽站只有 GitLab 專案成員能開。', sug: '投票的人先加入專案' },
+      { q: '上線前誰審核？', why: '素材版權、之後要加獎勵或金幣玩法的規則。', sug: '入選後先審，避免後端做完才改' },
+      { q: '誰驗證、誰判斷退給誰？', why: '測試機和 stage 都要驗證，問題要有人分流。', sug: '一份固定驗證清單，兩個環境共用' },
+      { q: '什麼時候同步回 GitLab？', why: '官網改過的東西不會自動回去，編導和預覽站會停在舊版。', sug: '每次上正式機後由前端同步一次' },
+      { q: '上線後出問題誰決定回滾？', why: '部署可以指定版本號退回，但還沒寫成流程，後端也要一起退。', sug: '指定負責人並寫進流程' },
+    ],
+    ask: { big: '互動時間<br>想聽大家的意見', p: '特別是投票和驗證，需要主管和運營一起決定。' },
+    notes: '最後是還沒定案的 5 件事。我在流程圖上都放了建議做法，但需要大家決定，特別是投票和驗證這兩件，等等互動時間想聽主管和運營的意見。',
+  },
+  {
+    type: 'closing',
+    kicker: '一句話總結',
+    roles: [
+      { b: '編導', s: '負責好不好玩' },
+      { b: 'AI', s: '負責把玩法寫成程式' },
+      { b: '前端 ＋ Claude code review', s: '負責把關與上線' },
+    ],
+    demoTitle: '互動時間可以現場示範',
+    demos: ['開預覽站玩一款', '看 AGENTS.md 長什麼樣子', '現場跟 AI 做一款小遊戲'],
+    notes: '總結一句：編導負責好不好玩，AI 負責寫程式，前端加上 Claude code review 負責把關和上線。互動時間可以現場開預覽站、看 AGENTS.md，或直接跟 AI 做一款。',
+  },
+];
+
+/* =====================================================================
+   renderers
+   ===================================================================== */
+const esc = s => s;
+let eyebrowNo = 0;
+function head(d) {
+  eyebrowNo++;
+  const n = String(eyebrowNo).padStart(2, '0');
+  return `<div class="eyebrow"><span class="num">${n}</span>${d.eyebrow}</div>
+          <h2 class="title">${d.title}</h2>${d.sub ? `<p class="subtitle">${d.sub}</p>` : ''}`;
+}
+
+const R = {
+  cover: d => `<section class="slide dark cover">
+      <div class="bgimg" style="background-image:url('${d.bg}')"></div><div class="shade"></div>
+      <div class="inner">
+        <div class="kicker">${d.kicker}</div>
+        <h1>${d.title}</h1>
+        <h2>${d.sub}</h2>
+        <div class="meta">${d.meta.map(m => `<span>${m}</span>`).join('')}</div>
+      </div></section>`,
+
+  why: d => {
+    const row = (lbl, arr, cls) => `<div class="flowrow ${cls}"><div class="lbl">${lbl}</div>${
+      arr.map((c, i) => `${i ? '<span class="arr">→</span>' : ''}<div class="chip">${c}</div>`).join('')}</div>`;
+    return `<section class="slide">${head(d)}<div class="body why">
+        <div class="compare">
+          ${row('以前', d.before, 'old')}
+          ${row('現在', d.after, 'now')}
+          <p class="note">${d.note}</p>
+        </div>
+        <div class="kpis">${d.kpis.map(k => `<div class="kpi"><div class="v"${/^\d+$/.test(k.v) ? ` data-count="${k.v}"` : ''}>${k.v}<small>${k.u}</small></div><div class="k">${k.k}</div><div class="h">${k.h}</div></div>`).join('')}</div>
+      </div></section>`;
+  },
+
+  steps: d => `<section class="slide">${head(d)}<div class="body steps">
+      <div class="list">
+        ${d.steps.map((s, i) => `<div class="step"><div class="coin">${i + 1}</div><div>
+          <div class="t">${s.t}</div><div class="d">${s.d}</div>${s.say ? `<div class="say" data-text="${s.say}">${s.say}</div>` : ''}</div></div>`).join('')}
+        <div class="footnote">${d.footnote}</div>
+      </div>
+      <div class="shots">
+        <div class="shot"><img src="${d.shots[0].src}" alt="${d.shots[0].cap}"><span class="cap">${d.shots[0].cap}</span></div>
+        <div class="shotrow">${d.shots.slice(1).map(s => `<div class="shot"><img src="${s.src}" alt="${s.cap}"><span class="cap">${s.cap}</span></div>`).join('')}</div>
+      </div>
+    </div></section>`,
+
+  lanes: d => {
+    let g = `<div></div>` + d.stages.map(s => `<div class="sh">${s.n}<span>${s.s}</span></div>`).join('');
+    d.roles.forEach((r, ri) => {
+      g += `<div class="rh${r.ai ? ' airow' : ''}"><i style="background:${r.c}"></i>${r.n}</div>`;
+      d.stages.forEach((_, si) => {
+        const list = (d.cells[ri] && d.cells[ri][si]) || [];
+        g += `<div class="cell">${list.map(([no, t, k]) => `<div class="st ${k}"><em>${no}</em>${t}</div>`).join('')}</div>`;
+      });
+    });
+    return `<section class="slide">${head(d)}<div class="body lanewrap">
+        <div class="zones"><div></div><div class="z gl">GitLab arcade-games：編導拿得到，所有原型</div><div class="z gh">GitHub 官網：只有入選的遊戲</div></div>
+        <div class="lane-grid">${g}</div>
+        <div class="lane-legend">
+          <span><i style="background:var(--gold-soft);border:1.5px solid var(--gold-line)"></i>原本列出的步驟</span>
+          <span><i style="background:#fff;border:1.5px solid #9aa4bd"></i>專案已有規定</span>
+          <span><i style="background:#fff;border:1.5px dashed var(--red)"></i>建議新增，待確認</span>
+          <span><i style="background:var(--night)"></i>AI 負責</span>
+          <span><i style="background:#fff;border:1.5px dashed var(--night)"></i>建議交給 AI</span>
+          <span style="margin-left:auto">數字＝21 步流程圖的步驟號</span>
+        </div>
+      </div></section>`;
+  },
+
+  rules: d => {
+    const ey = [52, 132, 212, 292];
+    const svg = `<svg viewBox="0 0 520 360" role="img" aria-label="各 AI 工具都指向 AGENTS.md">
+      <defs><marker id="rah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#55607c"/></marker></defs>
+      ${d.entries.map((e, i) => `<g class="rv pop">
+          <rect x="0" y="${ey[i] - 30}" width="200" height="60" rx="12" fill="#fff" stroke="#c9d0e2"/>
+          <text x="16" y="${ey[i] - 7}" font-size="15" font-weight="900" fill="#1a2140">${e.t}</text>
+          <text x="16" y="${ey[i] + 15}" font-size="12" fill="#5b657e">${e.f}</text>
+        </g>
+        <path class="draw" pathLength="1" d="M200,${ey[i]} C260,${ey[i]} 260,172 316,172" stroke="#55607c" stroke-width="2" fill="none" marker-end="url(#rah)"/>`).join('')}
+      <g class="rv pop">
+        <rect x="320" y="112" width="200" height="120" rx="16" fill="#1d2660"/>
+        <text x="420" y="160" font-size="24" font-weight="900" fill="#f4bb1f" text-anchor="middle">AGENTS.md</text>
+        <text x="420" y="188" font-size="13.5" fill="#b9c2ea" text-anchor="middle">唯一一份規則</text>
+        <text x="420" y="210" font-size="12" fill="#b9c2ea" text-anchor="middle">約 260 行・繁體中文</text>
+      </g>
+    </svg>`;
+    return `<section class="slide">${head(d)}<div class="body rules">
+      <div class="hub">${svg}<p class="hubnote">規則只寫一次，不會 Cursor 一套、Claude 一套各自過時。</p></div>
+      <div class="side">
+        <div class="defs card"><div class="dt">AGENTS.md 定義了</div><ul>${d.defs.map(([k, v]) => `<li><b>${k}</b><span>${v}</span></li>`).join('')}</ul></div>
+        <div class="chg card goldcard"><b>CHANGELOG.md 也是給 AI 讀的</b><p>${d.changelog}</p></div>
+      </div>
+    </div></section>`;
+  },
+
+  aimsg: d => `<section class="slide">${head(d)}<div class="body aimsg">
+      <div class="left">
+        <div class="term"><div class="bar"><i></i><i></i><i></i><span>Windows PowerShell</span></div>
+          <pre>${d.term.map(([c, t]) => `<span class="${c}">${t || ' '}</span>`).join('\n')}</pre></div>
+        <div class="tnote">${d.termNote}</div>
+      </div>
+      <div class="right">
+        <div class="loop">${d.loop.map(([t, s], i) => `<div class="lp"><span class="no">${i + 1}</span><div><b>${t}</b><span>${s}</span></div></div>${i < d.loop.length - 1 ? '<div class="la">↓</div>' : ''}`).join('')}
+          <div class="back">↺ 編導全程不用懂 git</div></div>
+      </div>
+      <div class="strip">${d.strip.map(([t, s], i) => `<div class="sg"><span class="tag ${['indigo', 'gold', 'red'][i]}">${i + 1}</span><b>${t}</b><span>${s}</span></div>${i < d.strip.length - 1 ? '<span class="sa">→</span>' : ''}`).join('')}
+        <em>${d.stripNote}</em></div>
+    </div></section>`,
+
+  aigen: d => `<section class="slide">${head(d)}<div class="body aigen">
+      <div class="flow">${d.steps.map(([t, s], i) => `<div class="gs"><span class="no">${i + 1}</span><div><b>${t}</b><span>${s}</span></div></div>`).join('')}</div>
+      <div class="gallery card">${d.rows.map(r => `<div class="grow"><div class="glbl">${r.lbl}</div><div class="gitems">${
+        r.items.map(it => it.arrow ? `<span class="garr">${it.arrow}</span>` : it.gap ? '<span class="ggap"></span>'
+          : it.chip ? `<span class="gchip${it.bad ? ' bad' : ''}${it.sum ? ' sum' : ''}"><b>${it.chip}</b><span>${it.sub}</span></span>`
+          : `<figure class="gim${it.ref ? ' ref' : ''}${it.bad ? ' bad' : ''}${it.wide ? ' wide' : ''}"><img src="${it.src}" alt="${it.cap}"><figcaption>${it.cap}</figcaption></figure>`).join('')}</div></div>`).join('')}
+      </div>
+      <div class="gstat">${d.status.map(([c, t, s]) => `<span class="gst"><span class="tag ${c}">${s}</span><b>${t}</b></span>`).join('')}
+        <em>${d.statusNote}</em></div>
+    </div></section>`,
+
+  airoute: d => `<section class="slide">${head(d)}<div class="body airoute">
+      <div class="src"><span class="tag gold">規則</span><b>${d.source.t}</b><span class="path">${d.source.p}</span><span class="s">${d.source.s}</span></div>
+      <div class="arrows"><span>↓ 讀同一份清單</span><span>↓ 讀同一份清單</span></div>
+      <div class="cks">${d.checks.map(c => `<div class="ck">
+          <div class="hd"><span class="no">${c.no}</span><b>${c.t}</b><span class="where">${c.where}</span></div>
+          <div class="when">${c.when}</div>
+          <div class="lbl">AI 做什麼</div><ul>${c.does.map(x => `<li>${x}</li>`).join('')}</ul>
+          <div class="lbl">產出</div><ul class="out">${c.out.map(x => `<li>${x}</li>`).join('')}</ul>
+          <span class="ctag">${c.tag}</span>
+        </div>`).join('<div class="mid">→<small>進官網</small></div>')}</div>
+      <div class="foot"><span>${d.alt}</span><span>${d.need}</span></div>
+    </div></section>`,
+
+  todo: d => `<section class="slide">${head(d)}<div class="body todo">
+      ${d.cols.map(c => `<div class="col ${c.c}"><div class="who">${c.who}</div>
+        ${c.first.length ? `<div class="grp">第一次</div><ol>${c.first.map(x => `<li>${x}</li>`).join('')}</ol>` : ''}
+        <div class="grp">${c.who === '編導' ? '每次做遊戲' : '入選之後'}</div><ol>${c.daily.map(x => `<li>${x}</li>`).join('')}</ol></div>`).join('')}
+    </div></section>`,
+
+  next: d => `<section class="slide">${head(d)}<div class="body next">
+      ${d.items.map((it, i) => `<div class="card"><div class="t"><span class="n">${i + 1}</span>${it.t}</div>
+        <div class="row"><span class="tag gray">現在</span><span>${it.now}</span></div>
+        <div class="row ai"><span class="tag gold">交給 AI</span><span>${it.ai}</span></div></div>`).join('')}
+      <div class="foot">${d.foot}</div>
+    </div></section>`,
+
+  decide: d => `<section class="slide">${head(d)}<div class="body decide">
+      ${d.items.map((it, i) => `<div class="card"><div class="q"><span class="n">${i + 1}</span>${it.q}</div><div class="why">${it.why}</div><div class="sug"><b>建議</b>${it.sug}</div></div>`).join('')}
+      <div class="card ask"><div class="big">${d.ask.big}</div><p>${d.ask.p}</p></div>
+    </div></section>`,
+
+  closing: d => `<section class="slide dark closing"><div class="inner">
+      <div class="kicker">${d.kicker}</div>
+      <div class="roles">${d.roles.map(r => `<div class="role"><b>${r.b}</b><span>${r.s}</span></div>`).join('')}</div>
+      <div class="demo"><h3>${d.demoTitle}</h3><ul>${d.demos.map(x => `<li>${x}</li>`).join('')}</ul></div>
+      <div class="qa shimmer">Q &amp; A</div>
+    </div></section>`,
+};
+
+/* =====================================================================
+   mount, navigation, scaling, ?page=N
+   ===================================================================== */
+const stage = document.getElementById('stage');
+stage.innerHTML = slideData.map(d => R[d.type](d)).join('');
+const slides = [...stage.querySelectorAll('.slide')];
+
+/* 每頁的進場順序：依 DOM 順序逐一出現。step = 每個元素間隔毫秒 */
+const SEQ = {
+  cover:   { sel: '.kicker, h1, h2, .meta span', step: 140, base: 250 },
+  why:     { sel: '.flowrow > *, .note, .kpi', step: 75 },
+  steps:   { sel: '.step, .footnote, .shot', step: 130 },
+  rules:   { sel: '.hub .rv, .hub .draw, .hubnote, .defs li, .chg', step: 90 },
+  aimsg:   { sel: '.term, .tnote, .lp, .la, .back, .sg, .sa, .strip em', step: 110 },
+  aigen:   { sel: '.gs, .gallery, .gim, .garr, .gchip, .gst, .gstat em', step: 90 },
+  airoute: { sel: '.src, .arrows, .ck, .mid, .foot', step: 160 },
+  todo:    { sel: '.todo .col', step: 120 },
+  next:    { sel: '.next .card, .next .foot', step: 130 },
+  lanes:   { sel: '.zones .z, .lane-legend', step: 120 },
+  decide:  { sel: '.decide .card', step: 110 },
+  closing: { sel: '.kicker, .role, .demo h3, .demo li, .qa', step: 130 },
+};
+slides.forEach((sl, si) => {
+  const cfg = SEQ[slideData[si].type];
+  const base = cfg.base ?? 200;
+  let t = base;
+  if (slideData[si].type !== 'cover') {
+    sl.querySelectorAll('.eyebrow, .title, .subtitle').forEach(el => { el.classList.add('rv'); el.style.setProperty('--d', t + 'ms'); t += 90; });
+  }
+  sl.querySelectorAll(cfg.sel).forEach(el => {
+    if (!el.classList.contains('draw')) el.classList.add('rv');
+    el.style.setProperty('--d', t + 'ms'); t += cfg.step;
+  });
+  // swimlane: header columns sweep left→right, cells follow column by column (wave)
+  if (slideData[si].type === 'lanes') {
+    const kids = [...sl.querySelectorAll('.lane-grid > *')];
+    kids.forEach((el, k) => {
+      const col = k % 10, row = Math.floor(k / 10);
+      const target = el.classList.contains('cell') ? el.querySelectorAll('.st') : [el];
+      const d = t + col * 90 + row * 35;
+      if (el.classList.contains('cell')) { el.style.opacity = ''; }
+      target.forEach(x => { x.classList.add('rv'); x.style.setProperty('--d', d + 'ms'); });
+    });
+    sl.querySelector('.lane-legend').style.setProperty('--d', (t + 10 * 90 + 300) + 'ms');
+  }
+  sl.dataset.end = t;
+});
+
+/* 數字跳動、對話框打字 */
+let fxToken = 0;
+function runFx(sl) {
+  const token = ++fxToken;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  sl.querySelectorAll('[data-count]').forEach(el => {
+    const to = +el.dataset.count, small = el.querySelector('small').outerHTML;
+    const delay = parseFloat(el.closest('.rv')?.style.getPropertyValue('--d')) || 0;
+    if (reduce) return;
+    el.innerHTML = '0' + small;
+    const t0 = performance.now() + delay;
+    const tick = now => {
+      if (token !== fxToken) { el.innerHTML = to + small; return; }
+      const p = Math.min(1, Math.max(0, (now - t0) / 900));
+      el.innerHTML = Math.round(to * (1 - Math.pow(1 - p, 3))) + small;
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  sl.querySelectorAll('.say[data-text]').forEach(el => {
+    const full = el.dataset.text;
+    if (reduce) { el.textContent = full; return; }
+    const delay = (parseFloat(el.closest('.rv')?.style.getPropertyValue('--d')) || 0) + 500;
+    el.textContent = ''; el.classList.add('typing');
+    let n = 0;
+    const type = () => {
+      if (token !== fxToken) { el.textContent = full; el.classList.remove('typing'); return; }
+      el.textContent = full.slice(0, ++n);
+      if (n < full.length) setTimeout(type, 55); else setTimeout(() => el.classList.remove('typing'), 1200);
+    };
+    setTimeout(type, delay);
+  });
+}
+const N = slides.length;
+const dots = document.getElementById('dots');
+dots.innerHTML = slides.map(() => '<i></i>').join('');
+const dotEls = [...dots.children];
+const notesEl = document.getElementById('notes');
+let cur = 0;
+
+function go(i) {
+  cur = Math.max(0, Math.min(N - 1, i));
+  slides.forEach((s, j) => { s.classList.toggle('active', j === cur); s.classList.toggle('before', j < cur); });
+  runFx(slides[cur]);
+  document.getElementById('progress').style.width = ((cur + 1) / N * 100) + '%';
+  dotEls.forEach((dt, j) => dt.classList.toggle('on', j === cur));
+  document.getElementById('navPos').textContent = `${String(cur + 1).padStart(2, '0')} / ${String(N).padStart(2, '0')}`;
+  notesEl.innerHTML = `<b>${String(cur + 1).padStart(2, '0')}</b>${slideData[cur].notes || ''}`;
+  const url = new URL(location.href);
+  url.searchParams.set('page', cur + 1);
+  history.replaceState(null, '', url);
+}
+function fit() {
+  const s = Math.min(innerWidth / 1280, innerHeight / 720);
+  stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+}
+dotEls.forEach((dt, j) => dt.addEventListener('click', () => go(j)));
+document.getElementById('prev').onclick = () => go(cur - 1);
+document.getElementById('next').onclick = () => go(cur + 1);
+addEventListener('keydown', e => {
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  else if (e.key === 'Home') go(0);
+  else if (e.key === 'End') go(N - 1);
+  else if (e.key === 'n' || e.key === 'N') notesEl.classList.toggle('open');
+});
+addEventListener('resize', fit);
+fit();
+const p = parseInt(new URLSearchParams(location.search).get('page'), 10);
+go(Number.isFinite(p) ? p - 1 : 0);
+</script>
+</body>
+</html>
