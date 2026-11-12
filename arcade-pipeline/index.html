@@ -196,6 +196,16 @@ svg .rv { transform-box: fill-box; transform-origin: center; }
 .flowrow .arr { color: var(--mute); font-weight: 700; flex: none; }
 .flowrow.now .chip { background: var(--gold-soft); color: var(--ink); border: 1px solid var(--gold-line); }
 .flowrow.now .lbl { color: #a07000; }
+.why .gaphd { display: flex; gap: 10px; font-size: 14px; font-weight: 900; color: var(--mute); letter-spacing: .04em; }
+.why .gaphd span { flex: 1; padding-left: 4px; }
+.why .gaphd span + span { margin-left: 22px; color: #a07000; }
+.flowrow.gap { align-items: stretch; }
+.flowrow.gap .arr { align-self: center; }
+.flowrow.gap .chip { display: flex; align-items: center; text-align: left; padding: 14px 16px; }
+.flowrow.gap .chip.fix { background: var(--gold-soft); color: var(--ink); border: 1px solid var(--gold-line); font-weight: 500; }
+.flowrow.gap .chip.fix b { font-weight: 900; }
+.why .note a.sheet { display: inline-block; margin-left: 10px; padding: 2px 12px; border-radius: 999px; background: var(--night); color: #fff; font-size: 14px; font-weight: 700; text-decoration: none; }
+.why .note a.sheet:hover { background: var(--gold); color: var(--night); }
 .why .note { margin-top: 6px; font-size: 15.5px; color: var(--sub); line-height: 1.75; }
 .why .kpis { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-content: start; }
 .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
@@ -490,18 +500,22 @@ const slideData = [
   },
   {
     type: 'why',
-    eyebrow: '成果',
-    title: '從「排前端時程」變成「編導當天就能玩到」',
-    before: ['編導有點子', '寫企劃', '排前端時程', '做完才知道好不好玩'],
-    after: ['編導有點子', '跟 AI 說玩法', '當天手機試玩', '好玩的才進正式流程'],
-    note: '框架和腳本是我用 <b>Claude Code</b> 寫的；編導用自己習慣的 AI 工具做遊戲。<br>目前編導做遊戲沒出什麼狀況，因為腳本先把關好了。',
+    eyebrow: '為什麼做',
+    title: 'AI 讓大家都做得出原型，問題是接不起來',
+    gapHead: ['收集區的原型', '遊戲館補上的'],
+    gaps: [
+      ['放在 Gemini、GitHub、內網 IP，各一個連結', '<b>同一個地方</b>：一個預覽站，手機打開就能玩'],
+      ['每款做法、尺寸、操作都不一樣', '<b>同一套規則</b>：AGENTS.md 寫好，AI 照著做'],
+      ['好玩也沒辦法直接上線', '<b>同一條路</b>：入選後照流程接到官網正式機'],
+    ],
+    note: '收集區目前有 7 款原型，放在 3 種不同的地方。<a class="sheet" href="https://docs.google.com/spreadsheets/d/1spiJbA_B8wPI19zCzmfOrs5SUouGjD0SxUv_Tle6Xnc/edit?gid=0#gid=0" target="_blank" rel="noopener">打開收集區 ↗</a><br>框架和腳本是我用 <b>Claude Code</b> 寫的；編導用自己習慣的 AI 工具做遊戲。',
     kpis: [
       { v: '15', u: '款', k: '原型遊戲', h: '不含前端做的 4 款範例' },
       { v: '5', u: '位', k: '作者', h: '編導、運營、前端都有' },
       { v: '3', u: '天', k: 'Claude Code 寫腳本', h: '安裝、存檔腳本＋處理編導陸續的回饋' },
       { v: '1', u: '份', k: '共用規則', h: 'AGENTS.md：所有 AI 工具都照它寫' },
     ],
-    notes: '先講成果：5 個人做了 15 款。框架、安裝和存檔腳本是我用 Claude Code 寫的，腳本加上處理編導的回饋大概 3 天。編導用自己習慣的 AI 工具，目前沒出什麼狀況，因為該擋的腳本都擋好了。',
+    notes: '【切到試算表約 10 秒】大家現在已經會用 AI 做原型了，這是收集區：有 Gemini 分享連結、個人 GitHub、內網 IP，每款各放各的。做得出來沒問題，問題是接不起來：沒有統一的地方玩、做法都不一樣、好玩也上不了線。遊戲館就是補這三件事：同一個地方、同一套規則、同一條上線的路。<br>試算表：https://docs.google.com/spreadsheets/d/1spiJbA_B8wPI19zCzmfOrs5SUouGjD0SxUv_Tle6Xnc/edit<br><br>接起來之後的成果：5 個人做了 15 款。框架、安裝和存檔腳本是我用 Claude Code 寫的，腳本加上處理編導的回饋大概 3 天。編導用自己習慣的 AI 工具，目前沒出什麼狀況，因為該擋的腳本都擋好了。',
   },
   {
     type: 'steps',
@@ -748,8 +762,8 @@ const R = {
       arr.map((c, i) => `${i ? '<span class="arr">→</span>' : ''}<div class="chip">${c}</div>`).join('')}</div>`;
     return `<section class="slide">${head(d)}<div class="body why">
         <div class="compare">
-          ${row('以前', d.before, 'old')}
-          ${row('現在', d.after, 'now')}
+          <div class="gaphd"><span>${d.gapHead[0]}</span><span>${d.gapHead[1]}</span></div>
+          ${d.gaps.map(([a, b]) => `<div class="flowrow gap"><div class="chip"><span>${a}</span></div><span class="arr">→</span><div class="chip fix"><span>${b}</span></div></div>`).join('')}
           <p class="note">${d.note}</p>
         </div>
         <div class="kpis">${d.kpis.map(k => `<div class="kpi"><div class="v"${/^\d+$/.test(k.v) ? ` data-count="${k.v}"` : ''}>${k.v}<small>${k.u}</small></div><div class="k">${k.k}</div><div class="h">${k.h}</div></div>`).join('')}</div>
@@ -891,7 +905,7 @@ const slides = [...stage.querySelectorAll('.slide')];
 /* 每頁的進場順序：依 DOM 順序逐一出現。step = 每個元素間隔毫秒 */
 const SEQ = {
   cover:   { sel: '.kicker, h1, h2, .meta span', step: 140, base: 250 },
-  why:     { sel: '.flowrow > *, .note, .kpi', step: 75 },
+  why:     { sel: '.gaphd, .flowrow > *, .note, .kpi', step: 75 },
   steps:   { sel: '.step, .footnote, .shot', step: 130 },
   rules:   { sel: '.hub .rv, .hub .draw, .hubnote, .defs li, .chg', step: 90 },
   aimsg:   { sel: '.term, .tnote, .lp, .la, .back, .sg, .sa, .strip em', step: 110 },
